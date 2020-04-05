@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1585603241748.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2737710405",
+    "id" : "4C427CD6",
+    "lastKnownWriteTime" : 1585612814,
+    "last_content_update" : 1585612815135,
+    "path" : "D:/Dartmouth/research/tax_agg/docs/methods_overview.Rmd",
+    "project_path" : "docs/methods_overview.Rmd",
+    "properties" : {
+        "cursorPosition" : "21,0",
+        "last_setup_crc32" : "BD370893bb338d19",
+        "scrollLine" : "0",
+        "tempName" : "Untitled2"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
