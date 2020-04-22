@@ -4,17 +4,16 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{bm}
 \usepackage{amsmath}
-\title{Candidate methods for microbiome set testing}
+\title{Taxonomic aggregation using isometric log-ratio transformations}
 \author{Quang Nguyen}
 \begin{document}
 \maketitle
 
-\section{Taxonomic aggregation using isometric log-ratio transformations}
-\subsection{Introduction}
-\subsubsection{Taxonomic profiling using high throughput sequencing}
+\section{Introduction}
+\subsection{Taxonomic profiling using high throughput sequencing}
  Limitations of culturing techniques have prevented scientists from investigating the dynamics of highly complex microbial communities, especially human associated microbiomes. Advances in high-throughput sequencing have enabled the culture-free analysis of such communities, however sequencing data comes with additional statistical challenges. \\
  One major difficulty of analyzing microbiome data is that it is strictly compositional \cite{gloor2017}. This is because each sample has a different library size, induced through the PCR procedure embedded in short-read sequecning technologies. However, unlike RNAseq or even scRNAseq, microbiome data does not have "consistent features", such as UMIs or housekeeping genes, that can be used to estimate "size factors", allowing RNAseq-type data to break open the composition \cite{quinn2018}. As such, microbiome data primarily exists in the form of relative abundances, where the principles of compositional data analysis (CoDA) applies \cite{aitchison}. 
- \subsubsection{Variable aggregation with microbiome data} 
+ \subsection{Variable aggregation with microbiome data} 
  Another challenge for microbiome data analysis is that it is high dimensional. A common way to reduce this dimensionality burden is to aggregate taxa to higher Linnean taxonomic levels, obtained through genomic annotation. Additionally, aggregating variables using apriori classificiation can assist in reducing the issue of multiple testing, as well as improving interpretability. Coincidentally, this is also the goal of gene set analysis (or gene set testing) methods often used in RNAseq-type data sets.  \\
  Currently, most microbiome studies have performed taxonomic aggregation through element-wise summation of the count vectors for all taxa assigned to the taxonomic rank of interest. Prior to any downstream statistical analysis, these aggregated counts are then transformed back to compositional form. As such, we can define the classical taxonomic aggregation processs as simply the element-wise summation of the relative abundances. Let $P_{i}$ be the relative abundance of higher taxonomic (HT) rank $P$ (indexed by $\bm{P}$) in sample $i$ with raw counts $x_{ij}$ where $j$ is the column index of the lower taxonomic (LT) proportions, as such:
 \begin{equation}
@@ -33,7 +32,7 @@ These two centers are very different, which also then translates to differences 
     \label{fig:ezogue_tab1}
 \end{figure}
 
-\subsubsection{Isometric log-ratio transformation}
+\subsection{Isometric log-ratio transformation}
 In order to solve this amalgamation issue, Egozcue et al. proposed the isometric log ratio ($ilr$) transformation \cite{egozcue2003}. In essence, $ilr$ transform is a projection of the composition from the Aichison space to an orthonormal basis that exists in the simplex. This allows for the usage of standard statistical techniques as the composition is "opened" as well as being geometrically coherent compared to other flavors of log-ratio transforms. Conveniently, Egozcue et al. also showed that we can define a viable orthonormal basis from a sequential binary partition (SBP - which is a tree) \cite{egozcue2003}. The transformed $ilr$ coordinates are the tree nodes, which represent "balances" between two sides of the node. 
 \begin{figure}[!htb]
     \centering
@@ -53,8 +52,8 @@ H_0 : \frac{\mathcal{A}(g \in G)_X}{\mathcal{A}(g \notin G)_X} = \frac{\mathcal{
 \end{equation}
 where $\mathcal{A}$ is a general aggregation function, $g$ represents genes, $G$ is a candidate gene set, $X$ and $Y$ are the case/control status. In other words, the competitive null hypothesis is that the relative enrichment of genes in gene set $G$ compared to those not in the gene set is the same across two conditions. As per the definition of the $ilr$ transformation, this is equivalent to testing the difference in $x^*_i$ in equation (2) between conditions $X$ and $Y$. As such, here we define a method that performs TSE using the $ilr$ transform as the test statistic, naturally incorporating both compositional data analysis as well as competitive set enrichment.     
 
-\subsection{Methods}
-\subsubsection{Taxonomic rank enrichment analysis using isometric log-ratio transformations (TRE-ILR)}
+\section{Methods}
+\subsection{Taxonomic rank enrichment analysis using isometric log-ratio transformations (TRE-ILR)}
 Here we propose a competitive taxonomic enrichment method based on an $ilr$ transformation of microbial compositions. Shortened as TRE-ILR.  
 \vspace{3mm}
 
@@ -81,7 +80,7 @@ With inputs $\bm{X}$ and $\bm{A}$, we compute $\bm{S}$ as follows:
     \end{equation}
 \end{enumerate}
 
-\subsubsection{TRE-ILR and standard isometric log-ratio transformations}
+\subsection{TRE-ILR and standard isometric log-ratio transformations}
 \noindent Let $\bm M$ be the $p-1 \times p$ sign matrix representing a sequential binary partition for $p$ ASVs across $p-1$ orders, with the first order being the first node from the root of the tree. For each sample $i$ we define $\mathcal{M}_i$ as the set of $\bm M$s such that 
 \[ \mathcal{M}_i = \left\{\bm{M} | \bm{M}_{1j} = \begin{cases}
     1 \text{ if } A_{ij} = 1\\
@@ -93,7 +92,7 @@ As such, $\mathcal{M}$ represents the set of SBPs such that the first order part
 \[\bm{e}_i = \mathcal{C}[\exp(\underbrace{a, a, a,..., a, a, a}_{\sum_k A_{jk} \text{ elements}},\overbrace{b,b,b,...,b,b,b}^{p - \sum_k A_{jk} \text{ elements}}))] \]  
 where $a = \sqrt{\frac{\sum_k A_{jk}}{p \cdot (p - \sum_k A_{jk})}}$ and $b = \sqrt{\frac{-(p - \sum_k A_{jk})}{p \cdot \sum_k A_{jk}}}$ with $\sum_k A_{jk}$ being the size of the HT set $k$ and $p - \sum_k A_{jk}$ being the number of LTs not in the HT set $k$. This unit vector can be part of various other orthonormal bases defined by the subtrees following the initial split. Since this vector is redefined for every HT set, the TRE-ILR $ilr$ coordinates can't be compared across sets without some sort of transformation.  
  
-\subsubsection{Statistical properties of TRE-ILR}
+\subsection{Statistical properties of TRE-ILR}
 Due to the equivalent of the TRE-ILR scores to the $ilr$ coordinates of the composition onto the unit vector $\bm{e}$ defined above, it enjoys the various statistical properties of the $ilr$ coordinate, specifically that it can be assumed to be normally distributed \cite{egozcue2003,egozcue2005}. As such, the raw TRE-ILR scores can be used for hypothesis testing for any specific HT set across two known case/control conditions. However, in order to use these scores together in a statistical model like a regression framework, we further transformed the scores as the CDF of the row-permuted distribution, which transforms the scores into a common scale. Furthermore, p-values associated to our null hypothesis can be obtained with a simple operation of $1 - S_{ij}$. Finally, it bounds the scores between 0 and 1, and is robust to large outliers.  
 
 
