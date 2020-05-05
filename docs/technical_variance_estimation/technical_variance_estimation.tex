@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage[margin=0.5in]{geometry}
+\title{Notes on estimating technical variance in microbiome data}
+\author{Quang Nguyen}
+\begin{document}
+\maketitle
+\section{Existing methods in microbiome field}
+\subsection{Overview}
+The problem of estimating technical variability in high throughput sequencing studies is intrinsically linked to the process of data normalization \cite{hafemeister2019}. Normalized features should be uncorrelated with technical processes such as library size and PCR amplification differences, and the variability in feature values should reflect true biological heterogeneity. Normalization in microbiome relative abundance data is still a highly debated issue \cite{weiss2017}. The current consensus is that microbiome raw counts data should be treated as relative proportions, however studies differ in advocating for using the RNA-seq suite of methods \cite{mcmurdie2014} or log-ratio based methods \cite{gloor2017}. The issue remains is that estimating technical variability and incorporating such metrics into analyses have not been a primary concern for microbiome researchers. 
+\subsection{Hurdles}
+It is clear that an quantification of technical variability can be obtained with ample techincal replicates, positive controls and viral spike-ins. However, these approaches are highly inefficient due to sequencing costs, and there is a desire to perform this estimation with available data. However, there exists various hurdles to this tasks owing to the various quirks of microbiome data. 
+\begin{itemize}
+    \item First, similar to scRNAseq, microbiome data is highly sparse and noisy. The sparsity are due to either biological effects (true zeroes) or technical effects (technical zeroes). Estimating technical variability involves being able to consider true vs technical zeroes. 
+    \item Second, unique to microbiome data, there are no features that should be consistent across samples. Unlike RNA-seq data which has housekeeping genes with constitutive expression (however, some papers dispute this consistency due to heterogenous cell populations \cite{quinn2018}), there exists no consistent feature for microbiomes. Differences in case/control status might me an a microbe is completely absent (not just differentially abundant) from a community. The lack of consistent features mean that there is no reference of which to attribute variability as technical.  
+\end{itemize}
+\subsection{Most current efforts}
+To my knowledge, there are currently only two methods that have approached removing and estimating technical variability. The first method is from a paper in 2014 \cite{fernandes2014}, which is also the primary paper for the method ALDEx2 to perform differential abundance analysis (DAA). In this paper, for each sample, Monte Carlo draws of the Dirichlet multinomial distribution was performed (paper stated that 128 draws is enough) with a "non-informative prior" of 0.5 using raw counts. 
+$$p(n_1, n_2,...| \sum N) = Dir([n_1, n_2, n_3, ...] + 1/2)$$ 
+where $n_1, n_2, ...$ are raw counts assigned to each taxa (ASV). Each of these draws are then transformed using a standard log ratio transform (centered log-ratio) and analyzed separately. p-values are then combined across each draw (using mean). Essentially, the idea is that for each sample, we get random draws of the probability observing $n_i$ counts assigned to feature $i$ given the total library size. Ensembling these results accounts for the precision of measurements and ensure that technical variability is accounted for (similar to other ensemble methods like random forests). 
+More recently, another method was published to estimate technical variability \cite{ji2019} through variance decomposition. However, this process is done only **when** there are technical replicates in the first place, which doesn't solve the  
+
+
+\bibliography{tax_agg}{}
+\bibliographystyle{plain}
+\end{document}

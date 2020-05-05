@@ -6,13 +6,17 @@ library(recipes)
 library(Rfast)
 library(Rcpp) 
 library(tibble)
+library(glue)
 
 sourceCpp("src/get_s_matrix.cpp")
 
-
+#TODO: Add phyloseq object support
+#TODO Figure out how to do massive multiplication by scale at once and not having to do loops per set
+#TODO: Add parallelization for per-sample calculation here 
+#TODO: Add a check for the ordering of the rows of A and the columns of X
+#TODO: Convert to package format and add all unit tests 
 
 #' @title Generating the a matrix 
-#TODO: Add phyloseq object support
 #' @param tab Taxa table, preferably of matrix format - however currently support TaxonomyTable object
 #' @param taxlevel Tax level to get the dummy variable of 
 #' @param drop_unknown Logical. If \code{drop_unknown == TRUE}, all Unknowns are dropped from the table
@@ -21,10 +25,12 @@ generate_a_matrix <- function(tab, taxlevel, drop_unknown = FALSE){
   if (class(tab) == "taxonomyTable"){
     tab <- tab %>% as("matrix")
   }
+  # !!quo(taxlevel)
+  # Pivot rownames to column, extract only relevant tax levels and replace NA with Unknown
   tab <- tab %>% as.data.frame() %>% rownames_to_column(var = "tax_id") %>%
-    dplyr::select(c(tax_id,!!quo(taxlevel))) %>%
+    dplyr::select(c(tax_id,all_of(taxlevel))) %>%
     mutate_at(vars(-tax_id), function(.x){replace_na(as.character(.x), "Unknown")})
-  # make dummy variables
+  # make dummy variables using the recipes package 
   dummy <- tab %>% recipe(tax_id ~ .) %>% step_dummy(-tax_id) %>% prep(training = tab) %>%
     bake(new_data = tab)
   if (drop_unknown == T){
@@ -40,7 +46,6 @@ generate_a_matrix <- function(tab, taxlevel, drop_unknown = FALSE){
 #' @return \code{R}, a \code{n} by \code{m} matrix of \code{n} samples and \code{m} taxonomic sets
 generate_r_matrix <- function(X, A){
   # First generate matrix S
-  #TODO Figure out how to do massive multiplication by scale at once and not having to do loops per set
   if (is.matrix(X) == F){
     X <- as.matrix(X)
   }
@@ -50,7 +55,7 @@ generate_r_matrix <- function(X, A){
   A[A == 0] <- -1 # set variables not in the set to be -1
   # loop through each A column and get the adjusted scales
   message("Getting the scales ready...")
-  S <- get_s_matrix(A) # cpp function defined prior 
+  S <- generate_s_matrix(A) # cpp function defined prior 
   message("Calculating the R matrix")
   R <- Rfast::Log(X) %*% S # unscaled variables
   set_size <- get_sizes(A)
@@ -59,22 +64,41 @@ generate_r_matrix <- function(X, A){
 }
 
 #' @title Taxonomic aggregation using modifled ILR statistic  
-#' @param tax_mat A matrix of taxonomic counts 
-#' @param tax_table Taxonomic table
-#' TODO: Add support for phyloseq type objects  
-ilr_agg <- function(tax_mat, tax_table, tax_level,...,resample = F, 
-                    n_resamples = 100, preprocess = F){
-  if(preprocess = T){
+#' @param tax_mat Taxonomic counts of matrix type 
+#' @param tax_table Taxonomic table of matrix type 
+#' @param tax_level Taxonomic level to aggregate too, must be the same name as column in Taxonomoic Table
+#' @param resample Whether or not resampled data is used to generate z-scores
+#' @param preprocess Optional. If preprocess = T then the standard preprocessing is done. 
+#'   This includes simple conversion to compositional form and adding 1 to all counts to avoid zeros
+ilr_agg <- function(tax_mat, tax_table, tax_level,...,resample = F, verbose = T, preprocess = F){
+  if(preprocess == T){
     message("Adding standard data preprocessing...")
     tax_mat <- unclass(acomp(tax_mat + 1)) 
   }
   A <- generate_a_matrix(tax_table, taxlevel = tax_level,...)
-  if (resample = T){
-    A_perm <- A
-    colnames(A_perm) <- sample(colnames(A), size = 3, replace = F)
-  } else {
-    R <- generate_r_matrix(X = tax_mat, A = A)
+  R <- generate_r_matrix(X = tax_mat, A = A)
+  rownames(R) <- rownames(tax_mat)
+  colnames(R) <- colnames(A)
+  if (resample == T){
+    X_perm <- tax_mat[,sample(ncol(tax_mat))] # resampling columns
+    suppressMessages(R_perm <- generate_r_matrix(X = X_perm, A = A)) # generating column names 
+    message("Fitting distributions each column in R_perm...")
+    mean_perm <- matrix(0, ncol = ncol(R), nrow = nrow(R))
+    sd_perm <- matrix(0, ncol = ncol(R), nrow = nrow(R))
+    for (i in 1:nrow(R_perm)){
+      if (verbose == T){ # this will print a lot of messages 
+        if (i %% 5 == 0){
+          message(glue("Currently at {i} over {m}", i = i, m = nrow(R_perm)))  
+        }
+      }
+      
+      dist <- fitdistrplus::fitdist(R_perm[i,], method = "mle", distr = "norm")
+      mean_perm[i,] <- rep(dist$estimate[1], ncol(R)) 
+      sd_perm[i,] <- rep(1/dist$estimate[2], ncol(R))
+    }
+    R <- (R - mean_perm) * sd_perm # z-score standardizing
   }
+  return(R)
 }
 
 

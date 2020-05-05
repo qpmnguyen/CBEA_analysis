@@ -4,7 +4,7 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{bm}
 \usepackage{amsmath}
-\title{Taxonomic aggregation using isometric log-ratio transformations}
+\title{Taxonomic enrichment using isometric log-ratios}
 \author{Quang Nguyen}
 \begin{document}
 \maketitle
@@ -44,9 +44,9 @@ P_{i} =\frac{\sum_{j \in \bm{P}} x_{ij}}{\sum_j x_{ij}} = \sum_{j \in \bm{P}} \f
 One approach to solve this amalgamation issue is the isometric log ratio ($ilr$) transformation \cite{egozcue2003}. In essence, $ilr$ transform is a projection of the composition from the Aichison space to an orthonormal basis that exists in the simplex. This is different than the often use $alr$ and $clr$ transformations, where the This allows for the usage of standard statistical techniques as the composition is "opened" as well as being geometrically coherent compared to other flavors of log-ratio transforms. Conveniently, Egozcue et al. also showed that we can define a viable orthonormal basis from a sequential binary partition (SBP - which is a tree) \cite{egozcue2003}. The transformed $ilr$ coordinates are the tree nodes, which represent "balances" between two sides of the node. 
 \begin{figure}[!htb]
     \centering
-    \includegraphics[scale = 0.5]{phylogeny_demonstration.png}
+    \includegraphics[scale = 0.5]{figures/phylogeny_demonstration.png}
     \caption{A sample SBP in tree form which is also the phylogenetic tree}
-    \label{fig:phylogeny_demonstration}
+    \label{fig:figures/phylogeny_demonstration}
 \end{figure}
 Figure 2 is a toy example the ilr transformation on top of a phylogenetic tree. Each node $x_1^*, x_2^*, x_3^*$ represents the transformed ilr coordinates. The ilr transformation is defined as follows:
 \begin{equation}
@@ -61,7 +61,7 @@ H_0 : \frac{\mathcal{A}(g \in G)_X}{\mathcal{A}(g \notin G)_X} = \frac{\mathcal{
 where $\mathcal{A}$ is a general aggregation function, $g$ represents genes, $G$ is a candidate gene set, $X$ and $Y$ are the case/control status. In other words, the competitive null hypothesis is that the relative enrichment of genes in gene set $G$ compared to those not in the gene set is the same across two conditions. As per the definition of the $ilr$ transformation, this is equivalent to testing the difference in $x^*_i$ in equation (2) between conditions $X$ and $Y$. As such, here we define a method that performs TSE using the $ilr$ transform as the test statistic, naturally incorporating both compositional data analysis as well as competitive set enrichment.     
 
 \section{Methods}
-\subsection{Taxonomic rank enrichment analysis using isometric log-ratio transformations (TRE-ILR)}
+\subsection{Taxonomic enrichment analysis using isometric log-ratio transformations (TEA-ILR)}
 Here we propose a competitive taxonomic enrichment method based on an $ilr$ transformation of microbial compositions. Shortened as TRE-ILR.  
 \vspace{3mm}
 
@@ -103,6 +103,8 @@ where $a = \sqrt{\frac{\sum_k A_{jk}}{p \cdot (p - \sum_k A_{jk})}}$ and $b = \s
 \subsection{Statistical properties of TRE-ILR}
 Due to the equivalent of the TRE-ILR scores to the $ilr$ coordinates of the composition onto the unit vector $\bm{e}$ defined above, it enjoys the various statistical properties of the $ilr$ coordinate, specifically that it can be assumed to be normally distributed \cite{egozcue2003,egozcue2005}. As such, the raw TRE-ILR scores can be used for hypothesis testing for any specific HT set across two known case/control conditions. However, in order to use these scores together in a statistical model like a regression framework, we further transformed the scores as the CDF of the row-permuted distribution, which transforms the scores into a common scale. Furthermore, p-values associated to our null hypothesis can be obtained with a simple operation of $1 - S_{ij}$. Finally, it bounds the scores between 0 and 1, and is robust to large outliers.  
 
+\subsection{Simulation Design}
+To explore the performance of TEA-ILR method compared to method of summation and other gene set analysis approaches, we generated synthetic data under various scenarios. Following Chen et al. \cite{chen2018a}, 
 
 
 \newpage

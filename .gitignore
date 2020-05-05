@@ -3,7 +3,7 @@
 *.Rproj
 .Rhistory
 .Rproj.user/
-data/
+data/download/
 *.fdb_latexmk
 *.log
 *.out
