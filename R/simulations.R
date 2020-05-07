@@ -1,17 +1,6 @@
-library(methods)
 library(VGAM)
+source("R/class_simulation.R")
 
-setClass("simulation", 
-         slots = c(
-           "data" = "data.frame",
-           "param" = "list",
-           "type" = "vector"
-         ))
-
-
-setGeneric()
-
-new("simulation")
 
 #' @title Function to simulate abundances
 #' @description Function to get simulated counts with different sparsity levels 
@@ -30,7 +19,8 @@ null_sim <- function(n_tax, n_samp, sparsity, phi = NULL, mu = NULL){
   spar <- matrix(rbinom(n_tax * n_samp,prob = 1-sparsity, size = 1), nrow = n_samp, ncol = n_tax)
   non_zero <- matrix(rnbinom(n_tax * n_samp, size = phi, mu = mu), nrow = n_samp, ncol = n_tax)
   simulated_null <- spar * non_zero
-  return(simulated_null)
+  output <- simulation(data = simulated_null, param = list(phi = phi, mu = mu), type = c("null"))
+  return(output)
 }
 
 simulate_dummy_matrix <- function(n_sets, set_size){
