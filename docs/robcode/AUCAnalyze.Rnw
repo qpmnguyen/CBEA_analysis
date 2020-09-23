@@ -1,0 +1,225 @@
+\documentclass[10pt, nogin]{article}
+\usepackage{cite}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage[margin=.5in]{geometry}
+\usepackage[noae]{Sweave}
+\SweaveOpts{keep.source=T}
+\title{AUC computation for simulated data}
+\author{H. Robert Frost}
+\begin{document}
+\setkeys{Gin}{width=1\textwidth} 
+\maketitle
+
+
+<<fig=F, echo=F>>=
+
+library(ggplot2)
+library(plyr)
+    
+# Function from: http://www.cookbook-r.com/Graphs/Plotting_means_and_error_bars_(ggplot2)/#Helper%20functions
+## Gives count, mean, standard deviation, standard error of the mean, and confidence interval (default 95%).
+##   data: a data frame.
+##   measurevar: the name of a column that contains the variable to be summariezed
+##   groupvars: a vector containing names of columns that contain grouping variables
+##   na.rm: a boolean that indicates whether to ignore NA's
+##   conf.interval: the percent range of the confidence interval (default is 95%)
+summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE,
+                      conf.interval=.95, .drop=TRUE) {
+    # New version of length which can handle NA's: if na.rm==T, don't count them
+    length2 <- function (x, na.rm=FALSE) {
+        if (na.rm) sum(!is.na(x))
+        else       length(x)
+    }
+
+    # This does the summary. For each group's data frame, return a vector with
+    # N, mean, and sd
+    datac <- ddply(data, groupvars, .drop=.drop,
+      .fun = function(xx, col) {
+        c(N    = length2(xx[[col]], na.rm=na.rm),
+          mean = mean   (xx[[col]], na.rm=na.rm),
+          sd   = sd     (xx[[col]], na.rm=na.rm)
+        )
+      },
+      measurevar
+    )
+
+    # Rename the "mean" column    
+    datac <- rename(datac, c("mean" = measurevar))
+
+    datac$se <- datac$sd / sqrt(datac$N)  # Calculate standard error of the mean
+
+    # Confidence interval multiplier for standard error
+    # Calculate t-statistic for confidence interval: 
+    # e.g., if conf.interval is .95, use .975 (above/below), and use df=N-1
+    ciMult <- qt(conf.interval/2 + .5, datac$N-1)
+    datac$ci <- datac$se * ciMult
+
+    return(datac)
+}
+
+@
+
+<<fig=F, echo=F>>=
+
+plotResults = function(param.to.vary="sparsity", plot.exec.times=F, include.legend=T, panel.label) {
+
+if (param.to.vary == "sparsity") {
+	all.auc.values = readRDS("./sim_results/AUCTestSparsity.RDS")
+	all.exec.times = readRDS("./sim_results/ExecTimesSparsity.RDS")	
+	values = seq(from=0.1, to=0.9, by=0.1)
+	xlab.value="Sparsity"
+	xlim=c(0,1)
+	default.value = 0.8	
+	error.bar.width = 0.02
+	legend.justification=c(0,0)
+	#legend.justification=c(1,1)
+         legend.position=c(.025,.025)
+} else if (param.to.vary == "sd") {
+	all.auc.values = readRDS("./sim_results/AUCTestNoise.RDS")
+	all.exec.times = readRDS("./sim_results/ExecTimesNoise.RDS")		
+	values=seq(from=0.15, to=0.55, by=0.05)
+	xlab.value="Noise SD"	
+	xlim=c(0.1, 1)
+	default.value = 0.34
+	error.bar.width = 0.01
+	legend.justification=c(1,1)
+         legend.position=c(.975,.975)	
+} else if (param.to.vary == "mean") {	
+	all.auc.values = readRDS("./sim_results/AUCTestEffectSize.RDS")
+	all.exec.times = readRDS("./sim_results/ExecTimesEffectSize.RDS")		
+	values=seq(from=0.6, to=1.4, by=0.1)
+	xlab.value="Effect size"	
+	xlim=c(0.1, 1)
+	default.value = 1
+	error.bar.width = 0.01	
+	legend.justification=c(0,1)
+         legend.position=c(.1,.975)	
+} else if (param.to.vary == "size") {	
+	all.auc.values = readRDS("./sim_results/AUCTestSetSize.RDS")
+	all.exec.times = readRDS("./sim_results/ExecTimesSetSize.RDS")		
+	values=seq(from=10, to=50, by=5)
+	xlab.value="Set size"	
+	xlim=c(0.1, 1)
+	default.value = 30
+	error.bar.width = 0.01	
+	legend.justification=c(0,1)
+         legend.position=c(.1,.975)	         
+}
+num.sims = length(all.auc.values)
+num.values = length(values)
+auc = c()
+method = c()
+value = c()
+time = c()
+for (i in 1:num.sims) {
+	sim.auc = all.auc.values[[i]]
+	exec.time = all.exec.times[[i]]
+
+	method = c(method, rep("VAM", num.values))
+	auc = c(auc, sim.auc[1,])
+	value = c(value, values)
+	vam.times = exec.time[1,]
+	time = c(time, vam.times/vam.times)
+		
+	method = c(method, rep("GSVA", num.values))
+	auc = c(auc, sim.auc[2,])
+	value = c(value, values)
+	time = c(time, exec.time[2,]/vam.times)		
+	
+	method = c(method, rep("ssGSEA", num.values))
+	auc = c(auc, sim.auc[3,])
+	value = c(value, values)
+	time = c(time, exec.time[3,]/vam.times)		
+	
+	method = c(method, rep("PCA", num.values))
+	auc = c(auc, sim.auc[4,])
+	value = c(value, values)
+	time = c(time, exec.time[4,]/vam.times)		
+	
+	method = c(method, rep("z-score", num.values))
+	auc = c(auc, sim.auc[5,])
+	value = c(value, values)		
+	time = c(time, exec.time[5,]/vam.times)			
+}
+auc.df = data.frame(auc=auc, method=method, value=value)
+auc.df = summarySE(auc.df, measurevar="auc", groupvars=c("method","value"))
+#exec.time.df = data.frame(time=log10(time), method=method)
+#exec.time.df = summarySE(exec.time.df, measurevar="time", groupvars=c("method"))
+exec.time.df = data.frame(time=log10(time), method=method, value=value)
+exec.time.df = summarySE(exec.time.df, measurevar="time", groupvars=c("method", "value"))
+
+print(aggregate(exec.time.df$time, by=list(exec.time.df$method), FUN=mean))
+
+# The errorbars overlap, so use position_dodge to move them horizontally
+#pd <- position_dodge(0.1) # move them .05 to the left and right
+
+#print(exec.time.df)
+
+if (plot.exec.times) {
+plot.object = ggplot(exec.time.df, aes(x=value, y=time, colour=method, group=method)) + 
+   geom_errorbar(aes(ymin=time-se, ymax=time+se), colour="black", width=error.bar.width) + #, position=pd) +
+   geom_line() + #position=pd) +
+   geom_point(size=2, shape=20) +
+    xlab(xlab.value) +
+    ylab("Log10 of relative execution time") +
+    scale_colour_hue(name="Method",    # Legend label, use darker colors
+                     breaks=c("VAM", "GSVA", "ssGSEA", "PCA", "z-score"),
+                     labels=c("VAM", "GSVA", "ssGSEA", "PCA", "z-score"),
+                     l=40) +                    # Use darker colors, lightness=40
+    #ggtitle("Relative execution time on simulated scRNA-seq data") +
+    #expand_limits(y=0) +                        # Expand y range
+    #scale_y_continuous(breaks=0:20*4) +         # Set tick every 4
+    scale_x_continuous(breaks=values) +
+    theme_bw(base_size=10) 
+    #+ theme(legend.justification=legend.justification, legend.position=legend.position)
+} else {
+plot.object = ggplot(auc.df, aes(x=value, y=auc, colour=method, group=method)) + 
+   geom_errorbar(aes(ymin=auc-se, ymax=auc+se), colour="black", width=error.bar.width) + #, position=pd) +
+   geom_line(size=0.5) + #position=pd) +
+   geom_point(size=2, shape=20) +
+   #theme_classic(base_size = 8) +
+   #theme(axis.text = element_text(size = rel(1)),
+    # axis.title=element_text(size=rel(1))) +
+    xlab(xlab.value) +
+    ylab("AUC") +
+    scale_colour_hue(name="Method",    # Legend label, use darker colors
+                     breaks=c("VAM", "GSVA", "ssGSEA", "PCA", "z-score"),
+                     labels=c("VAM", "GSVA", "ssGSEA", "PCA", "z-score"),
+                     l=40) +                    # Use darker colors, lightness=40
+    #ggtitle("Mean AUC on simulated scRNA-seq data") +
+    #expand_limits(y=0) +                        # Expand y range
+    #scale_y_continuous(breaks=0:20*4) +         # Set tick every 4
+    scale_x_continuous(breaks=values) +
+    theme_bw(base_size=8) +
+     geom_vline(xintercept=default.value, linetype="dashed")          
+ }
+ 
+ if (include.legend) {
+ 	plot.object = plot.object + theme(legend.justification=legend.justification, legend.position=legend.position)
+ } else {
+	plot.object = plot.object + theme(legend.position="none")
+ }
+ return (plot.object)
+ }
+@
+
+
+<<fig=T, echo=F>>=
+library(gridExtra)
+sparsity.plot = plotResults("sparsity")
+noise.plot = plotResults("sd", include.legend=F)
+mean.plot = plotResults("mean", include.legend=F)
+size.plot = plotResults("size", include.legend=F)
+grid.arrange(sparsity.plot, noise.plot, mean.plot, size.plot, nrow=2)
+@
+
+<<fig=T, echo=F>>=
+sparsity.plot = plotResults("sparsity", plot.exec.time=T)
+size.plot = plotResults("size", plot.exec.time=T, include.legend=F)
+grid.arrange(sparsity.plot, size.plot, nrow=2)
+@
+
+\end{document}

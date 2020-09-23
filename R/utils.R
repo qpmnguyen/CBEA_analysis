@@ -22,22 +22,24 @@ sourceCpp("src/get_s_matrix.cpp")
 #' @param drop_unknown Logical. If \code{drop_unknown == TRUE}, all Unknowns are dropped from the table
 generate_a_matrix <- function(tab, taxlevel, drop_unknown = FALSE){
   # processing the tab data frame
-  if (class(tab) == "taxonomyTable"){
+  if ("taxonomyTable" %in% class(tab)){
     tab <- tab %>% as("matrix")
   }
-  # !!quo(taxlevel)
-  # Pivot rownames to column, extract only relevant tax levels and replace NA with Unknown
-  tab <- tab %>% as.data.frame() %>% rownames_to_column(var = "tax_id") %>%
-    dplyr::select(c(tax_id,all_of(taxlevel))) %>%
-    mutate_at(vars(-tax_id), function(.x){replace_na(as.character(.x), "Unknown")})
-  # make dummy variables using the recipes package 
-  dummy <- tab %>% recipe(tax_id ~ .) %>% step_dummy(-tax_id) %>% prep(training = tab) %>%
-    bake(new_data = tab)
+  
+  level <- as.vector(tab[,taxlevel])
   if (drop_unknown == T){
-    dummy <- dummy %>% dplyr::select(-ends_with("Unknown"))
+    level <- na.omit(level)
   }
-  dummy <- dummy %>% as.data.frame() %>% column_to_rownames(var = "tax_id") %>% data.matrix()
-  return(dummy)
+  unq <- unique(level)
+  print(unq)
+  A <- matrix(0, nrow = length(unq), ncol = nrow(tab))
+  for (i in seq(unq)){
+    vec <- ifelse(level == unq[i],1,0)
+    A[i,] <- vec
+  }
+  rownames(A) <- unq
+  colnames(A) <- rownames(tab)
+  return(t(A))
 }
 
 #' @title Calculate the ratio geometric mean
@@ -70,12 +72,12 @@ generate_r_matrix <- function(X, A){
 #' @param resample Whether or not resampled data is used to generate z-scores
 #' @param preprocess Optional. If preprocess = T then the standard preprocessing is done. 
 #'   This includes simple conversion to compositional form and adding 1 to all counts to avoid zeros
-ilr_agg <- function(tax_mat, tax_table, tax_level,...,resample = F, verbose = T, preprocess = F){
+ilr_agg <- function(tax_mat, tax_table, tax_level, resample = F, verbose = T, preprocess = F){
   if(preprocess == T){
     message("Adding standard data preprocessing...")
     tax_mat <- unclass(acomp(tax_mat + 1)) 
   }
-  A <- generate_a_matrix(tax_table, taxlevel = tax_level,...)
+  A <- generate_a_matrix(tax_table, taxlevel = tax_level)
   R <- generate_r_matrix(X = tax_mat, A = A)
   rownames(R) <- rownames(tax_mat)
   colnames(R) <- colnames(A)
