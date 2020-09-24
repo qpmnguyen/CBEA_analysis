@@ -3,6 +3,7 @@ library(glue)
 library(phyloseq)
 library(MCMCpack)
 library(MASS)
+library(VGAM)
 
 #' Simple simulation using the Dirichlet-Multinomial distribution
 #' TODO: Add functionality to do block sparsity
@@ -29,20 +30,65 @@ dm_simulation <- function(template, n_samp, spar, size_vec = NULL){
   data <- data * sparsity
   data <- as.data.frame(data)     
   colnames(data) <- glue("tax_{num}", num = 1:ncol(data))
-  attributes(data)$sim_type <- "dm" # dirichlet multinomial distribution
   return(data)
 }
 
 #' Simulating according to zero inflated negative binomial distribution 
 #' @param n_samp Number of samples
 #' @param b_spar Base sparsity
-#' @param b_corr Base correlation 
-#' @param s_corr Set Correlation
+#' @param b_rho Base correlation 
+#' @param spar_ratio Ratio of sparsity between the set and baseline 
+#' @param rho_ratio Ratio of correlation between the set and baseline 
 #' @param n_tax Number of taxa
 #' @param n_inflate Number of taxa with inflated counts 
+#' @param eff_size Effect size that get's added to the base mu of 6.646 from HMP data
 #' TODO: More than one correlation structure
-zinb_simulation <- function(n_samp, spar, b_cor, s_cor, n_tax = 300, n_inflate = 50){
-  cop <- rCopula(n_samp, normalCopula(param ))
+zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1, 
+                            rho_ratio = 1, n_tax = 300, n_inflate = 50, prop_inflate = 1,
+                            samp_prop = 0.5){
+  # generate the the diagnonal matrix
+  sigma <- diag(n_tax)
+  sigma[sigma == 0] <- b_rho
+  set_size <- seq(n_inflate)
+  set_sigma <- sigma[set_size, set_size]
+  set_sigma[set_sigma != 1] <- s_rho
+  sigma[set_size,set_size] <- set_sigma
+  # First create mvnorm variables with correlation set by sigma
+  margins <- pnorm(mvrnorm(n = n_samp, mu = rep(0, n_tax), Sigma = sigma))
+  # Second, set marginals
+  # default marginals for negative binomial is from size of 0.595 and mu of 6.646 from HMP data
+  true_size <- round(n_inflate * prop_inflate, 0)
+  means <- runif(n_tax, 1,10)
+  sizes <- runif(n_tax, 0,1)
+  
+  # first n_inflate taxa will always be inflated 
+  inf_size <- round(n_samp * samp_prop,0)
+  print(inf_size)
+  inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
+    if (.x %in% seq(n_inflate)){
+      result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], munb = means[.x]*eff_size, pstr0 = spar)
+    } else {
+      result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = spar)
+    }
+    return(result)
+  })
+  
+  notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
+    result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = spar)
+    return(result)
+  })
+  
+  abundance <- rbind(inf_samples, notinf_samples)
+
+  label <- c(rep(1, inf_size), rep(0, n_samp - inf_size))
+  
+  colnames(abundance) <- glue("Tax{i}", i = seq(n_tax))
+  A <- matrix(0, nrow = n_tax, ncol = 1)
+  colnames(A) <- "Set1"
+  rownames(A) <- colnames(abundance)
+  A[set_size,] <- 1
+  output <- list(X = abundance, A = A, label = label)
+  return(output)
 }
 
 
@@ -54,16 +100,22 @@ zinb_simulation <- function(n_samp, spar, b_cor, s_cor, n_tax = 300, n_inflate =
 inflate_simple <- function(data, eff_size, n_inflate, prop = 0.5){
   n_tax <- ncol(data)
   n_samp <- nrow(data)
-  #TODO: Add option to have multiple sets 
   tax_inf <- sample(seq(n_tax), size = n_inflate, replace = F)
   samp_inf <- sample(seq(n_samp), size = round(n_samp*prop), replace = F)
-  data[samp_inf, tax_inf] <- data[samp_inf,tax_inf] * eff_size
+  # first n_inflate taxa will always be inflated
+  data[samp_inf, seq(n_inflate)] <- data[samp_inf,tax_inf] * eff_size
   # generating tax_table
-  tax_tab <- matrix("Set2", ncol = 1, nrow = n_tax) 
-  tax_tab[tax_inf,1] <- "Set1"
-  colnames(tax_tab) <- "SetLevel"
-  rownames(tax_tab) <- colnames(data)
-  obj <- list(data = data, tax_tab = tax_tab, idx = list(tax = tax_inf, samp = samp_inf))
+  A <- matrix(0, ncol = 1, nrow = n_tax)
+  A[tax_inf] <- 1 
+  colnames(A) <- "Set1"
+  rownames(A) <- colnames(data)
+  
+  obj <- list(X = data, A = A, idx = list(tax = tax_inf, samp = samp_inf))
   return(obj)
 }
+
+inflate_weiss <- function(){
+  
+}
+
 
