@@ -41,17 +41,19 @@ dm_simulation <- function(template, n_samp, spar, size_vec = NULL){
 #' @param rho_ratio Ratio of correlation between the set and baseline 
 #' @param n_tax Number of taxa
 #' @param n_inflate Number of taxa with inflated counts 
-#' @param eff_size Effect size that get's added to the base mu of 6.646 from HMP data
+#' @param eff_size Effect size that is a multiplier to the base mu of a sample 
 #' TODO: More than one correlation structure
+#' TODO: Adjust rho_ratio calculation when b_rho = 0 (no background correlation)
+#' TODO: Add shuffling to make sure that everything is randomized 
 zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1, 
                             rho_ratio = 1, n_tax = 300, n_inflate = 50, prop_inflate = 1,
-                            samp_prop = 0.5){
+                            samp_prop = 0.5, inflate_type = "mean_elevate"){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
   set_size <- seq(n_inflate)
   set_sigma <- sigma[set_size, set_size]
-  set_sigma[set_sigma != 1] <- s_rho
+  set_sigma[set_sigma != 1] <- b_rho * rho_ratio
   sigma[set_size,set_size] <- set_sigma
   # First create mvnorm variables with correlation set by sigma
   margins <- pnorm(mvrnorm(n = n_samp, mu = rep(0, n_tax), Sigma = sigma))
@@ -63,23 +65,32 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   
   # first n_inflate taxa will always be inflated 
   inf_size <- round(n_samp * samp_prop,0)
-  print(inf_size)
-  inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
-    if (.x %in% seq(n_inflate)){
-      result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], munb = means[.x]*eff_size, pstr0 = spar)
-    } else {
-      result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = spar)
-    }
-    return(result)
-  })
   
-  notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
-    result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = spar)
-    return(result)
-  })
-  
+  # create elevated sample sizes 
+  suppressMessages(
+    inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
+      if (.x %in% seq(n_inflate)){
+        if (inflate_type == "mean_elevate"){
+          result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                              munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+        } else if (inflate_type == "simple"){
+          result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                              munb = means[.x], pstr0 = b_spar * spar_ratio)
+          result <- result * eff_size
+        }
+      } else {
+        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = b_spar)
+      }
+      return(result)
+    })
+  )
+  suppressMessages(
+    notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
+      result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = b_spar)
+      return(result)
+    })
+  )
   abundance <- rbind(inf_samples, notinf_samples)
-
   label <- c(rep(1, inf_size), rep(0, n_samp - inf_size))
   
   colnames(abundance) <- glue("Tax{i}", i = seq(n_tax))
@@ -115,7 +126,7 @@ inflate_simple <- function(data, eff_size, n_inflate, prop = 0.5){
 }
 
 inflate_weiss <- function(){
-  
+  pass
 }
 
 
