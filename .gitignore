@@ -9,3 +9,4 @@ data/download/
 *.out
 *.synctex
 *.fls
+objects/parameters.rds
