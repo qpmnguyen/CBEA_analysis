@@ -70,27 +70,33 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   suppressMessages(
     inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
       if (.x %in% seq(n_inflate)){
-        if (inflate_type == "mean_elevate"){
+        if (inflate_type == "mean_elevate"){ # mean elevation 
           result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
                               munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
         } else if (inflate_type == "simple"){
           result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
                               munb = means[.x], pstr0 = b_spar * spar_ratio)
           result <- result * eff_size
-        }
+        } 
       } else {
-        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = b_spar)
+        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                            munb = means[.x], pstr0 = b_spar)
       }
       return(result)
     })
   )
   suppressMessages(
     notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
-      result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], munb = means[.x], pstr0 = b_spar)
+      result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], 
+                          munb = means[.x], pstr0 = b_spar)
       return(result)
     })
   )
-  abundance <- rbind(inf_samples, notinf_samples)
+  if (inf_size == n_samp){
+    abundance <- inf_samples
+  } else {
+    abundance <- rbind(inf_samples, notinf_samples)
+  }
   label <- c(rep(1, inf_size), rep(0, n_samp - inf_size))
   
   colnames(abundance) <- glue("Tax{i}", i = seq(n_tax))
@@ -125,8 +131,11 @@ inflate_simple <- function(data, eff_size, n_inflate, prop = 0.5){
   return(obj)
 }
 
-inflate_weiss <- function(){
-  pass
+#' Shorthand to create parameters
+create_parameters <- function(params){
+  par <- cross_df(params)
+  par <- par %>% mutate(id = seq(1:nrow(par))) %>% group_by(id) %>% nest()
+  par <- par %>% transmute(param = data)
+  return(par)
 }
-
 

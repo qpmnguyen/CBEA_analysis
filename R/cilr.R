@@ -1,18 +1,22 @@
+# Script to implement all the modelling and evaluation 
+# TODO: Add zero imputation using zCompositions
+# TODO: A more elegant way of handling preprocessing options
+# TODO: Make loop in cilr faster using Rcpp
+# TODO: 
 library(compositions)
 library(zCompositions)
+library(fitdistrplus)
 
 #' @title Function to perform simple cilr transformation for a set
 #' @param X Matrix of n x p dimensions 
 #' @param A Matrix of p x m dimensions
 simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transform = NULL){
-  #TODO: Add zero imputation using zCompositions 
   if(preprocess == T){
     if (missing(transform)){
-      warning("Performing default transformations into proportions")
-      transform <- "prop"
+      message("Not performing any transformations and leaving it as raw counts")
     } 
     if (missing(pcount)){
-      warning("Adding default pseudocount of 1")
+      message("Adding default pseudocount of 1")
       pcount <- 1
     }
     message("Pre-processing...")
@@ -22,7 +26,6 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
   }
   R <- matrix(0, ncol = ncol(A), nrow = nrow(X))
   p <- ncol(X)
-  #TODO: Make loop faster
   for (i in seq(ncol(A))){
     size <- length(which(A[,i] == 1))
     scale <- sqrt((size*(p - size))/p)
@@ -41,96 +44,82 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
   return(R)
 }
 
-#' @title Some processing functionalities
-#' @param X the data frame
-#' @param pcount Pseudocount, defaults to 1
-#' @param transform What transformation to do. If NULL, leave everything alone. 
-#'   Sample include "prop" for proportion, "clr" for centered log-ratio, "log" for simple 
-#'   log transformation 
-process <- function(X, pcount = 1, transform = "prop"){
-  X[X == 0] <- pcount
-  if (transform == "prop"){
-    X <- unclass(acomp(X))
-  } else if (transform == "clr"){
-    X <- unclass(clr(X))
-  } else if (transform == "log"){
-    X <- log(X)
-  }
-  return(X)
-}
-
-#' @title Generate scores using different models  
-generate_alt_scores <- function(X, A, method, preprocess = T, transform = NULL, pcount = NULL){
-  if (method %in% c("plage", "zscore") & preprocess == F){
-    warning("This requires pre-processing into centered log ratio transformation")
-    preprocess <- T
-    transform <- "clr"
-    pcount <- 1
-  }
-  # doing some preprocessing
-  if(preprocess == T){
-    if (missing(transform)){
-      warning("Performing default transformations into proportions")
-      transform <- "prop"
-    } 
-    if (missing(pcount)){
-      warning("Adding default pseudocount of 1")
-      pcount <- 1
+#' Evaluate cilr based on criteria 
+cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resample = T, X=NULL, A=NULL, return = "p-value"){
+  if(resample == T){
+    if (missing(X)|missing(A)){
+      stop("Using the resampling method to generate p-values and scores requires")
     }
-    message("Pre-processing...")
-    message(glue("Adding pseudocount of {pcount}", pcount = pcount))
-    message(glue("Performing transformation of {trans}", trans = transform))
-    X <- process(X, pcount = pcount, transform = transform)
+    X_perm <- X[,sample(seq(ncol(X)))]
+    cilr_perm <- simple_cilr(X = X_perm, A = A, preprocess = T, pcount = 1, transform = "prop")
+    cilr_perm <- as.vector(cilr_perm) # convert matrix to one vector 
+    param <- estimate_distr(data = cilr_perm, distr = distr)
+  } else { # if there is no resampling 
+    distr <- "norm"
+    param <- c(mean = 0, sd = 1)
   }
-  # generate list set for GSVA
-  set <- vector(mode = "list", length = ncol(A))
-  names(set) <- colnames(A)
-  for (i in seq(ncol(A))){ # for each set 
-    set[[i]] <- rownames(A)[which(A[,i] == 1)]
-  }
-  # Select correct kernel for GSVA
-  if (method == "gsva"){
-    if (is.null(transform)){
-      kernel <- "Poisson"
-    } else if (transform == "clr" | transform == "log"){
-      kernel <- "Gaussian"
+  p_val <- get_p_values(scores = scores, distr = distr, param = param, alt = alt)
+  p_val <- ifelse(p_val <= thresh,1,0)
+  
+  if (return == "p-value"){
+    return(p_val)
+  } else if (return == "resample"){
+    if (resample == F){
+      warning("Did not resample, returning default parameters for p-value calculation")
     } else {
-      stop("GSVA doesn't work with proportion transformation")
+      return(c(mu = mu, sd = sd))
     }
+  }
+  return(p_val)
+}
+
+
+estimate_distr <- function(data, distr, init){
+  dist <- tryCatch({
+    if (missing(init)){
+      if(distr == "t"){
+        init <- list(df = 13)
+      } else {
+        init <- list(mean = 0, sd = 1)
+      }
+      message(glue("Fitting permuted null on the {d} distribution", d = distr))
+      message(glue("Using default initialization parameters {init}", init = init))
+    }
+    fitdistrplus::fitdist(data, distr = distr, method = "mle", start = init)
+  }, 
+  error = function(cond){
+    message("There fitting process cannot identify proper distribution parameters")
+    message(cond)
+    return(NULL)
+  })
+  if (is.null(dist)){
+    param <- NULL
   } else {
-    kernel <- NULL
+    param <- dist$estimate
   }
-  scores <- gsva(expr = t(X), gset.idx.list = set, method = method, kcdf = kernel)
-  return(t(scores))
+  return(param)
 }
 
-#' @title Perform wilcoxon rank sum test per sample 
-#' @param ... Pass to the wilcox.test argument 
-wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F, transform=NULL, pcount=NULL, ...){
-  #TODO: Make sure transform has an option for "none"
-  if(preprocess == T){
-    if (missing(transform)){
-      warning("Performing default transformations into proportions")
-      transform <- "prop"
-    } 
-    if (missing(pcount)){
-      warning("Adding default pseudocount of 1")
-      pcount <- 1
+get_p_values <- function(scores, param, alt, distr){
+  if (is.null(param)){
+    p_val <- rep(NA, length(scores))
+  } else {
+    if (alt == "two.sided"){
+      message("Using 1-sided test")
+      scores <- abs(scores)
+      if (distr == "norm"){
+        p_val <- 2*(1-pnorm(scores, mean = param['mean'], sd = param['sd']))
+      } else if (distr == "t"){
+        p_val <- 2*(1 - pt(scores, df = param['df']))
+      }
+    } else {
+      message("Using 1-sided test")
+      if (distr == "norm"){
+        p_val <- 1 - pnorm(scores, mean = param['mean'], sd = param['sd'])
+      }else if (distr == "t"){
+        p_val <- 1 - pt(scores, df = param['df'])
+      }
     }
-    message("Pre-processing...")
-    message(glue("Adding pseudocount of {pcount}", pcount = pcount))
-    message(glue("Performing transformation of {trans}", trans = transform))
-    X <- process(X, pcount = pcount, transform = transform)
   }
-  R <- matrix(nrow = nrow(X), ncol = ncol(A))
-  for (i in seq(ncol(A))){
-    R[,i] <- apply(X, 1, function(x){
-      wilcox.test(x = x[which(A[,i] == 1)], y = x[which(A[,i] != 1)], alternative = alt, ...)$p.value
-    })
-  }
+  return(p_val)
 }
-
-
-
-
-
