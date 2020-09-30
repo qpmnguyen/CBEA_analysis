@@ -1,9 +1,7 @@
 library(tidyverse)
 library(furrr)
 library(progressr)
-source("R/simulations.R")
-
-setwd()
+source("simulations.R")
 
 pwr_sim <- create_parameters(list(
   rep = seq(1,100),
@@ -14,7 +12,7 @@ pwr_sim <- create_parameters(list(
 ))
 
 
-plan(sequential)
+plan(multicore)
 tic()
 opt <- furrr_options(seed = T)
 with_progress({
@@ -28,3 +26,5 @@ with_progress({
 })
 toc()
 plan(sequential)
+
+saveRDS(file = "parameters_diff_ab.rds")
