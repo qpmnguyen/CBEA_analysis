@@ -2,6 +2,8 @@ library(tidyverse)
 library(GSVA)
 library(ROCR)
 library(MASS)
+library(DESeq2)
+
 #' Calculate test statistics  
 calculate_statistic <- function(eval, pred, true=NULL){
   if(eval == "fdr"){
@@ -115,21 +117,27 @@ process <- function(X, pcount = 1, transform = NULL){
 }
 
 #' Function to get differential abundance 
-#' @param sim The simulated object list 
+#' @param X the data set (scores or not scores) aggregated to known sets. This is a data set of n samples and s sets
+#' @param labels Sample labels of case and control 
 #' @param method includes "wilcoxon", "welch", "ancom", "deseq2", "voom"
-get_diff_ab <- function(sim, method){
-  A <- sim$A
-  X <- sim$X
-  label <- sim$label
+get_diff_ab <- function(data, labels, sim, method){
   if(method == "wilcox"){
-    for (i in seq(ncol(A))){
-      invisible()
+    result <- rep(0, ncol(data))
+    for (i in 1:ncol(data)){
+      result[i] <- wilcox.test(x = data[label == 1,i], data[label == 0,i])
+    }
+  } else if (method == "welch"){
+    result <- rep(0, ncol(data))
+    for (i in 1:ncol(data)){
+      result[i] <- t.test(x = data[label == 1,i], data[label == 0,i])
     }
   } else if (method == "ancom"){
     
   } else if (method == "deseq2"){
     
   } else if (method == "voom"){
+    
+  } else if (method == "aldex2"){
     
   }
 }

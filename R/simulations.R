@@ -4,6 +4,7 @@ library(phyloseq)
 library(MCMCpack)
 library(MASS)
 library(VGAM)
+library(furrr)
 
 #' Simple simulation using the Dirichlet-Multinomial distribution
 #' TODO: Add functionality to do block sparsity
@@ -41,13 +42,17 @@ dm_simulation <- function(template, n_samp, spar, size_vec = NULL){
 #' @param rho_ratio Ratio of correlation between the set and baseline 
 #' @param n_tax Number of taxa
 #' @param n_inflate Number of taxa with inflated counts 
+#' @param n_sets Number of sets to simulate 
+#' @param prop_set_inflate Number of proportions of sets that are inflated 
+#'
 #' @param eff_size Effect size that is a multiplier to the base mu of a sample 
 #' TODO: More than one correlation structure
 #' TODO: Adjust rho_ratio calculation when b_rho = 0 (no background correlation)
 #' TODO: Add shuffling to make sure that everything is randomized 
-zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1, 
-                            rho_ratio = 1, n_tax = 300, n_inflate = 50, prop_inflate = 1,
-                            samp_prop = 0.5, inflate_type = "mean_elevate"){
+zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
+                            rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, prop_set_inflate = 1, 
+                            prop_inflate = 1,
+                            samp_prop = 0.5, parallel = T){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
@@ -55,6 +60,7 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   set_sigma <- sigma[set_size, set_size]
   set_sigma[set_sigma != 1] <- b_rho * rho_ratio
   sigma[set_size,set_size] <- set_sigma
+  
   # First create mvnorm variables with correlation set by sigma
   margins <- pnorm(mvrnorm(n = n_samp, mu = rep(0, n_tax), Sigma = sigma))
   # Second, set marginals
@@ -63,21 +69,25 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   means <- runif(n_tax, 1,10)
   sizes <- runif(n_tax, 0,1)
   
-  # first n_inflate taxa will always be inflated 
+  # first n_samp * samp_prop samples will always be inflated 
   inf_size <- round(n_samp * samp_prop,0)
   
+  # Number of inf_taxa 
+  inf_tax <- round(n_inflate * n_sets * prop_set_inflate, 0)
+
+  
   # create elevated sample sizes 
+  if (parallel == T){
+    message("Starting parallel procedure...")
+    plan(multiprocess)
+  } else {
+    plan(sequential)
+  }
   suppressMessages(
-    inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
-      if (.x %in% seq(n_inflate)){
-        if (inflate_type == "mean_elevate"){ # mean elevation 
-          result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
+    inf_samples <- future_map_dfc(seq(n_tax),.f = function(.x){
+      if (.x %in% seq(inf_tax)){
+        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
                               munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
-        } else if (inflate_type == "simple"){
-          result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
-                              munb = means[.x], pstr0 = b_spar * spar_ratio)
-          result <- result * eff_size
-        } 
       } else {
         result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
                             munb = means[.x], pstr0 = b_spar)
@@ -86,12 +96,14 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
     })
   )
   suppressMessages(
-    notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
+    notinf_samples <- future_map_dfc(seq(n_tax), .f = function(.x){
       result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], 
                           munb = means[.x], pstr0 = b_spar)
       return(result)
     })
   )
+  plan(sequential)
+  message("Completed loop!")
   if (inf_size == n_samp){
     abundance <- inf_samples
   } else {
@@ -100,36 +112,18 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   label <- c(rep(1, inf_size), rep(0, n_samp - inf_size))
   
   colnames(abundance) <- glue("Tax{i}", i = seq(n_tax))
-  A <- matrix(0, nrow = n_tax, ncol = 1)
-  colnames(A) <- "Set1"
+  A <- diag(n_sets)
+  vec <- as.matrix(rep(1, n_inflate))
+  A <- kronecker(A,vec)
+  print(dim(A))
+  colnames(A) <- glue("Set{i}", i = 1:n_sets)
   rownames(A) <- colnames(abundance)
-  A[set_size,] <- 1
-  output <- list(X = abundance, A = A, label = label)
+  sets_inf <- rep(0, n_sets)
+  sets_inf[seq(round(n_sets * prop_set_inflate,0))] <- 1
+  output <- list(X = abundance, A = A, label = label, sets_inf = sets_inf)
   return(output)
 }
 
-
-#' TODO: Return phyloseq object 
-#' Simple inflation in the method described by McMurdie and Holmes
-#' @param data The data fram e
-#' @param eff_size Effect size 
-#' @param n_inflate Number of inflated taxa 
-inflate_simple <- function(data, eff_size, n_inflate, prop = 0.5){
-  n_tax <- ncol(data)
-  n_samp <- nrow(data)
-  tax_inf <- sample(seq(n_tax), size = n_inflate, replace = F)
-  samp_inf <- sample(seq(n_samp), size = round(n_samp*prop), replace = F)
-  # first n_inflate taxa will always be inflated
-  data[samp_inf, seq(n_inflate)] <- data[samp_inf,tax_inf] * eff_size
-  # generating tax_table
-  A <- matrix(0, ncol = 1, nrow = n_tax)
-  A[tax_inf] <- 1 
-  colnames(A) <- "Set1"
-  rownames(A) <- colnames(data)
-  
-  obj <- list(X = data, A = A, idx = list(tax = tax_inf, samp = samp_inf))
-  return(obj)
-}
 
 #' Shorthand to create parameters
 create_parameters <- function(params){
