@@ -10,3 +10,4 @@ data/download/
 *.synctex
 *.fls
 objects/
+R/parameters_*.rds

@@ -6,13 +6,13 @@ source("simulations.R")
 pwr_sim <- create_parameters(list(
   rep = seq(1,100),
   b_spar = c(0.2, 0.5, 0.8),
-  b_rho = c(0.1, 0.2, 0.5),
+  b_rho = c(0.1, 0.3, 0.5),
   prop_inflate = c(0.5, 0.8),
   eff_size = c(2,4,6)
 ))
 
 
-plan(multicore)
+plan(multicore, workers = 4)
 tic()
 opt <- furrr_options(seed = T)
 with_progress({
@@ -27,4 +27,4 @@ with_progress({
 toc()
 plan(sequential)
 
-saveRDS(file = "parameters_diff_ab.rds")
+saveRDS(pwr_sim, file = "parameters_diff_ab.rds")
