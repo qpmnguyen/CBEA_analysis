@@ -13,7 +13,6 @@ pwr_sim <- create_parameters(list(
 
 
 plan(multicore, workers = 4)
-tic()
 opt <- furrr_options(seed = T)
 with_progress({
   p <- progressor(steps = nrow(pwr_sim))
@@ -24,7 +23,6 @@ with_progress({
                     n_sets = 100, prop_set_inflate = 0.5, prop_inflate = .x$prop_inflate, parallel = T)
   }, .options = opt)
 })
-toc()
 plan(sequential)
 
 saveRDS(pwr_sim, file = "parameters_diff_ab.rds")
