@@ -10,7 +10,7 @@ library(fitdistrplus)
 #' @title Function to perform simple cilr transformation for a set
 #' @param X Matrix of n x p dimensions 
 #' @param A Matrix of p x m dimensions
-simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, method = "raw"){
+simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transform = NULL, method = "raw"){
   if(preprocess == T){
     if (missing(pcount)){
       message("Adding default pseudocount of 1")
@@ -18,8 +18,8 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, method
     }
     message("Pre-processing...")
     message(glue("Adding pseudocount of {pcount}", pcount = pcount))
-    message(glue("Performing transformation of {trans}", trans = "prop"))
-    X <- process(X, pcount = pcount, transform = "prop")
+    message(glue("Performing transformation of {trans}", trans = transform))
+    X <- process(X, pcount = pcount, transform = transform)
   }
   R <- matrix(0, ncol = ncol(A), nrow = nrow(X))
   p <- ncol(X)

@@ -2,6 +2,7 @@ library(tidyverse)
 library(furrr)
 library(progressr)
 library(optparse)
+library(tictoc)
 source("simulations.R")
 
 option_list <- list(
@@ -21,17 +22,18 @@ sim <- list(
 
 sim <- create_parameters(list(sim))
 
-
+tic()
 plan(multicore, workers = opt$ncores)
 opt <- furrr_options(seed = T)
 with_progress({
   p <- progressor(steps = nrow(sim))
   sim$sim <- furrr::future_map(sim$param, ~{
     p()
-    zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, 
-                    eff_size = 1, n_inflate = 50, rho_ratio = 1, n_tax = 1000)
+    suppressMessages(zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, 
+                    eff_size = 1, n_inflate = 50, rho_ratio = 1, n_tax = 1000))
   }, .options = opt)
 })
 plan(sequential)
+toc()
 
 saveRDS(sim, file = glue("parameters_{name}.rds", name = opt$export))
