@@ -124,12 +124,14 @@ get_diff_ab <- function(data, labels, sim, method){
   if(method == "wilcox"){
     result <- rep(0, ncol(data))
     for (i in 1:ncol(data)){
-      result[i] <- wilcox.test(x = data[label == 1,i], data[label == 0,i])
+      test <- wilcox.test(x = data[labels == 1,i], data[labels == 0,i])
+      result[i] <- test$p.value
     }
   } else if (method == "welch"){
     result <- rep(0, ncol(data))
     for (i in 1:ncol(data)){
-      result[i] <- t.test(x = data[label == 1,i], data[label == 0,i])
+      test <- t.test(x = data[labels == 1,i], data[labels == 0,i])
+      result[i] <- test$p.value
     }
   } else if (method == "ancom"){
     
@@ -140,6 +142,7 @@ get_diff_ab <- function(data, labels, sim, method){
   } else if (method == "aldex2"){
     
   }
+  return(result)
 }
 
 

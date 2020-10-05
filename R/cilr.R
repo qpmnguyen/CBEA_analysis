@@ -10,19 +10,16 @@ library(fitdistrplus)
 #' @title Function to perform simple cilr transformation for a set
 #' @param X Matrix of n x p dimensions 
 #' @param A Matrix of p x m dimensions
-simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transform = NULL){
+simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, method = "raw"){
   if(preprocess == T){
-    if (missing(transform)){
-      message("Not performing any transformations and leaving it as raw counts")
-    } 
     if (missing(pcount)){
       message("Adding default pseudocount of 1")
       pcount <- 1
     }
     message("Pre-processing...")
     message(glue("Adding pseudocount of {pcount}", pcount = pcount))
-    message(glue("Performing transformation of {trans}", trans = transform))
-    X <- process(X, pcount = pcount, transform = transform)
+    message(glue("Performing transformation of {trans}", trans = "prop"))
+    X <- process(X, pcount = pcount, transform = "prop")
   }
   R <- matrix(0, ncol = ncol(A), nrow = nrow(X))
   p <- ncol(X)
@@ -33,7 +30,15 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
       warning("scale is 0 here")
     }
     num <- geometricmeanRow(x = X[,A[,i] == 1])
-    denom <- geometricmeanRow(x = X[,A[,i] == 0])
+    if (method == "raw"){
+      denom <- geometricmeanRow(x = X[,A[,i] == 0])
+    } else if (method == "random"){
+      rand_idx <- sample(1:ncol(X), size = sum(data$A[,1] == 0), replace = F)
+      denom <- geometricmeanRow(x = X[,rand_idx])
+    } else if (method == "sample"){
+      denom <- geometricmeanRow(x = X)
+    }
+    
     R[,i] <- scale * log(num/denom)
   }
   colnames(R) <- colnames(A)
@@ -45,7 +50,8 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
 }
 
 #' Evaluate cilr based on criteria 
-cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resample = T, X=NULL, A=NULL, return = "p-value"){
+cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resample = T, X=NULL, A=NULL, 
+                      return = "sig"){
   if(resample == T){
     if (missing(X)|missing(A)){
       stop("Using the resampling method to generate p-values and scores requires")
@@ -58,18 +64,12 @@ cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resa
     distr <- "norm"
     param <- c(mean = 0, sd = 1)
   }
-  p_val <- get_p_values(scores = scores, distr = distr, param = param, alt = alt)
-  p_val <- ifelse(p_val <= thresh,1,0)
-  
-  if (return == "p-value"){
-    return(p_val)
-  } else if (return == "resample"){
-    if (resample == F){
-      warning("Did not resample, returning default parameters for p-value calculation")
-    } else {
-      return(c(mu = mu, sd = sd))
-    }
-  }
+  if (return %in% c('sig', 'p-value')){ # returning p-values or significant 0,1 values 
+    p_val <- map_dfc(1:ncol(scores), ~get_p_values(scores = scores[,.x], distr = distr, param = param, alt = alt))
+    colnames(p_val) <- colnames(scores)
+  } else if (return == "sig"){
+    p_val <- ifelse(p_val < thresh, 1,0)
+  } 
   return(p_val)
 }
 

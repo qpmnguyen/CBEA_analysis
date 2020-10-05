@@ -11,3 +11,4 @@ data/download/
 *.fls
 objects/
 R/parameters_*.rds
+cache/

@@ -15,6 +15,7 @@ source("R/utils.R")
 
 # False Discovery Rate
 fdr_sim <- cross_df(list(
+  rep = seq(1,100),
   b_spar = c(0.2, 0.4, 0.6, 0.8),
   b_rho = c(0.1, 0.2, 0.5),
   n_inflate = c(50,100,150,200)
@@ -30,12 +31,15 @@ with_progress({
   p <- progressor(steps = nrow(fdr_sim))
   fdr_sim$sim <- furrr::future_map(fdr_sim$data, ~{
     p()
-    zinb_simulation(n_samp = 10000, b_spar = .x$b_spar, b_rho = .x$b_rho, 
-                    eff_size = 1, n_inflate = .x$n_inflate, rho_ratio = 1)
+    zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, n_tax = 1000, 
+                    eff_size = 1, n_inflate = .x$n_inflate, rho_ratio = 1, parallel = F, cache_name = "fdr_sim")
   }, .options = opt)
 })
 toc()
 plan(sequential)
+
+
+
 
 # generating scores 
 tic()
@@ -60,6 +64,7 @@ with_progress({
 })
 plan(sequential)
 toc()
+
 # generating labels with threshold 
 fdr_sim$label_cilr_raw <- map(fdr_sim$scores_cilr, .f = ~cilr_eval(scores = .x, alt = "greater", thresh = 0.05, resample = F))
 fdr_sim$label_cilr_norm <- map2(fdr_sim$scores_cilr, fdr_sim$sim, .f = ~cilr_eval(scores = .x, distr = "norm", alt = "greater", thresh = 0.05, resample = T, 

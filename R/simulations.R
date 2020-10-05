@@ -5,34 +5,7 @@ library(MCMCpack)
 library(MASS)
 library(VGAM)
 library(furrr)
-
-#' Simple simulation using the Dirichlet-Multinomial distribution
-#' TODO: Add functionality to do block sparsity
-#' @param template This is the vector of counts that represent the alpha parameters for the Dirichlet distribution
-#' @param n_samp Number of samples
-#' @param spar Overall sparsity 
-#' @param size_vec Give size vector if do not want to use negative binomial distribution 
-#' @return A data frame of data 
-dm_simulation <- function(template, n_samp, spar, size_vec = NULL){
-  n_tax <- length(template)
-  message(glue("Number of taxa generated is {n_tax}", n_tax = length(template)))
-  if (is.null(size_vec)){
-    message("Defaulting to sampling from a negative binomial distribution of mean 5000 and disp. 25")
-    size_vec <- rnegbin(n = n_samp, mu = 5000, theta = 25)
-  } 
-  # TODO: Add check to see if size_vec is actually a vector of length n_samp
-  # generate base data
-  data <- matrix(nrow = n_samp, ncol = n_tax)
-  for (i in seq(n_samp)){
-    prob <- MCMCpack::rdirichlet(1, alpha = template)
-    data[i,] <- stats::rmultinom(n = 1, size = size_vec[i], prob = prob)
-  }
-  sparsity <- matrix(rbinom(n_samp * n_tax, size = 1, prob = 1-spar), nrow = n_samp, ncol = n_tax)
-  data <- data * sparsity
-  data <- as.data.frame(data)     
-  colnames(data) <- glue("tax_{num}", num = 1:ncol(data))
-  return(data)
-}
+library(qs)
 
 #' Simulating according to zero inflated negative binomial distribution 
 #' @param n_samp Number of samples
@@ -52,7 +25,7 @@ dm_simulation <- function(template, n_samp, spar, size_vec = NULL){
 zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
                             rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, prop_set_inflate = 1, 
                             prop_inflate = 1,
-                            samp_prop = 0.5, parallel = T){
+                            samp_prop = 0.5, parallel = T, cache_name = NULL){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
@@ -77,14 +50,14 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
 
   
   # create elevated sample sizes 
-  if (parallel == T){
-    message("Starting parallel procedure...")
-    plan(multiprocess)
-  } else {
-    plan(sequential)
-  }
+  # if (parallel == T){
+  #   message("Starting parallel procedure...")
+  #   plan(multiprocess, workers = round(availableCores()/2,0))
+  # } else {
+  #   plan(sequential)
+  # }
   suppressMessages(
-    inf_samples <- future_map_dfc(seq(n_tax),.f = function(.x){
+    inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
       if (.x %in% seq(inf_tax)){
         result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
                               munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
@@ -96,7 +69,7 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
     })
   )
   suppressMessages(
-    notinf_samples <- future_map_dfc(seq(n_tax), .f = function(.x){
+    notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
       result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], 
                           munb = means[.x], pstr0 = b_spar)
       return(result)
@@ -112,15 +85,27 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   label <- c(rep(1, inf_size), rep(0, n_samp - inf_size))
   
   colnames(abundance) <- glue("Tax{i}", i = seq(n_tax))
-  A <- diag(n_sets)
-  vec <- as.matrix(rep(1, n_inflate))
-  A <- kronecker(A,vec)
-  print(dim(A))
+  if (n_sets > 1){
+    A <- diag(n_sets)
+    vec <- as.matrix(rep(1, n_inflate))
+    A <- kronecker(A,vec)
+  } else {
+    message("Only one set!")
+    A <- rep(0,n_tax)
+    A[1:n_inflate] <- 1
+    A <- as.matrix(A)
+  }
   colnames(A) <- glue("Set{i}", i = 1:n_sets)
   rownames(A) <- colnames(abundance)
   sets_inf <- rep(0, n_sets)
   sets_inf[seq(round(n_sets * prop_set_inflate,0))] <- 1
   output <- list(X = abundance, A = A, label = label, sets_inf = sets_inf)
+  if (!is.null(cache_name)){
+    if (!dir.exists("cache/")){
+      dir.create("./cache/")
+    }
+    qsave(output, glue("cache/{filename}.qs", filename = cache_name))
+  }
   return(output)
 }
 
