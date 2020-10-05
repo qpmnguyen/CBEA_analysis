@@ -8,18 +8,20 @@ library(ROCR)
 library(ggsci)
 library(fitdistrplus)
 library(glue)
+library(patchwork)
 source("R/cilr.R")
 source("R/simulations.R")
+source("R/utils.R")
 
-sim <- zinb_simulation(n_samp = 1000, b_spar = 0.2, b_rho = 0.2, eff_size = 1)
+sim <- zinb_simulation(n_samp = 100000, b_spar = 0.2, b_rho = 0.2, eff_size = 1)
 A <- sim$A
 X <- sim$X
 
-scores <- as.numeric(simple_cilr(X, A, pcount = 0.5))
+scores <- as.numeric(simple_cilr(X, A, pcount = 1, transform = NULL, preprocess = T))
 
 norm_fit <- fitdist(scores, "norm")
-norm_dist <- rnorm(1000, mean = norm_fit$estimate['mean'], sd = norm_fit$estimate['sd'])
-std_norm <- rnorm(1000)
+norm_dist <- rnorm(100000, mean = norm_fit$estimate['mean'], sd = norm_fit$estimate['sd'])
+std_norm <- rnorm(100000)
 
 summary <- cbind(scores, norm_dist, std_norm) %>% as.data.frame() %>% pivot_longer(everything())
 
@@ -45,7 +47,7 @@ ggsave(null_distr, filename = "docs/manuscript/figures/null_distribution.png", d
        width = 12, height = 7)
 
 
-fit_test <- fitdist(scores, "t", start = list(df = 9))
+fit_test <- fitdist(scores, "t", start = list(df = 1))
 ggplot(as.data.frame(scores), aes(sample = scores)) + 
   stat_qq(distribution = qt, dparams = as.list(fit_test$estimate)) + 
   stat_qq_line(distribution = qt, dparams = as.list(fit_test$estimate))

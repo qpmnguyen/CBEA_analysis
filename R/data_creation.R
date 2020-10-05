@@ -20,7 +20,7 @@ sim <- list(
 )
 
 
-sim <- create_parameters(list(sim))
+sim <- create_parameters(sim)
 
 tic()
 plan(multicore, workers = opt$ncores)
@@ -30,7 +30,7 @@ with_progress({
   sim$sim <- furrr::future_map(sim$param, ~{
     p()
     suppressMessages(zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, 
-                    eff_size = 1, n_inflate = 50, rho_ratio = 1, n_tax = 1000))
+                    eff_size = 1, n_inflate = .x$n_inflate, rho_ratio = 1, n_tax = 1000))
   }, .options = opt)
 })
 plan(sequential)

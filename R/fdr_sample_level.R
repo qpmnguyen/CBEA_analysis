@@ -15,7 +15,7 @@ source("R/utils.R")
 
 # False Discovery Rate
 fdr_sim <- cross_df(list(
-  rep = seq(1,100),
+  rep = seq(1,10),
   b_spar = c(0.2, 0.4, 0.6, 0.8),
   b_rho = c(0.1, 0.2, 0.5),
   n_inflate = c(50,100,150,200)
@@ -31,8 +31,8 @@ with_progress({
   p <- progressor(steps = nrow(fdr_sim))
   fdr_sim$sim <- furrr::future_map(fdr_sim$data, ~{
     p()
-    zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, n_tax = 1000, 
-                    eff_size = 1, n_inflate = .x$n_inflate, rho_ratio = 1, parallel = F, cache_name = "fdr_sim")
+    zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, n_tax = 500, 
+                    eff_size = 1, n_inflate = .x$n_inflate, rho_ratio = 1, parallel = F)
   }, .options = opt)
 })
 toc()
@@ -48,7 +48,7 @@ with_progress({
   p <- progressor(steps = nrow(fdr_sim))
   fdr_sim$scores_cilr <- future_map(fdr_sim$sim, .f = ~{
     p()
-    simple_cilr(X = .x$X, A = .x$A, preprocess = T, pcount = 1, transform = "prop", abs = F)
+    simple_cilr(X = .x$X, A = .x$A, preprocess = T, pcount = 1, abs = F)
   })
 })
 plan(sequential)

@@ -86,7 +86,6 @@ wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F, transform=N
   R <- matrix(nrow = nrow(X), ncol = ncol(A))
   for (i in seq(ncol(A))){
     R[,i] <- apply(X, 1, function(x){
-      print(x)
       wilcox.test(x = x[which(A[,i] == 1)], y = x[which(A[,i] != 1)], alternative = alt, ...)$p.value
     })
   }
