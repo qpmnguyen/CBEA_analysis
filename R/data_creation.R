@@ -3,6 +3,7 @@ library(furrr)
 library(progressr)
 library(optparse)
 library(tictoc)
+library(glue)
 source("simulations.R")
 
 option_list <- list(
@@ -36,4 +37,4 @@ with_progress({
 plan(sequential)
 toc()
 
-saveRDS(sim, file = glue("parameters_{name}.rds", name = opt$export))
+saveRDS(object = sim, file = glue("parameters_{name}", name = opt$export))

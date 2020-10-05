@@ -144,4 +144,8 @@ get_diff_ab <- function(data, labels, sim, method){
   return(result)
 }
 
+#' This function converts a taxonomic table to an A matrix.  
+taxtab2A <- function(taxtab, level){
+  
+}
 

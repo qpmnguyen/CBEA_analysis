@@ -24,7 +24,7 @@ library(furrr)
 zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
                             rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, prop_set_inflate = 1, 
                             prop_inflate = 1,
-                            samp_prop = 0.5, parallel = T){
+                            samp_prop = 0.5, method = "compensation"){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
@@ -55,11 +55,28 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   # } else {
   #   plan(sequential)
   # }
+  
+  # inflating samples  
+  
+  inf_samples <- map_dfc(seq(n_tax), .f = function(.x){
+    if(method == "compensation"){
+     sample(seq(inf_tax), size = ) 
+    }
+  })
+  
+  
+  
+  
+  
   suppressMessages(
     inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
       if (.x %in% seq(inf_tax)){
-        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
+        if (method == "compensation"){
+          
+        } else {
+          result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
                               munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+        }
       } else {
         result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
                             munb = means[.x], pstr0 = b_spar)
@@ -67,6 +84,7 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
       return(result)
     })
   )
+  # not inflated samples 
   suppressMessages(
     notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
       result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], 
@@ -74,7 +92,6 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
       return(result)
     })
   )
-  plan(sequential)
   message("Completed loop!")
   if (inf_size == n_samp){
     abundance <- inf_samples

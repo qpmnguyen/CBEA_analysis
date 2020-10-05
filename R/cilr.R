@@ -18,8 +18,13 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
     }
     message("Pre-processing...")
     message(glue("Adding pseudocount of {pcount}", pcount = pcount))
-    message(glue("Performing transformation of {trans}", trans = transform))
+    if (missing(transform)){
+      message("No transformation!")
+    } else {
+      message(glue("Performing transformation of {trans}", trans = transform))
+    }
     X <- process(X, pcount = pcount, transform = transform)
+    print(str(X))
   }
   R <- matrix(0, ncol = ncol(A), nrow = nrow(X))
   p <- ncol(X)
