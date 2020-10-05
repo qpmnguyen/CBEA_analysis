@@ -5,7 +5,6 @@ library(MCMCpack)
 library(MASS)
 library(VGAM)
 library(furrr)
-library(qs)
 
 #' Simulating according to zero inflated negative binomial distribution 
 #' @param n_samp Number of samples
@@ -25,7 +24,7 @@ library(qs)
 zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
                             rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, prop_set_inflate = 1, 
                             prop_inflate = 1,
-                            samp_prop = 0.5, parallel = T, cache_name = NULL){
+                            samp_prop = 0.5, parallel = T){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
@@ -100,12 +99,6 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   sets_inf <- rep(0, n_sets)
   sets_inf[seq(round(n_sets * prop_set_inflate,0))] <- 1
   output <- list(X = abundance, A = A, label = label, sets_inf = sets_inf)
-  if (!is.null(cache_name)){
-    if (!dir.exists("cache/")){
-      dir.create("./cache/")
-    }
-    qsave(output, glue("cache/{filename}.qs", filename = cache_name))
-  }
   return(output)
 }
 
