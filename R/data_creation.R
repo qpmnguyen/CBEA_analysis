@@ -7,7 +7,7 @@ source("simulations.R")
 
 option_list <- list(
   make_option("--ncores", type = "integer", default=5, help="Number of cores"),
-  make_option("--export", type = "string", help = "Filename for export")
+  make_option("--export", type = "character", help = "Filename for export")
 )
 
 opt <- parse_args(OptionParser(option_list = option_list))
