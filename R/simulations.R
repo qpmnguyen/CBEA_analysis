@@ -6,6 +6,15 @@ library(MASS)
 library(VGAM)
 library(furrr)
 
+
+#' Shorthand to create parameters
+create_parameters <- function(params){
+  par <- cross_df(params)
+  par <- par %>% mutate(id = seq(1:nrow(par))) %>% group_by(id) %>% nest()
+  par <- par %>% transmute(param = data)
+  return(par)
+}
+
 #' Simulating according to zero inflated negative binomial distribution 
 #' @param n_samp Number of samples
 #' @param b_spar Base sparsity
@@ -21,6 +30,7 @@ library(furrr)
 #' TODO: More than one correlation structure
 #' TODO: Adjust rho_ratio calculation when b_rho = 0 (no background correlation)
 #' TODO: Add shuffling to make sure that everything is randomized 
+#' TODO: Add a way to sample from empirical distribution of zinb values 
 zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
                             rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, prop_set_inflate = 1, 
                             prop_inflate = 1,
@@ -57,32 +67,53 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   # }
   
   # inflating samples  
-  
+  suppressMessages(
   inf_samples <- map_dfc(seq(n_tax), .f = function(.x){
     if(method == "compensation"){
-     sample(seq(inf_tax), size = ) 
-    }
-  })
-  
-  
-  
-  
-  
-  suppressMessages(
-    inf_samples <- map_dfc(seq(n_tax),.f = function(.x){
-      if (.x %in% seq(inf_tax)){
-        if (method == "compensation"){
-          
-        } else {
-          result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
-                              munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
-        }
-      } else {
+      prop <- 1/(eff_size + 1)
+      # randomly select first prop of those selected to be upregulated
+      idx <- sample(seq(inf_tax), size = round(prop * inf_tax, 0), replace = F)
+      remainder <- seq(inf_tax)[-idx]
+      a <- sum(means[idx])
+      b <- sum(means[remainder])
+      # randomly select second prop of those selected to be downregulated 
+      if (.x %in% idx){
         result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
-                            munb = means[.x], pstr0 = b_spar)
+                            munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+      } else if (.x %in% remainder){
+        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x],
+                            munb = means[.x]*((a/b)*(1-eff_size) + 1), pstr0 = b_spar * spar_ratio)
+      } else {
+        result <- qzinegbin(p = margins[seq(inf_size), .x], size = sizes[.x], 
+                            munb = means[.x], pstr0 = b_spar * spar_ratio)
       }
-      return(result)
-    })
+    } else if (method == "no_compensation"){
+      # randomly select first prop of those selected to be upregulated
+      idx <- sample(seq(inf_tax), size = inf_tax/2, replace = F)
+      remainder <- seq(inf_tax)[-idx]
+      # randomly select second prop of those selected to be downregulated 
+      if (.x %in% idx){
+        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                            munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+      } else if (.x %in% remainder){
+        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x],
+                            munb = means[.x]/eff_size, pstr0 = b_spar * spar_ratio)
+      } else {
+        result <- qzinegbin(p = margins[seq(inf_size), .x], size = sizes[.x], 
+                            munb = means[.x], pstr0 = b_spar * spar_ratio)
+      }
+      
+    } else if (method == "normal"){
+      if (.x %in% seq(inf_tax)){
+        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                            munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+      } else {
+        result <- qzinegbin(p = margins[seq(inf_size), .x], size = sizes[.x], 
+                            munb = means[.x], pstr0 = b_spar * spar_ratio)
+      }
+    }
+    return(result)
+  })
   )
   # not inflated samples 
   suppressMessages(
@@ -120,11 +151,5 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
 }
 
 
-#' Shorthand to create parameters
-create_parameters <- function(params){
-  par <- cross_df(params)
-  par <- par %>% mutate(id = seq(1:nrow(par))) %>% group_by(id) %>% nest()
-  par <- par %>% transmute(param = data)
-  return(par)
-}
+
 

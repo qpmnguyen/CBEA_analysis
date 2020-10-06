@@ -3,7 +3,7 @@ library(VGAM)
 library(SpiecEasi)
 library(patchwork)
 
-data <- readRDS(file = "data/stool_16S.rds")
+data <- readRDS(file = "objects/stool_16S.rds")
 abundant <- colSums(data)
 idx <- order(abundant, decreasing = T)
 data <- data[,idx]
@@ -18,7 +18,6 @@ result <- apply(data, 2, function(x){
 
 result <- t(result)
 result <- as.data.frame(result)
-
 
 p1 <- qplot(result$size, geom = "histogram", xlim = c(0,1), fill = I("steelblue"), col = I("black")) + 
   geom_vline(aes(xintercept = median(result$size)), size = 1.5, col = "red") + theme_bw() + 
@@ -37,3 +36,4 @@ p3 <- qplot(result$pstr0, geom = "histogram", xlim = c(0,1), fill = I("steelblue
 
 fitting_plot <- (p1 / p2 / p3) + plot_annotation(tag_levels = "A")
 ggsave(fitting_plot, filename = "docs/manuscript/figures/HMP_fit.png", dpi = 300, width = 10, height = 10)
+fitting_plot

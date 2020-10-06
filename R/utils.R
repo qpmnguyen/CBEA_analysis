@@ -138,8 +138,6 @@ get_diff_ab <- function(data, labels, sim, method){
     
   } else if (method == "voom"){
     
-  } else if (method == "aldex2"){
-    
   }
   return(result)
 }
@@ -149,3 +147,11 @@ taxtab2A <- function(taxtab, level){
   
 }
 
+#' This function aggregates X by simple summation using A matrix 
+aggregate <- function(X, A){
+  data <- matrix(nrow = nrow(X), ncol = ncol(A))
+  for (i in 1:ncol(A)){
+    data[,i] <- colSums(X[,A[,i] == 1])
+  }
+  return(data)
+}
