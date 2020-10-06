@@ -138,19 +138,23 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
     A <- diag(n_sets)
     vec <- as.matrix(rep(1, n_inflate))
     A <- kronecker(A,vec)
+    
   } else {
+    #TODO if n_sets * n_inflate != n_tax, then there are issues.  
     message("Only one set!")
     A <- rep(0,n_tax)
     A[1:n_inflate] <- 1
     A <- as.matrix(A)
   }
   colnames(A) <- glue("Set{i}", i = 1:n_sets)
+  print(dim(A))
   rownames(A) <- colnames(abundance)
   sets_inf <- rep(0, n_sets)
   sets_inf[seq(round(n_sets * prop_set_inflate,0))] <- 1
   output <- list(X = abundance, A = A, label = label, sets_inf = sets_inf)
   return(output)
 }
+
 
 
 

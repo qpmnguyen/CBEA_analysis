@@ -1,4 +1,18 @@
-# Sample level inference comparing to standard wilcoxon rank-sum test 
+---
+title: "Type I error simulations at the single sample level"
+author: "Quang Nguyen"
+date: "10/6/2020"
+output: html_document
+  toc_float: TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Loading parameters and simulated data sets  
+
+```{r loadings, message=FALSE, warning=FALSE}
 library(tidyverse)
 library(furrr)
 library(tictoc)
@@ -6,14 +20,19 @@ library(MASS)
 library(ggsci)
 library(progressr)
 library(patchwork)
-source("R/cilr.R")
-source("R/simulations.R")
-source("R/utils.R")
+source("cilr.R")
+source("simulations.R")
+source("utils.R")
 
-#TODO Wrap data generating in a nice function with a progress bar!
+# object file is large and not included. 
+fdr_sim <- readRDS(file = "objects/parameters_fdr_sim.rds")
+```
 
+# Score estimation 
 
-# generating scores 
+Estimating scores using `furrr` package.  
+
+```{r estimate_scores, cache = T}
 tic()
 plan(multiprocess, workers = round(availableCores()/2,0))
 with_progress({
@@ -36,8 +55,12 @@ with_progress({
 })
 plan(sequential)
 toc()
+```
 
+After estimating scores, we can generate labels using various ways 
+```{r generate_labels}
 # generating labels with threshold 
+# using raw scores and standard normal distribution  
 fdr_sim$label_cilr_raw <- map(fdr_sim$scores_cilr, .f = ~cilr_eval(scores = .x, alt = "greater", thresh = 0.05, resample = F))
 fdr_sim$label_cilr_norm <- map2(fdr_sim$scores_cilr, fdr_sim$sim, .f = ~cilr_eval(scores = .x, distr = "norm", alt = "greater", thresh = 0.05, resample = T, 
                                                                         X = .y$X, A = .y$A))
@@ -49,9 +72,13 @@ fdr_sim$fdr_cilr_raw <- map(fdr_sim$label_cilr_raw, .f = ~calculate_statistic(ev
 fdr_sim$fdr_cilr_norm <- map(fdr_sim$label_cilr_norm, .f = ~calculate_statistic(eval = "fdr", pred = .x))
 fdr_sim$fdr_wc <- map(fdr_sim$label_wc, .f = ~calculate_statistic(eval = "fdr", pred = .x))
 fdr_sim$fdr_cilr_t <- map(fdr_sim$label_cilr_t, .f = ~calculate_statistic(eval = "fdr", pred = .x))
+```
 
 
-# PLOTTING 
+
+## Plots 
+
+```{r evaluation_plots}
 plot_df <- fdr_sim %>% unnest(starts_with("fdr")) %>% dplyr::select(!starts_with(c("label", "scores", "sim"))) %>%
   pivot_longer(starts_with("fdr")) %>% unnest(data) 
 plot_df <- plot_df %>% dplyr::rename("Set Size" = "n_inflate", "Inter-taxa Correlation" = "b_rho")
@@ -66,7 +93,4 @@ plt <- ggplot(plot_df, aes(y = value, x = b_spar, col = name)) + geom_point(size
 plt
 ggsave(plt, filename = "docs/manuscript/figures/fdr_single_sample.png", 
        dpi = 300, width = 10, height = 10)
-
-
-
-
+```

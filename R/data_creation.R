@@ -10,7 +10,7 @@ sim <- list(
   rep = seq(1,100,1),
   b_spar = c(0.2, 0.4, 0.8),
   b_rho = c(0.1, 0.2, 0.5),
-  eff_size = c(2,4,6)
+  n_inflate = c(50,100,150)
 )
 
 print("Creating parameter list")
@@ -25,7 +25,8 @@ with_progress({
   sim$sim <- furrr::future_map(sim$param, ~{
     p()
     zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, 
-                    eff_size = .x$eff_size, n_inflate = 50, n_tax = 1000, method = "normal", samp_prop = 1)
+                    eff_size = 1, n_inflate = .x$n_inflate, n_tax = 1000, method = "normal", 
+                    samp_prop = 1)
   }, .options = opt)
 })
 plan(sequential)
@@ -33,4 +34,4 @@ toc()
 print("Done with furrr. Saving data now...")
 
 # Save data 
-saveRDS(object = sim, file = "./parameters_pwr_sim.rds")
+saveRDS(object = sim, file = "./parameters_fdr_sim.rds")

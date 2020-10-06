@@ -28,6 +28,8 @@
 \section*{Simulation Analysis}
 We chose to simulate data according to \cite{sohn2015}
 
+\section*{Real data analysis} 
+We benchmark type I error rate on 16S and WGS data from the Human Microbiome Project (HMP) obtained from the packages \emph{HMP16SData} (ver. 1.9.3) and \emph{curatedMetagenomicData} packages in R. For each data set, we filtered out samples with less than 1000 total number of reads, as well as taxa with a proportion of zeroes of 0.9 or more. We then randomly assigned each sample into one of two arbitrary groups.  
 \newpage
 \bibliography{tax_agg}{}
 \bibliographystyle{plain}

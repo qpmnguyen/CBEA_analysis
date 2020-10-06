@@ -3,6 +3,9 @@ library(GSVA)
 library(ROCR)
 library(MASS)
 library(DESeq2)
+library(ANCOMBC)
+library(limma)
+
 
 #' Calculate test statistics  
 calculate_statistic <- function(eval, pred, true=NULL){
@@ -118,18 +121,18 @@ process <- function(X, pcount = 1, transform = NULL){
 #' Function to get differential abundance 
 #' @param X the data set (scores or not scores) aggregated to known sets. This is a data set of n samples and s sets
 #' @param labels Sample labels of case and control 
-#' @param method includes "wilcoxon", "welch", "ancom", "deseq2", "voom"
-get_diff_ab <- function(data, labels, sim, method){
+#' @param method includes "wilcoxon", "welch", "ancom", "deseq2", "voom", "corncob", "ancombc"
+get_diff_ab <- function(X, A, labels, method, data_type = "simulated"){
   if(method == "wilcox"){
-    result <- rep(0, ncol(data))
-    for (i in 1:ncol(data)){
-      test <- wilcox.test(x = data[labels == 1,i], data[labels == 0,i])
+    result <- rep(0, ncol(X))
+    for (i in 1:ncol(X)){
+      test <- wilcox.test(x = X[labels == 1,i], X[labels == 0,i])
       result[i] <- test$p.value
     }
   } else if (method == "welch"){
-    result <- rep(0, ncol(data))
-    for (i in 1:ncol(data)){
-      test <- t.test(x = data[labels == 1,i], data[labels == 0,i])
+    result <- rep(0, ncol(X))
+    for (i in 1:ncol(X)){
+      test <- t.test(x = X[labels == 1,i], X[labels == 0,i])
       result[i] <- test$p.value
     }
   } else if (method == "ancom"){
@@ -144,8 +147,26 @@ get_diff_ab <- function(data, labels, sim, method){
 
 #' This function converts a taxonomic table to an A matrix.  
 taxtab2A <- function(taxtab, level){
+  taxtab <- as(taxtab, "matrix") %>% as.data.frame() %>% dplyr::pull(!!level)
+  labels <- na.omit(unique(taxtab))
+  A <- matrix(0, ncol = length(labels), nrow = length(taxtab))
+  for (i in seq(length(labels))){
+    idx <- which(taxtab == labels[i])
+    A[idx,i] <- 1
+  }
+  return(A)
+}
+
+test2 <- data.frame(group = c("group1", "group2", NA))
+test2 <- pull(test2, group)
+labels <- na.omit(unique(test2))
+setup <- matrix(0, ncol = length(labels), nrow = length(test2))
+for (i in seq(length(labels))){
   
 }
+
+
+
 
 #' This function aggregates X by simple summation using A matrix 
 aggregate <- function(X, A){
@@ -155,3 +176,18 @@ aggregate <- function(X, A){
   }
   return(data)
 }
+
+# Function to convert simulation data to phyloseq type objects to be used in ancom, deseq2 and other related
+# packages
+sim2phylo <- function(sim){
+  tab <- sim$A %>% as.data.frame() %>% rownames_to_column(var = "tax") %>% pivot_longer(-tax, "SetLevel") %>% 
+    dplyr::select(-value) %>% as.data.frame() %>% column_to_rownames(var = "tax") %>% as.matrix() %>% tax_table()
+  meta <- sample_data(data.frame(group = dim$label))
+  X <- sim$X %>% as.data.frame()
+  rownames(X) <- sample_names(meta)
+  tax <- otu_table(X, taxa_are_rows = F) 
+  physeq <- phyloseq(tax,tab,meta)
+  return(physeq)
+}
+
+
