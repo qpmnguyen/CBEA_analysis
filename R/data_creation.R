@@ -37,4 +37,5 @@ with_progress({
 plan(sequential)
 toc()
 
-saveRDS(object = sim, file = glue("parameters_{name}", name = opt$export))
+# Save data 
+saveRDS(object = sim, file = "./parameters_fdr_sim.rds")
