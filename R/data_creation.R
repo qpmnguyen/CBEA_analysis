@@ -25,7 +25,7 @@ with_progress({
   sim$sim <- furrr::future_map(sim$param, ~{
     p()
     zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, 
-                    eff_size = 1, n_inflate = .x$n_inflate, rho_ratio = 1, n_tax = 1000, method = "normal", samp_prop = 1)
+                    eff_size = .x$eff_size, n_inflate = 50, n_tax = 1000, method = "normal", samp_prop = 1)
   }, .options = opt)
 })
 plan(sequential)

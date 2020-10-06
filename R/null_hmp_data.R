@@ -6,3 +6,4 @@ stool <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Stool" & VISITNO == 1) %
 stool <- subset_samples(stool,!duplicated(RSID))
 
 
+
