@@ -7,10 +7,10 @@ library(glue)
 source("simulations.R")
 
 sim <- list(
-  rep = seq(1,100),
-  b_spar = c(0.2, 0.4, 0.6, 0.8),
+  rep = seq(1,100,1),
+  b_spar = c(0.2, 0.4, 0.8),
   b_rho = c(0.1, 0.2, 0.5),
-  n_inflate = c(50,100,150,200)
+  eff_size = c(2,4,6)
 )
 
 print("Creating parameter list")
@@ -33,4 +33,4 @@ toc()
 print("Done with furrr. Saving data now...")
 
 # Save data 
-saveRDS(object = sim, file = "./parameters_fdr_sim.rds")
+saveRDS(object = sim, file = "./parameters_pwr_sim.rds")

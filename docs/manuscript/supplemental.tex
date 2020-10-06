@@ -18,9 +18,16 @@
 \end{figure}
 
 \section{Simulation Design}
-We simulated microbiome relative abundance data using the NorTA similar to \cite{cario}. Using this method, we can generate synthetic microbial counts that incorporates a complex correlation structure and multiple types of marginals. Specifically, we chose our marginals to be the zero-inflated negative binomial distribution based on results by Kurtz et al. \cite{kurtz2015}
+We simulated microbiome relative abundance data using the NorTA similar to \cite{cario}. Using this method, we can generate synthetic microbial counts that incorporates a complex correlation structure and multiple types of marginals. Specifically, we chose our marginals to be the zero-inflated negative binomial distribution based on results by Kurtz et al.\cite{kurtz2015}
 
-\noindent We fit the the parameters to our marginal model based on 16S rRNA sequencing of the V3-V5 region from stool samples in the Human Microbiome Project (HMP). This data was accquired via the \emph{HMP16S} package in R \cite{schiffer2019}. 
+\noindent We fit the the parameters to our marginal model based on 16S rRNA sequencing of the V3-V5 region from stool samples in the Human Microbiome Project (HMP). This data was accquired via the \emph{HMP16S} package in R\cite{schiffer2019}.  
+
+\subsection{Hypothesis testing at the sample level}
+\noindent For simulations for type I error control, we simulated 100 data sets of 1000 samples each with 1000 taxa per sample with no taxa being significantly enriched. Models were evaluate on a candidate set with varying sizes (50, 100, 150, 200). We also varied the overall sparsity (0.2, 0.4, 0.6, 0.8) and the degree of correlation (0.1, 0.2, 0.5). \\
+
+\noindent For simulations of power and AUC classification capacity, we simulated 100 data sets of 1000 samples each with 1000 taxa per sample with one set of 50 taxa being significantly enriched in either all samples (power evaluation) or half the samples (AUC evaluation). We varied the overall sparsity (0.2, 0.4, 0.8), the correlation (0.1, 0.2, 0.5) and the effect size (2,4,6). \\
+
+
 
 \begin{figure}[h]
     \centering

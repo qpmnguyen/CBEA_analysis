@@ -25,8 +25,10 @@ create_parameters <- function(params){
 #' @param n_inflate Number of taxa with inflated counts 
 #' @param n_sets Number of sets to simulate 
 #' @param prop_set_inflate Number of proportions of sets that are inflated 
-#'
+#' @param prop_inflate The number of differentially abundant taxa within a set that is inflated 
+#' @param samp_prop The proportion of samples have an inflated taxa 
 #' @param eff_size Effect size that is a multiplier to the base mu of a sample 
+#' @param method Method of simulation. Can be "compensation", "non-compensation" or "normal"
 #' TODO: More than one correlation structure
 #' TODO: Adjust rho_ratio calculation when b_rho = 0 (no background correlation)
 #' TODO: Add shuffling to make sure that everything is randomized 
