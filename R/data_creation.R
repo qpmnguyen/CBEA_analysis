@@ -6,13 +6,6 @@ library(tictoc)
 library(glue)
 source("simulations.R")
 
-option_list <- list(
-  make_option("--ncores", type = "integer", default=5, help="Number of cores"),
-  make_option("--export", type = "character", help = "Filename for export")
-)
-
-opt <- parse_args(OptionParser(option_list = option_list))
-
 sim <- list(
   rep = seq(1,100),
   b_spar = c(0.2, 0.4, 0.6, 0.8),
@@ -24,7 +17,7 @@ sim <- list(
 sim <- create_parameters(sim)
 
 tic()
-plan(multicore, workers = opt$ncores)
+plan(multicore, workers = 5)
 opt <- furrr_options(seed = T)
 with_progress({
   p <- progressor(steps = nrow(sim))
