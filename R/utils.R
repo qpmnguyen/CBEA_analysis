@@ -147,6 +147,7 @@ get_diff_ab <- function(X, A, labels, method, data_type = "simulated"){
 
 #' This function converts a taxonomic table to an A matrix.  
 taxtab2A <- function(taxtab, level){
+  otu_names <- rownames(taxtab)
   taxtab <- as(taxtab, "matrix") %>% as.data.frame() %>% dplyr::pull(!!level)
   labels <- na.omit(unique(taxtab))
   A <- matrix(0, ncol = length(labels), nrow = length(taxtab))
@@ -154,18 +155,10 @@ taxtab2A <- function(taxtab, level){
     idx <- which(taxtab == labels[i])
     A[idx,i] <- 1
   }
+  colnames(A) <- labels
+  rownames(A) <- otu_names
   return(A)
 }
-
-test2 <- data.frame(group = c("group1", "group2", NA))
-test2 <- pull(test2, group)
-labels <- na.omit(unique(test2))
-setup <- matrix(0, ncol = length(labels), nrow = length(test2))
-for (i in seq(length(labels))){
-  
-}
-
-
 
 
 #' This function aggregates X by simple summation using A matrix 

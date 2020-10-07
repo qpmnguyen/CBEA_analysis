@@ -1,11 +1,9 @@
 ---
-title: "Type I error simulations at the single sample level"
+title: "Power simulations at the single sample level"
 author: "Quang Nguyen"
-date: "10/6/2020"
+date: "10/7/2020"
 output: html_document
   toc_float: TRUE
-editor_options:
-  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -27,7 +25,7 @@ source("simulations.R")
 source("utils.R")
 
 # object file is large and not included. 
-parameters <- readRDS(file = "../objects/fdr_sim/parameters.rds")
+parameters <- readRDS(file = "../objects/pwr_sim/parameters.rds")
 ```
 
 # Score estimation 
@@ -41,7 +39,7 @@ with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
     p()
-    data <- readRDS(file = glue("../objects/fdr_sim/simulation_{.x}.rds"))
+    data <- readRDS(file = glue("../objects/pwr_sim/simulation_{.x}.rds"))
     simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1)
   })
 })
@@ -54,7 +52,7 @@ with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$label_wc <- future_map(1:nrow(parameters), .f = ~{
     p()
-    data <- readRDS(file = glue("../objects/fdr_sim/simulation_{.x}.rds"))
+    data <- readRDS(file = glue("../objects/pwr_sim/simulation_{.x}.rds"))
     wc_test(X = data$X, A = data$A, thresh = 0.05, preprocess = T, pcount = 1, alt = "greater")
   })
 })
@@ -74,7 +72,7 @@ parameters$label_cilr_raw <- map(parameters$scores_cilr, .f = ~cilr_eval(scores 
 opt <- furrr_options(seed = T)
 plan(multisession, workers = round(availableCores()/2,0))
 parameters$label_cilr_norm <- future_map(1:nrow(parameters), .f = ~{
-  data <- readRDS(file = glue("../objects/fdr_sim/simulation_{i}.rds",i = .x))
+  data <- readRDS(file = glue("objects/pwr_sim/simulation_{i}.rds",i = .x))
   cilr_eval(scores = parameters$scores_cilr[[.x]], 
             distr = "norm", alt = "greater", thresh = 0.05, resample = T, 
             X = data$X, A = data$A, return = "sig")
@@ -83,7 +81,7 @@ plan(sequential)
 
 plan(multisession, workers = round(availableCores()/2,0))
 parameters$label_cilr_t <- future_map(1:nrow(parameters), .f = ~{
-  data <- readRDS(file = glue("../objects/fdr_sim/simulation_{i}.rds", i = .x))
+  data <- readRDS(file = glue("objects/pwr_sim/simulation_{i}.rds", i = .x))
   cilr_eval(scores = parameters$scores_cilr[[.x]], 
             distr = "t", alt = "greater", thresh = 0.05, resample = T, 
             X = data$X, A = data$A, return = "sig")
@@ -93,10 +91,14 @@ plan(sequential)
 
 
 # generating fdr comparable statistics 
-parameters$fdr_cilr_raw <- map(parameters$label_cilr_raw, .f = ~calculate_statistic(eval = "fdr", pred = .x))
-parameters$fdr_cilr_norm <- map(parameters$label_cilr_norm, .f = ~calculate_statistic(eval = "fdr", pred = .x))
-parameters$fdr_wc <- map(parameters$label_wc, .f = ~calculate_statistic(eval = "fdr", pred = .x))
-parameters$fdr_cilr_t <- map(parameters$label_cilr_t, .f = ~calculate_statistic(eval = "fdr", pred = .x))
+parameters$fdr_cilr_raw <- map(parameters$label_cilr_raw, .f = ~calculate_statistic(eval = "pwr", pred = .x, 
+                                                                                    true = rep(1, length(.x))))
+parameters$fdr_cilr_norm <- map(parameters$label_cilr_norm, .f = ~calculate_statistic(eval = "pwr", pred = .x, 
+                                                                                      true = rep(1, length(.x))))
+parameters$fdr_wc <- map(parameters$label_wc, .f = ~calculate_statistic(eval = "pwr", pred = .x, 
+                                                                        true = rep(1, length(.x))))
+parameters$fdr_cilr_t <- map(parameters$label_cilr_t, .f = ~calculate_statistic(eval = "pwr", pred = .x,
+                                                                                true = rep(1, length(.x))))
 ```
 
 
@@ -106,25 +108,22 @@ parameters$fdr_cilr_t <- map(parameters$label_cilr_t, .f = ~calculate_statistic(
 ```{r evaluation_plots}
 plot_df <- parameters %>% unnest(starts_with("fdr")) %>% 
   dplyr::select(!starts_with(c("label", "scores", "sim"))) %>% 
-  pivot_longer(starts_with("fdr")) %>% group_by(b_spar, b_rho, n_inflate, name) %>% 
+  pivot_longer(starts_with("fdr")) %>% group_by(b_spar, b_rho, eff_size, name) %>% 
   summarise(median = median(value), lower = median(value) - sd(value), 
             upper = median(value) + sd(value))
 
-plot_df <- plot_df %>% dplyr::rename("Set Size" = "n_inflate", "Inter-taxa Correlation" = "b_rho")
+plot_df <- plot_df %>% dplyr::rename("Effect Size" = "eff_size", "Inter-taxa Correlation" = "b_rho")
 print(head(plot_df))
 #plot_df <- plot_df %>% filter(name != "fdr_cilr_resample")
-
-ggplot(plot_df, aes(y = median, x = as.factor(b_spar), col = name)) + geom_point(size = 3)
-
 plt <- ggplot(plot_df, aes(y = median, x = as.factor(b_spar), col = name, group = name)) + geom_point(size = 3) +
   scale_color_nejm(labels = c("cILR normal", "cILR raw", "cILR t", "Wilcoxon Rank Sum")) + 
-  geom_line() + geom_hline(yintercept = 0.05, col = "red") +
-  geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.06, size = 1) +
-  facet_grid(`Inter-taxa Correlation` ~ `Set Size`, scales = "free_y", labeller = label_both) +
-  labs(col = "Evaluation Models", x = "Sparsity", y = "Median type I error \n (100 data sets, N = 1000, alpha = 0.05)") + 
+  geom_line() + geom_hline(yintercept = 0.8, col = "red") +
+  geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.06, size = 1.2) +
+  facet_grid(`Inter-taxa Correlation` ~ `Effect Size`, scales = "free_y", labeller = label_both) +
+  labs(col = "Evaluation Models", x = "Sparsity", y = "Median Power \n (100 data sets, N = 1000, alpha = 0.05)") + 
   theme_bw()
 plt
 
-ggsave(plt, filename = "docs/manuscript/figures/fdr_single_sample.png", 
+ggsave(plt, filename = "docs/manuscript/figures/pwr_single_sample.png", 
        dpi = 300, width = 10, height = 10)
 ```

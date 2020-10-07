@@ -24,7 +24,6 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
       message(glue("Performing transformation of {trans}", trans = transform))
     }
     X <- process(X, pcount = pcount, transform = transform)
-    print(str(X))
   }
   R <- matrix(0, ncol = ncol(A), nrow = nrow(X))
   p <- ncol(X)
@@ -69,13 +68,14 @@ cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resa
     distr <- "norm"
     param <- c(mean = 0, sd = 1)
   }
-  if (return %in% c('sig', 'p-value')){ # returning p-values or significant 0,1 values 
-    p_val <- map_dfc(1:ncol(scores), ~get_p_values(scores = scores[,.x], distr = distr, param = param, alt = alt))
-    colnames(p_val) <- colnames(scores)
-  } else if (return == "sig"){
-    p_val <- ifelse(p_val < thresh, 1,0)
-  } 
-  return(p_val)
+  
+  p_val <- map_dfc(1:ncol(scores), ~get_p_values(scores = scores[,.x], distr = distr, param = param, alt = alt))
+  colnames(p_val) <- colnames(scores)
+  if (return == "sig"){
+    return(ifelse(p_val < thresh, 1,0))
+  } else {
+    return(p_val)
+  }
 }
 
 

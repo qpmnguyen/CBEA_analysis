@@ -26,7 +26,7 @@ with_progress({
     p()
     zinb_simulation(n_samp = 1000, b_spar = .x$b_spar, b_rho = .x$b_rho, 
                     eff_size = 1, n_inflate = .x$n_inflate, n_tax = 1000, method = "normal", 
-                    samp_prop = 1)
+                    samp_prop = 0.5)
   }, .options = opt)
 })
 plan(sequential)
