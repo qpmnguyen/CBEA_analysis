@@ -4,7 +4,6 @@
 # TODO: Make loop in cilr faster using Rcpp
 # TODO: 
 library(compositions)
-library(zCompositions)
 library(fitdistrplus)
 
 #' @title Function to perform simple cilr transformation for a set
