@@ -3,7 +3,7 @@ library(furrr)
 library(tictoc)
 library(MASS)
 library(progressr)
-library(fst)
+library(qs)
 source("R/cilr.R")
 source("R/simulations.R")
 source("R/utils.R")
@@ -87,7 +87,7 @@ auc <- as_tibble(auc)
 
 parameters <- cbind(parameters, auc)
 
-write_fst(parameters, file = "auc_evaluation.fst")
+qsave(parameters, "auc_evaluation.fst")
 
 
 
