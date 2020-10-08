@@ -112,9 +112,6 @@ plot_df <- parameters %>% unnest(starts_with("fdr")) %>%
 
 plot_df <- plot_df %>% dplyr::rename("Set Size" = "n_inflate", "Inter-taxa Correlation" = "b_rho")
 print(head(plot_df))
-#plot_df <- plot_df %>% filter(name != "fdr_cilr_resample")
-
-ggplot(plot_df, aes(y = median, x = as.factor(b_spar), col = name)) + geom_point(size = 3)
 
 plt <- ggplot(plot_df, aes(y = median, x = as.factor(b_spar), col = name, group = name)) + geom_point(size = 3) +
   scale_color_nejm(labels = c("cILR normal", "cILR raw", "cILR t", "Wilcoxon Rank Sum")) + 

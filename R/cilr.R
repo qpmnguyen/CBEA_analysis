@@ -33,7 +33,8 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
     if(scale == 0){
       warning("scale is 0 here")
     }
-    num <- geometricmeanRow(x = X[,A[,i] == 1])
+    #TODO: Deal with Singleton Sets 
+    num <- geometricmeanRow(x = as.matrix(X[,A[,i] == 1]))
     if (method == "raw"){
       denom <- geometricmeanRow(x = X[,A[,i] == 0])
     } else if (method == "random"){
