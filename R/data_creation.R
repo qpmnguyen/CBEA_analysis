@@ -1,16 +1,15 @@
 library(tidyverse)
 library(furrr)
 library(progressr)
-library(optparse)
 library(tictoc)
 library(glue)
+library(qs)
 source("simulations.R")
 
 sim <- list(
-  rep = seq(1,100,1),
   b_spar = c(0.2, 0.4, 0.8),
   b_rho = c(0.1, 0.2, 0.5),
-  eff_size = c(2,4,6)
+  n_inflate = c(50,100,150)
 )
 
 print("Creating parameter list")
@@ -30,10 +29,10 @@ with_progress({
   sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
     p()
     param <- sim$param[[.x]]
-    sim <- zinb_simulation(n_samp = 1000, b_spar = param$b_spar, b_rho = param$b_rho, 
-                    eff_size = param$eff_size, n_inflate = 100, n_tax = 1000, method = "normal", 
-                    samp_prop = 0.5)
-    saveRDS(sim, file = glue("auc_sim/simulation_{i}", i = .x))
+    sim <- zinb_simulation(n_samp = 20000, b_spar = param$b_spar, b_rho = param$b_rho, 
+                    eff_size = 1, n_inflate = param$n_inflate, n_tax = 1000, method = "normal", 
+                    samp_prop = 1)
+    qsave(sim, file = glue("fdr_sim/simulation_{i}.qs", i = .x))
     return(sim)
   }, .options = opt)
 })

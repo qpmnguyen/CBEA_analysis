@@ -169,7 +169,7 @@ taxtab2A <- function(taxtab, level){
 aggregate <- function(X, A){
   data <- matrix(nrow = nrow(X), ncol = ncol(A))
   for (i in 1:ncol(A)){
-    data[,i] <- colSums(X[,A[,i] == 1])
+    data[,i] <- rowSums(X[,A[,i] == 1])
   }
   return(data)
 }

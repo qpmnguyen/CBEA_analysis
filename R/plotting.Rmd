@@ -1,0 +1,89 @@
+---
+title: "Plotting"
+author: "Quang Nguyen"
+date: "10/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Setting up packages  
+```{r package_load}
+library(tidyverse)
+library(ggsci)
+library(qs)
+library(patchwork)
+```
+
+## Plotting  
+
+```{r fdr_evaluation}
+parameters <- qread("../objects/fdr_ss_eval.qs")
+plot_df <- parameters %>% unnest(starts_with("fdr")) %>% 
+  dplyr::select(!starts_with(c("label", "scores", "sim"))) %>% 
+  pivot_longer(starts_with("fdr")) %>% group_by(b_spar, b_rho, n_inflate, name) %>% 
+  summarise(median = median(value), lower = median(value) - sd(value), 
+            upper = median(value) + sd(value))
+
+plot_df <- plot_df %>% dplyr::rename("Set Size" = "n_inflate", "Inter-taxa Correlation" = "b_rho")
+print(head(plot_df))
+
+plt <- ggplot(plot_df, aes(y = median, x = as.factor(b_spar), col = name, group = name)) + geom_point(size = 3) +
+  scale_color_nejm(labels = c("cILR normal", "cILR raw", "cILR t", "Wilcoxon Rank Sum")) + 
+  geom_line() + geom_hline(yintercept = 0.05, col = "red") +
+  geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.06, size = 1) +
+  facet_grid(`Inter-taxa Correlation` ~ `Set Size`, scales = "free_y", labeller = label_both) +
+  labs(col = "Evaluation Models", x = "Sparsity", y = "Median type I error \n (100 data sets, N = 1000, alpha = 0.05)") + 
+  theme_bw()
+plt
+
+ggsave(plt, filename = "docs/manuscript/figures/fdr_single_sample.png", 
+       dpi = 300, width = 10, height = 10)
+```
+
+```{r pwr_evaluation}
+plot_df <- parameters %>% unnest(starts_with("fdr")) %>% 
+  dplyr::select(!starts_with(c("label", "scores", "sim"))) %>% 
+  pivot_longer(starts_with("fdr")) %>% group_by(b_spar, b_rho, eff_size, name) %>% 
+  summarise(median = median(value), lower = median(value) - sd(value), 
+            upper = median(value) + sd(value))
+
+plot_df <- plot_df %>% dplyr::rename("Effect Size" = "eff_size", "Inter-taxa Correlation" = "b_rho")
+print(head(plot_df))
+#plot_df <- plot_df %>% filter(name != "fdr_cilr_resample")
+plt <- ggplot(plot_df, aes(y = median, x = as.factor(b_spar), col = name, group = name)) + geom_point(size = 3) +
+  scale_color_nejm(labels = c("cILR normal", "cILR raw", "cILR t", "Wilcoxon Rank Sum")) + 
+  geom_line() + geom_hline(yintercept = 0.8, col = "red") +
+  geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.06, size = 1.2) +
+  facet_grid(`Inter-taxa Correlation` ~ `Effect Size`, scales = "free_y", labeller = label_both) +
+  labs(col = "Evaluation Models", x = "Sparsity", y = "Median Power \n (100 data sets, N = 1000, alpha = 0.05)") + 
+  theme_bw()
+plt
+
+ggsave(plt, filename = "docs/manuscript/figures/pwr_single_sample.png", 
+       dpi = 300, width = 10, height = 10)
+```
+
+
+
+
+
+```{r auc_classifier}
+parameters <- read_fst("objects/auc_sim/auc_evaluation.fst")
+plot_df <- parameters %>% pivot_longer(starts_with("auc")) %>% group_by(b_spar, b_rho, eff_size, name) %>% 
+  summarise(median = median(value), lower = median(value) - sd(value), upper = median(value) + sd(value)) %>% 
+  dplyr::rename("Effect Size" = "eff_size", "Inter-taxa correlation" = "b_rho")
+  
+auc_plot <- ggplot(plot_df, aes(x = as.factor(b_spar), y = median, col = name, group = name)) + geom_hline(yintercept = 0.8, col = "red") + 
+  geom_point(size = 2) + facet_grid(`Inter-taxa correlation` ~ `Effect Size`, labeller = label_both) + theme_bw() +
+  geom_errorbar(aes(ymin = lower, ymax = upper),width = 0.04) + 
+  geom_line() + scale_color_nejm(labels = c("cILR", "GSVA (Gaussian Kernel)", "GSVA (Poisson Kernel)", "Proportions","ssGSEA")) + 
+  labs(col = "Models", x = "Sparsity", y = "Mediaan AUC (10 data sets) with HD intervals")
+auc_plot
+
+ggsave(auc_plot, filename = "docs/manuscript/figures/auc_plots.png", dpi = 300, width = 10, height = 10)
+
+
+```

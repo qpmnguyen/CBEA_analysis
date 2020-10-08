@@ -1,45 +1,25 @@
----
-title: "Power simulations at the single sample level"
-author: "Quang Nguyen"
-date: "10/7/2020"
-output: html_document
-  toc_float: TRUE
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## Loading parameters and simulated data sets  
-
-```{r loadings, message=FALSE, warning=FALSE}
+# Script to get power at the single sample level. 
 library(tidyverse)
 library(furrr)
 library(tictoc)
 library(MASS)
-library(ggsci)
+library(fst)
 library(progressr)
-library(patchwork)
-source("cilr.R")
-source("simulations.R")
-source("utils.R")
+source("R/cilr.R")
+source("R/simulations.R")
+source("R/utils.R")
+
 
 # object file is large and not included. 
-parameters <- readRDS(file = "../objects/pwr_sim/parameters.rds")
-```
+parameters <- readRDS(file = "objects/pwr_sim/parameters.rds")
 
-# Score estimation 
-
-Estimating scores using `furrr` package.  
-
-```{r estimate_scores, cache=TRUE, message = FALSE, warning=FALSE}
 tic()
 plan(multiprocess, workers = round(availableCores()/2,0))
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
     p()
-    data <- readRDS(file = glue("../objects/pwr_sim/simulation_{.x}.rds"))
+    data <- readRDS(file = glue("objects/pwr_sim/simulation_{.x}.rds"))
     simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1)
   })
 })
@@ -52,19 +32,14 @@ with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$label_wc <- future_map(1:nrow(parameters), .f = ~{
     p()
-    data <- readRDS(file = glue("../objects/pwr_sim/simulation_{.x}.rds"))
+    data <- readRDS(file = glue("objects/pwr_sim/simulation_{.x}.rds"))
     wc_test(X = data$X, A = data$A, thresh = 0.05, preprocess = T, pcount = 1, alt = "greater")
   })
 })
 plan(sequential)
 toc()
 
-```
 
-After estimating scores, we can generate labels using various ways 
-```{r generate_labels, warning = FALSE, message = FALSE, cache = T}
-# generating labels with threshold 
-# using raw scores and standard normal distribution  
 
 parameters$label_cilr_raw <- map(parameters$scores_cilr, .f = ~cilr_eval(scores = .x, alt = "greater", 
                                                                          thresh = 0.05, resample = F, 
@@ -99,31 +74,8 @@ parameters$fdr_wc <- map(parameters$label_wc, .f = ~calculate_statistic(eval = "
                                                                         true = rep(1, length(.x))))
 parameters$fdr_cilr_t <- map(parameters$label_cilr_t, .f = ~calculate_statistic(eval = "pwr", pred = .x,
                                                                                 true = rep(1, length(.x))))
-```
+
+write_fst(parameters, path = "objects/pwr_ss_eval.fst")
 
 
-
-## Plots 
-
-```{r evaluation_plots}
-plot_df <- parameters %>% unnest(starts_with("fdr")) %>% 
-  dplyr::select(!starts_with(c("label", "scores", "sim"))) %>% 
-  pivot_longer(starts_with("fdr")) %>% group_by(b_spar, b_rho, eff_size, name) %>% 
-  summarise(median = median(value), lower = median(value) - sd(value), 
-            upper = median(value) + sd(value))
-
-plot_df <- plot_df %>% dplyr::rename("Effect Size" = "eff_size", "Inter-taxa Correlation" = "b_rho")
-print(head(plot_df))
-#plot_df <- plot_df %>% filter(name != "fdr_cilr_resample")
-plt <- ggplot(plot_df, aes(y = median, x = as.factor(b_spar), col = name, group = name)) + geom_point(size = 3) +
-  scale_color_nejm(labels = c("cILR normal", "cILR raw", "cILR t", "Wilcoxon Rank Sum")) + 
-  geom_line() + geom_hline(yintercept = 0.8, col = "red") +
-  geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.06, size = 1.2) +
-  facet_grid(`Inter-taxa Correlation` ~ `Effect Size`, scales = "free_y", labeller = label_both) +
-  labs(col = "Evaluation Models", x = "Sparsity", y = "Median Power \n (100 data sets, N = 1000, alpha = 0.05)") + 
-  theme_bw()
-plt
-
-ggsave(plt, filename = "docs/manuscript/figures/pwr_single_sample.png", 
-       dpi = 300, width = 10, height = 10)
-```
+                                                                
