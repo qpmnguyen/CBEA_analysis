@@ -2,8 +2,6 @@ library(tidyverse)
 library(GSVA)
 library(ROCR)
 library(MASS)
-library(DESeq2)
-library(ANCOMBC)
 library(limma)
 
 
