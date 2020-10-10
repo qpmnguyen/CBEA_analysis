@@ -7,13 +7,9 @@ library(limma)
 
 #' Calculate test statistics  
 calculate_statistic <- function(eval, pred, true=NULL){
-  if(eval == "fdr"){
-    stat <- sum(pred == 1)/length(pred)
-  } else if (eval == "pwr"){
-    if(missing(true)){
-      stop("Need true values")
-    }
-    stat <- sum(pred == 1)/sum(true == 1)
+  if(eval %in% c("fdr","pwr")){
+    print(length(pred))
+    stat <- sum(pred == 1)
   } else if (eval == "auc"){
     if(missing(true)){
       stop("Need true values")
@@ -148,20 +144,42 @@ get_diff_ab <- function(X, A, labels, method, data_type = "simulated"){
 }
 
 #' This function converts a taxonomic table to an A matrix.  
-taxtab2A <- function(taxtab, level){
-  otu_names <- rownames(taxtab)
-  taxtab <- as(taxtab, "matrix") %>% as.data.frame() %>% dplyr::pull(!!level)
-  labels <- na.omit(unique(taxtab))
-  A <- matrix(0, ncol = length(labels), nrow = length(taxtab))
+taxtab2A <- function(tax, agg_level){
+  id <- which(colnames(tax) == agg_level)
+  tax <- as(tax, "matrix")[,1:id] %>% as.data.frame()
+  tax_names <- apply(tax,1,function(i){
+    paste(i, sep = ";_;", collapse = ';_;')
+  })
+  labels <- unique(tax_names)
+  labels <- labels[!stringr::str_ends(labels, "NA")] # remove NAs
+  A <- matrix(0, ncol = length(labels), nrow = nrow(tax))
   for (i in seq(length(labels))){
-    idx <- which(taxtab == labels[i])
+    idx <- which(tax_names == labels[i])
     A[idx,i] <- 1
   }
   colnames(A) <- labels
-  rownames(A) <- otu_names
+  rownames(A) <- names(tax_names)
   return(A)
 }
 
+# Function to get data for data type
+get_data <- function(type){
+  if (type == "16S"){
+    library(HMP16SData)
+    data <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Stool" & VISITNO == 1) %>% as_phyloseq()
+    data <- subset_samples(data,!duplicated(RSID)) %>% 
+      filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE)
+    data <- prune_samples(sample_sums(data) >= 1000, data)
+  } else if (type == "WGS"){
+    # NOT READY
+    library(curatedMetagenomicData)
+    data <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.stool", dryrun = F, bugs.as.phyloseq = T) 
+    data <- data[[1]]
+    data <- data %>% subset_samples(!duplicated(subjectID)) %>% subset_samples(disease = "healthy") %>%
+      filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE) 
+  }
+  return(data)
+}
 
 #' This function aggregates X by simple summation using A matrix 
 aggregate <- function(X, A){
