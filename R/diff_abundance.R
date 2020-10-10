@@ -37,7 +37,7 @@ physeq_eval <- function(physeq, method, agg_level, params=NULL, thresh=0.05){
     }
     names(gsets) <- colnames(A)
     # transpose because genes are rows
-    scores <- gsva(t(X), gset.idx.list = gsets, kcdf = "Poisson", method = "gsva") %>% t()
+    scores <- gsva(t(X), gset.idx.list = gsets, kcdf = "Poisson", method = "gsva", parallel.sz = 2) %>% t()
   } else {
     # if methods are not gsva or cilr then do normal aggregation 
     message("Performing normal physeq aggregation to set level")
