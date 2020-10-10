@@ -5,7 +5,6 @@ library(corncob)
 library(phyloseq)
 library(GSVA)
 library(stringr)
-source("R/utils.R")
 
 
 #' Function to perform different differential abundance tests aggregated to a certain level 
