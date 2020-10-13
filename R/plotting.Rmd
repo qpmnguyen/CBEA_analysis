@@ -79,8 +79,12 @@ plt
 
 
 ```{r auc_classifier}
-parameters <- read_fst("objects/auc_sim/auc_evaluation.fst")
-plot_df <- parameters %>% pivot_longer(starts_with("auc")) %>% group_by(b_spar, b_rho, eff_size, name) %>% 
+parameters <- qread("../objects/auc_rank_evaluation.qs")
+params <- as_tibble(parameters[,'parameters']) %>% dplyr::select(-starts_with('scores'))
+results <- parameters[,'auc'] %>% as_tibble() %>% dplyr::select(starts_with('scores'))
+plot_df <- cbind(params, results)
+
+plot_df <- plot_df %>% pivot_longer(starts_with('scores')) %>% group_by(b_spar, b_rho, eff_size, name) %>% 
   summarise(median = median(value), lower = median(value) - sd(value), upper = median(value) + sd(value)) %>% 
   dplyr::rename("Effect Size" = "eff_size", "Inter-taxa correlation" = "b_rho")
   

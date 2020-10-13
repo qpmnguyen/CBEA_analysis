@@ -4,61 +4,73 @@ library(tictoc)
 library(MASS)
 library(progressr)
 library(qs)
-source("R/cilr.R")
-source("R/simulations.R")
-source("R/utils.R")
+library(optparse)
+source("../R/cilr.R")
+source("../R/simulations.R")
+source("../R/utils.R")
 
-parameters <- readRDS(file = "auc_sim/parameters.rds")
 
+option_list <- list(
+  make_option("--ncores", type="integer", help="Number of cores going to be used")
+)
+
+opt <- parse_args(OptionParser(option_list=option_list))
+
+print("Loading parameters....")
+parameters <- readRDS(file = "objects/auc_sim/parameters.rds")
+cores <- opt$ncores
+print("Estimating cilr scores")
 tic()
-plan(multiprocess, workers = round(availableCores()/2,0))
+plan(multicore, workers = cores)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
     p()
-    data <- readRDS(file = glue("auc_sim/simulation_{.x}"))
+    data <- readRDS(file = glue("objects/auc_sim/simulation_{.x}"))
     simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1)
-  })
+  }, .progress = TRUE)
 })
 plan(sequential)
 toc()
 
-
-plan(multiprocess, workers = round(availableCores()/2,0))
+print("Estimating GSVA Pois scores")
+plan(multicore, workers = cores)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_gsva_pois <- future_map(1:nrow(parameters), .f = ~{
     p()
-    data <- readRDS(file = glue("auc_sim/simulation_{.x}"))
+    data <- readRDS(file = glue("objects/auc_sim/simulation_{.x}"))
     generate_alt_scores(X = data$X, A = data$A, method = "gsva", preprocess = T, transform=NULL, pcount=1)
-  })
+  }, .progress = TRUE)
 })
 plan(sequential)
 
-plan(multiprocess, workers = round(availableCores()/2,0))
+print("Estimating GSVA Gauss scores")
+plan(multicore, workers = cores)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_gsva_gauss <- future_map(1:nrow(parameters), .f = ~{
     p()
-    data <- readRDS(file = glue("auc_sim/simulation_{.x}"))
+    data <- readRDS(file = glue("objects/auc_sim/simulation_{.x}"))
     generate_alt_scores(X = data$X, A = data$A, method = "gsva", preprocess = T, transform="clr", pcount=1)
-  })
+  },.progress = TRUE)
 })
 plan(sequential)
 
-plan(multiprocess, workers = round(availableCores()/2,0))
+print("Estimating GSEA scores")
+plan(multicore, workers = cores)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_ssgsea <- future_map(1:nrow(parameters), .f = ~{
     p()
     data <- readRDS(file = glue("objects/auc_sim/simulation_{.x}"))
     generate_alt_scores(X = data$X, A = data$A, method = "ssgsea", preprocess = T, transform=NULL, pcount=1)
-  })
+  }, .progress = TRUE)
 })
 plan(sequential)
 
-
-plan(multiprocess, workers = round(availableCores()/2,0))
+print("Estimating proportional counts as scores")
+plan(multicore, workers = 5)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_prop <- future_map(1:nrow(parameters), .f = ~{
@@ -69,7 +81,7 @@ with_progress({
 })
 plan(sequential)
 
-
+print("Gathering all results into one file...")
 scores <- parameters %>% dplyr::select(starts_with("scores"))
 auc <- vector(mode = "list", ncol(scores)-1)
 for (i in 2:ncol(scores)){
@@ -85,9 +97,11 @@ for (i in 2:ncol(scores)){
 auc <- do.call(cbind, auc)
 auc <- as_tibble(auc)
 
-parameters <- cbind(parameters, auc)
+parameters <- dplyr::select(-starts_with("scores"))
+parameters <- bind_cols(parameters, auc)
 
-qsave(parameters, "auc_evaluation.fst")
+print("Saving files")
+qsave(parameters, "auc_rank_evaluation.qs")
 
 
 

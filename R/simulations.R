@@ -15,28 +15,29 @@ create_parameters <- function(params){
   return(par)
 }
 
+
 #' Simulating according to zero inflated negative binomial distribution 
 #' @param n_samp Number of samples
-#' @param b_spar Base sparsity
-#' @param b_rho Base correlation 
-#' @param spar_ratio Ratio of sparsity between the set and baseline 
-#' @param rho_ratio Ratio of correlation between the set and baseline 
-#' @param n_tax Number of taxa
-#' @param n_inflate Number of taxa with inflated counts 
-#' @param n_sets Number of sets to simulate 
-#' @param prop_set_inflate Number of proportions of sets that are inflated 
+#' @param spar Additive sparsity  
+#' @param rho_ratio Ratio of correlation between the set and baseline   
+#' @param n_tax Number of taxa  
+#' @param n_inflate Number of taxa with inflated counts   
+#' @param n_sets Number of sets to simulate   
+#' @param prop_set_inflate Number of proportions of sets that are inflated   
 #' @param prop_inflate The number of differentially abundant taxa within a set that is inflated 
 #' @param samp_prop The proportion of samples have an inflated taxa 
 #' @param eff_size Effect size that is a multiplier to the base mu of a sample 
 #' @param method Method of simulation. Can be "compensation", "non-compensation" or "normal"
+#' @param parameters Path to rds file containing estimated values 
+#' @param output output format. Either "list" or "phyloseq"
 #' TODO: More than one correlation structure
 #' TODO: Adjust rho_ratio calculation when b_rho = 0 (no background correlation)
 #' TODO: Add shuffling to make sure that everything is randomized 
 #' TODO: Add a way to sample from empirical distribution of zinb values 
-zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
+zinb_simulation <- function(n_samp, spar, b_rho, eff_size, 
                             rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, prop_set_inflate = 1, 
                             prop_inflate = 1,
-                            samp_prop = 0.5, method = "compensation"){
+                            samp_prop = 0.5, method = "compensation", parameters=NULL){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
@@ -50,8 +51,15 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   # Second, set marginals
   # default marginals for negative binomial is from size of 0.595 and mu of 6.646 from HMP data
   true_size <- round(n_inflate * prop_inflate, 0)
-  means <- runif(n_tax, 1,10)
-  sizes <- runif(n_tax, 0,1)
+  if (is.null(parameters)){
+    message("Randomly sample means from 1 to 10 and sizes from 1 to 5")
+    means <- runif(n_tax, 1,10)
+    sizes <- runif(n_tax, 1,5)
+  } else {
+    estimated <- readRDS(file = parameters)
+    means <- sample(estimated$mean, size = n_tax, replace = T)
+    sizes <- sample(estimated$size, size = n_tax, replace = T)
+  }
   
   # first n_samp * samp_prop samples will always be inflated 
   inf_size <- round(n_samp * samp_prop,0)
@@ -59,15 +67,6 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   # Number of inf_taxa 
   inf_tax <- round(n_inflate * n_sets * prop_set_inflate, 0)
 
-  
-  # create elevated sample sizes 
-  # if (parallel == T){
-  #   message("Starting parallel procedure...")
-  #   plan(multiprocess, workers = round(availableCores()/2,0))
-  # } else {
-  #   plan(sequential)
-  # }
-  
   # inflating samples  
   suppressMessages(
   inf_samples <- map_dfc(seq(n_tax), .f = function(.x){
@@ -80,14 +79,14 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
       b <- sum(means[remainder])
       # randomly select second prop of those selected to be downregulated 
       if (.x %in% idx){
-        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
-                            munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                            mu = means[.x]*eff_size)
       } else if (.x %in% remainder){
-        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x],
-                            munb = means[.x]*((a/b)*(1-eff_size) + 1), pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size),.x], size = sizes[.x],
+                            mu = means[.x]*((a/b)*(1-eff_size) + 1))
       } else {
-        result <- qzinegbin(p = margins[seq(inf_size), .x], size = sizes[.x], 
-                            munb = means[.x], pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size), .x], size = sizes[.x], 
+                            mu = means[.x])
       }
     } else if (method == "no_compensation"){
       # randomly select first prop of those selected to be upregulated
@@ -95,23 +94,23 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
       remainder <- seq(inf_tax)[-idx]
       # randomly select second prop of those selected to be downregulated 
       if (.x %in% idx){
-        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
-                            munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                            mu = means[.x]*eff_size)
       } else if (.x %in% remainder){
-        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x],
-                            munb = means[.x]/eff_size, pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size),.x], size = sizes[.x],
+                            mu = means[.x]/eff_size)
       } else {
-        result <- qzinegbin(p = margins[seq(inf_size), .x], size = sizes[.x], 
-                            munb = means[.x], pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size), .x], size = sizes[.x], 
+                            mu = means[.x])
       }
       
     } else if (method == "normal"){
       if (.x %in% seq(inf_tax)){
-        result <- qzinegbin(p = margins[seq(inf_size),.x], size = sizes[.x], 
-                            munb = means[.x]*eff_size, pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size),.x], size = sizes[.x], 
+                            mu = means[.x]*eff_size)
       } else {
-        result <- qzinegbin(p = margins[seq(inf_size), .x], size = sizes[.x], 
-                            munb = means[.x], pstr0 = b_spar * spar_ratio)
+        result <- qnbinom(p = margins[seq(inf_size), .x], size = sizes[.x], 
+                            mu = means[.x])
       }
     }
     return(result)
@@ -120,8 +119,8 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   # not inflated samples 
   suppressMessages(
     notinf_samples <- map_dfc(seq(n_tax), .f = function(.x){
-      result <- qzinegbin(p = margins[-seq(inf_size),.x], size = sizes[.x], 
-                          munb = means[.x], pstr0 = b_spar)
+      result <- qnbinom(p = margins[-seq(inf_size),.x], size = sizes[.x], 
+                          mu = means[.x])
       return(result)
     })
   )
@@ -131,9 +130,15 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
   } else {
     abundance <- rbind(inf_samples, notinf_samples)
   }
+  abundance <- as.matrix(abundance)
+  if (!is.null(spar)){
+    zeroes <- rbinom(length(abundance), size = 1, prob = 1 - spar)
+    abundance <- abundance * zeroes
+  }
   label <- c(rep(1, inf_size), rep(0, n_samp - inf_size))
   
   colnames(abundance) <- glue("Tax{i}", i = seq(n_tax))
+  rownames(abundance) <- glue("Samp{i}", i = seq(n_samp))
   if (n_sets > 1){
     A <- diag(n_sets)
     vec <- as.matrix(rep(1, n_inflate))
@@ -147,11 +152,10 @@ zinb_simulation <- function(n_samp, b_spar, b_rho, eff_size, spar_ratio = 1,
     A <- as.matrix(A)
   }
   colnames(A) <- glue("Set{i}", i = 1:n_sets)
-  print(dim(A))
   rownames(A) <- colnames(abundance)
   sets_inf <- rep(0, n_sets)
   sets_inf[seq(round(n_sets * prop_set_inflate,0))] <- 1
-  output <- list(X = abundance, A = A, label = label, sets_inf = sets_inf)
+  output <- list(X = as.data.frame(abundance), A = A, label = label, sets_inf = sets_inf)
   return(output)
 }
 

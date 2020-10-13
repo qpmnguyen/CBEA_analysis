@@ -3,6 +3,7 @@ library(GSVA)
 library(ROCR)
 library(MASS)
 library(limma)
+library(compositions)
 
 
 #' Calculate test statistics  
@@ -116,32 +117,7 @@ process <- function(X, pcount = 1, transform = NULL){
   return(X)
 }
 
-#' Function to get differential abundance 
-#' @param X the data set (scores or not scores) aggregated to known sets. This is a data set of n samples and s sets
-#' @param labels Sample labels of case and control 
-#' @param method includes "wilcoxon", "welch", "ancom", "deseq2", "voom", "corncob", "ancombc"
-get_diff_ab <- function(X, A, labels, method, data_type = "simulated"){
-  if(method == "wilcox"){
-    result <- rep(0, ncol(X))
-    for (i in 1:ncol(X)){
-      test <- wilcox.test(x = X[labels == 1,i], X[labels == 0,i])
-      result[i] <- test$p.value
-    }
-  } else if (method == "welch"){
-    result <- rep(0, ncol(X))
-    for (i in 1:ncol(X)){
-      test <- t.test(x = X[labels == 1,i], X[labels == 0,i])
-      result[i] <- test$p.value
-    }
-  } else if (method == "ancom"){
-    
-  } else if (method == "deseq2"){
-    
-  } else if (method == "voom"){
-    
-  }
-  return(result)
-}
+
 
 #' This function converts a taxonomic table to an A matrix.  
 taxtab2A <- function(tax, agg_level){
@@ -162,25 +138,6 @@ taxtab2A <- function(tax, agg_level){
   return(A)
 }
 
-# Function to get data for data type
-get_data <- function(type){
-  if (type == "16S"){
-    library(HMP16SData)
-    data <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Stool" & VISITNO == 1) %>% as_phyloseq()
-    data <- subset_samples(data,!duplicated(RSID)) %>% 
-      filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE)
-    data <- prune_samples(sample_sums(data) >= 1000, data)
-  } else if (type == "WGS"){
-    # NOT READY
-    library(curatedMetagenomicData)
-    data <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.stool", dryrun = F, bugs.as.phyloseq = T) 
-    data <- data[[1]]
-    data <- data %>% subset_samples(!duplicated(subjectID)) %>% subset_samples(disease = "healthy") %>%
-      filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE) 
-  }
-  return(data)
-}
-
 #' This function aggregates X by simple summation using A matrix 
 aggregate <- function(X, A){
   data <- matrix(nrow = nrow(X), ncol = ncol(A))
@@ -193,8 +150,10 @@ aggregate <- function(X, A){
 # Function to convert simulation data to phyloseq type objects to be used in ancom, deseq2 and other related
 # packages
 sim2phylo <- function(sim){
-  tab <- sim$A %>% as.data.frame() %>% rownames_to_column(var = "tax") %>% pivot_longer(-tax, "SetLevel") %>% 
-    dplyr::select(-value) %>% as.data.frame() %>% column_to_rownames(var = "tax") %>% as.matrix() %>% tax_table()
+  tab <- sim$A %>% as.data.frame() %>% rownames_to_column(var = "tax") %>% 
+    pivot_longer(-tax, "SetLevel") %>% 
+    dplyr::select(-value) %>% as.data.frame() %>% 
+    column_to_rownames(var = "tax") %>% as.matrix() %>% tax_table()
   meta <- sample_data(data.frame(group = dim$label))
   X <- sim$X %>% as.data.frame()
   rownames(X) <- sample_names(meta)
