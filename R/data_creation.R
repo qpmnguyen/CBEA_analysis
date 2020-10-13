@@ -19,30 +19,32 @@ if (opt$setting == "fdr"){
   sim <- list(
     rep = 1,
     n_samp = 20000,
-    ntax = 2000,
+    n_tax = 2000,
     spar = c(0.2, 0.4, 0.6, 0.8),
     b_rho = c(0.1, 0.2, 0.5),
-    set_size = c(50,100,150,200),
+    n_inflate = c(50,100,150,200),
     eff_size = 1,
     samp_prop = 1,
     n_sets = 1, 
     prop_set_inflate = 1,
     method = "normal"
   )
+  dir <- "fdr_sim"
 } else if (opt$setting == "pwr"){
   sim <- list(
     rep = 1,
     n_samp = 20000,
-    ntax = 2000,
+    n_tax = 2000,
     spar = c(0.2, 0.4, 0.6, 0.8),
     b_rho = c(0.1, 0.2, 0.5),
-    set_size = 50,
+    n_inflate = 50,
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 1,
     n_sets = 1,
     prop_set_inflate = 1,
     method = "normal"
   )
+  dir <- "pwr_sim"
 } else if (opt$setting == "auc"){
   sim <- list(
     rep = seq(1,100),
@@ -61,7 +63,7 @@ if (opt$setting == "fdr"){
 }
 
 param_file <- opt$paramfile
-
+cores <- opt$ncores
 print("Creating parameter list")
 sim <- create_parameters(sim)
 
@@ -74,20 +76,19 @@ qsave(sim %>% unnest(param), file = glue("{dir}/parameters.qs", dir = dir))
 
 print("Getting furrr going")
 tic()
-plan(multicore, workers = opt$ncores)
+plan(multicore, workers = cores)
 opt <- furrr_options(seed = T)
-with_progress({
-  p <- progressor(steps = nrow(sim))
-  sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
-    p()
-    param <- sim$param[[.x]]
-    data <- zinb_simulation(n_samp = param$n_samp, spar = param$spar, b_rho = param$b_rho, 
-                    eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, 
-                    method = param$method, samp_prop = param$samp_prop, prop_set_inflate = param$prop_set_inflate,
-                    n_sets = param$n_sets, parameters = param_file)
-    return(data)
-  }, .options = opt)
-})
+
+sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
+  p()
+  param <- sim$param[[.x]]
+  data <- zinb_simulation(n_samp = param$n_samp, spar = param$spar, b_rho = param$b_rho, 
+                  eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, 
+                  method = param$method, samp_prop = param$samp_prop, prop_set_inflate = param$prop_set_inflate,
+                  n_sets = param$n_sets, parameters = param_file)
+  return(data)
+}, .options = opt, .progress = T)
+
 plan(sequential)
 toc()
 print("Done with furrr. Splitting data into multiple files...")
