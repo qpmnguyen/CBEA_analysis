@@ -10,7 +10,7 @@ source("../R/simulations.R")
 option_list <- list(
   make_option("--ncores", type = "integer", help="Number of workers to use for parallelization"),
   make_option("--setting", type = "character", help = "Simulation Settings to use"),
-  make_option("--paramfile", type = "character", help = "Directory of the parameter file")
+  make_option("--paramfile", type = "character", help = "Directory of the parameter file", default = NULL)
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
