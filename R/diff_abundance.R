@@ -25,6 +25,8 @@ physeq_eval <- function(physeq, method, agg_level, params=NULL, thresh=0.05){
     X <- otu_table(physeq) %>% t() %>% as("matrix") %>% as.data.frame()
     A <- taxtab2A(tax = tax_table(physeq), agg_level = agg_level)
   }
+  print(str(A))
+  print(str(X))
   # Second, generate scores for cilr and gsva if cilr or gsva is detected in method
   if (stringr::str_detect(method, "cilr")){
     message("Fitting cILR scores...")
