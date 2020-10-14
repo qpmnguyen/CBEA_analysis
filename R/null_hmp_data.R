@@ -23,7 +23,7 @@ for (i in 1:ncol(labels)){
 }
 
 methods <- c("cilr_wilcox", "cilr_welch", "gsva_wilcox", "gsva_welch", 
-                                 "deseq2", "corncob")
+                                 "deseq2", "corncob", "clr_wilcox", "clr_welch")
 
 for (i in 1:length(methods)){
   print(methods[i])

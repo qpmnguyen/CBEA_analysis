@@ -5,6 +5,7 @@ library(corncob)
 library(phyloseq)
 library(GSVA)
 library(stringr)
+library(compositions)
 
 
 #' Function to perform different differential abundance tests aggregated to a certain level 
@@ -17,7 +18,7 @@ library(stringr)
 #' @return A sig with names as the taxa level of interest 
 physeq_eval <- function(physeq, method, agg_level, params=NULL, thresh=0.05){
   match.arg(method, choices = c("cilr_wilcox", "cilr_welch", "gsva_wilcox", "gsva_welch", 
-                                "deseq2", "ancombc", "corncob"))
+                                "deseq2", "ancombc", "corncob", "clr_wilcox", "clr_welch"))
   # First, extract out matrices X and A 
   if (sum(stringr::str_detect(method, c("cilr","gsva"))) >= 1){
     message("Extracting matrices X and A")
@@ -43,6 +44,12 @@ physeq_eval <- function(physeq, method, agg_level, params=NULL, thresh=0.05){
     message("Performing normal physeq aggregation to set level")
     physeq <- tax_glom(physeq, taxrank = agg_level)
     physeq <- transform_sample_counts(physeq, function(x) ifelse(x == 0, 1, x)) # add pseudocount
+    if (stringr::str_detect(method, "clr")){
+      table <- physeq@otu_table@.Data 
+      table <- t(unclass(clr(t(table))))
+      otu_table(physeq) <- otu_table(table, taxa_are_rows = T)
+      scores <- t(table) %>% as.data.frame()
+    }
   }
   
   # Then run models according to specifications in argument method 
