@@ -20,7 +20,7 @@ physeq_eval <- function(physeq, method, agg_level, params=NULL, thresh=0.05){
   match.arg(method, choices = c("cilr_wilcox", "cilr_welch", "gsva_wilcox", "gsva_welch", 
                                 "deseq2", "ancombc", "corncob", "clr_wilcox", "clr_welch"))
   # First, extract out matrices X and A 
-  if (sum(stringr::str_detect(method, c("cilr","gsva"))) >= 1){
+  if (sum(stringr::str_detect(method, c("cilr","gsva","clr"))) >= 1){
     message("Extracting matrices X and A")
     X <- otu_table(physeq) %>% t() %>% as("matrix") %>% as.data.frame()
     A <- taxtab2A(tax = tax_table(physeq), agg_level = agg_level)
