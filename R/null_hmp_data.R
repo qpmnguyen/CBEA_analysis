@@ -32,11 +32,12 @@ data <- qread(file = path)
 labels <- qread(file = opt$label_path)
 
 plan(multiprocess, workers = opt$ncores)
+opt <- furrr::furrr_options(seed = TRUE)
 results <- future_map_dfc(1:ncol(labels), .f = ~{
   temp <- data
   sample_data(temp)$group <- labels[,.x]
   physeq_eval(temp, method = method, agg_level = "GENUS")
-}, .progress = T)
+}, .options = opt, .progress = T)
 output_name <- glue("{dir}/type_i_{method}.qs", method = method, dir = dir_name)
 qsave(results, file = output_name)
 plan(sequential)
