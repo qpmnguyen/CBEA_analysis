@@ -69,7 +69,7 @@ physeq_eval <- function(physeq, method, agg_level, params=NULL, thresh=0.05){
     # TODO: Support multiple corncob options
     mod <- differentialTest(formula = ~ group, phi.formula = ~ group, formula_null = ~ 1, phi.formula_null = ~ group,
                             test = "LRT", boot = FALSE, data = physeq, fdr_cutoff = thresh)
-    sig <- (da_analysis$p_fdr < thresh)*1
+    sig <- (mod$p_fdr < thresh)*1
     names(sig) <- as.vector(tax_table(physeq)[names(sig), agg_level])
   } else if (stringr::str_detect(method, "wilcox")){
     # Wilcoxon rank-sum test 

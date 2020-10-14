@@ -80,7 +80,6 @@ plan(multicore, workers = cores)
 opt <- furrr_options(seed = T)
 
 sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
-  p()
   param <- sim$param[[.x]]
   data <- zinb_simulation(n_samp = param$n_samp, spar = param$spar, b_rho = param$b_rho, 
                   eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, 

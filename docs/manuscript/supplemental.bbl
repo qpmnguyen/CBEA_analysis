@@ -1,5 +1,11 @@
 \begin{thebibliography}{1}
 
+\bibitem{calgaro2020}
+Matteo Calgaro, Chiara Romualdi, Levi Waldron, Davide Risso, and Nicola Vitulo.
+\newblock Assessment of statistical methods from single cell, bulk {{RNA}}-seq,
+  and metagenomics applied to microbiome data.
+\newblock {\em Genome Biology}, 21(1):191, August 2020.
+
 \bibitem{cario}
 Marne~C Cario.
 \newblock Modeling and {{Generating Random Vectors}} with {{Arbitrary Marginal
