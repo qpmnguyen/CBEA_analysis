@@ -54,7 +54,7 @@ if (opt$setting == "fdr"){
     ntax = 2000, 
     spar = c(0.2, 0.4, 0.6, 0.8),
     b_rho = c(0.1, 0.2, 0.5),
-    set_size = 50,
+    n_inflate = 100,
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 0.5,
     n_sets = 1,

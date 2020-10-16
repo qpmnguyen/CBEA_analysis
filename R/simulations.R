@@ -40,7 +40,6 @@ zinb_simulation <- function(n_samp, spar, b_rho, eff_size,
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
-  set_size <- seq(n_inflate)
   set_sigma <- sigma[1:n_inflate, 1:n_inflate]
   set_sigma[set_sigma != 1] <- b_rho * rho_ratio
   sigma[1:n_inflate,1:n_inflate] <- set_sigma
