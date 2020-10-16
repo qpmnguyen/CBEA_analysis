@@ -4,7 +4,6 @@ library(phyloseq)
 library(MASS)
 library(VGAM)
 library(furrr)
-library(zinbwave)
 
 
 #' Shorthand to create parameters
