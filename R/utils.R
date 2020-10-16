@@ -2,7 +2,6 @@ library(tidyverse)
 library(GSVA)
 library(ROCR)
 library(MASS)
-library(limma)
 library(compositions)
 
 

@@ -1,10 +1,10 @@
 library(tidyverse)
 library(glue)
 library(phyloseq)
-library(MCMCpack)
 library(MASS)
 library(VGAM)
 library(furrr)
+library(zinbwave)
 
 
 #' Shorthand to create parameters
@@ -29,37 +29,46 @@ create_parameters <- function(params){
 #' @param eff_size Effect size that is a multiplier to the base mu of a sample 
 #' @param method Method of simulation. Can be "compensation", "non-compensation" or "normal"
 #' @param parameters Path to rds file containing estimated values 
-#' @param output output format. Either "list" or "phyloseq"
+#' @param vary_params Whether we stochastically draw parameter values for each feature  
 #' TODO: More than one correlation structure
 #' TODO: Adjust rho_ratio calculation when b_rho = 0 (no background correlation)
 #' TODO: Add shuffling to make sure that everything is randomized 
 #' TODO: Add a way to sample from empirical distribution of zinb values 
 zinb_simulation <- function(n_samp, spar, b_rho, eff_size, 
-                            rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, prop_set_inflate = 1, 
-                            prop_inflate = 1,
-                            samp_prop = 0.5, method = "compensation", parameters=NULL){
+                            rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, 
+                            prop_set_inflate = 1, prop_inflate = 1, samp_prop = 0.5, 
+                            method = "compensation", vary_params=TRUE, parameters=NULL){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
   set_size <- seq(n_inflate)
-  set_sigma <- sigma[set_size, set_size]
+  set_sigma <- sigma[1:n_inflate, 1:n_inflate]
   set_sigma[set_sigma != 1] <- b_rho * rho_ratio
-  sigma[set_size,set_size] <- set_sigma
+  sigma[n_inflate,1:n_inflate] <- set_sigma
   
   # First create mvnorm variables with correlation set by sigma
   margins <- pnorm(mvrnorm(n = n_samp, mu = rep(0, n_tax), Sigma = sigma))
   # Second, set marginals
   # default marginals for negative binomial is from size of 0.595 and mu of 6.646 from HMP data
   true_size <- round(n_inflate * prop_inflate, 0)
-  if (is.null(parameters)){
-    message("Randomly sample means from 1 to 10 and sizes from 1 to 5")
-    means <- runif(n_tax, 1,10)
-    sizes <- runif(n_tax, 1,5)
+  
+  # Create parameters based on situation
+  if (vary_params == T){
+    if (is.null(parameters)){
+      message("Randomly sample means from 1 to 10 and sizes from 1 to 5")
+      means <- runif(n_tax, 1,10)
+      sizes <- runif(n_tax, 1,5)
+    } else {
+      estimated <- readRDS(file = parameters)
+      means <- sample(estimated$mean, size = n_tax, replace = T)
+      sizes <- sample(estimated$size, size = n_tax, replace = T)
+    }
   } else {
-    estimated <- readRDS(file = parameters)
-    means <- sample(estimated$mean, size = n_tax, replace = T)
-    sizes <- sample(estimated$size, size = n_tax, replace = T)
+    message("Setting mean to be constant at 6.646 and size at 0.595 estimated from HMP data...")
+    means <- rep(6.46,n_tax)
+    sizes <- rep(0.595, n_tax)
   }
+  
   
   # first n_samp * samp_prop samples will always be inflated 
   inf_size <- round(n_samp * samp_prop,0)
@@ -159,7 +168,49 @@ zinb_simulation <- function(n_samp, spar, b_rho, eff_size,
   return(output)
 }
 
-
+# Quick simulation of data from negative binomial distribution
+quick_sim <- function(n_samp, spar, n_tax, eff_size, n_inflate, method="normal", samp_prop=1){
+  #means <- runif(n_tax, 5,10)
+  #sizes <- runif(n_tax, 1,5)
+  # generate inflated data 
+  inf_size <- round(n_samp * samp_prop,0)
+  inf_df <- sapply(1:n_tax, function(x){
+    if (x %in% 1:n_inflate){ # if inflated
+      rnbinom(inf_size, size = 1, mu = 5 * eff_size)
+    } else {
+      rnbinom(inf_size, size = 1, mu = 5)
+    }
+  })
+  # generate non-inflated data 
+  noninf_df <- sapply(1:n_tax, function(x){
+    rnbinom(n_samp - inf_size, size = 1, mu = 5)
+  })
+  # binding for final data set
+  if (samp_prop < 1){
+    df <- rbind(inf_df, noninf_df)
+  } else {
+    df <- inf_df
+  }
+  zeroes <- rbinom(length(df), size = 1, prob = 1 - spar)
+  df[zeroes] <- 0
+  colnames(df) <- glue("Tax{i}", i=1:n_tax)
+  rownames(df) <- glue("Samp{i}", i=1:n_samp)
+  df <- as.data.frame(df)
+  
+  # Generate sample label 
+  label <- rep(0, n_samp)
+  label[1:inf_size] <- 1
+  
+  # Generate matrix A
+  A <- rep(0,n_tax)
+  A[1:n_inflate] <- 1
+  A <- as.matrix(A)
+  rownames(A) <- colnames(df)
+  colnames(A) <- "Set1"
+  
+  output <- list(X = df, A = A, label = label)
+  return(output)
+}
 
 
 

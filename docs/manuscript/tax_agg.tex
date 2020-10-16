@@ -7,6 +7,7 @@
 \usepackage{authblk}
 \usepackage{caption}
 \usepackage{float}
+\renewcommand{\familydefault}{\sfdefault}
 
 \title{Taxonomic Enrichment Analysis with Isometric Log-Ratios}
 \author[1,2]{Quang P. Nguyen}
@@ -50,7 +51,13 @@ We benchmarked type I error on real stool microbiome data from HMP for both 16S 
 
 \section*{Real data analysis} 
 \subsection*{Type I error control}
-We benchmark type I error rate on 16S and WGS data from the Human Microbiome Project (HMP) obtained from the packages \emph{HMP16SData} (ver. 1.9.3) and \emph{curatedMetagenomicData} packages in R. For each data set, we filtered out samples with library size less than 1000, as well as taxa with a proportion of zeroes of 0.9 or more. We then randomly assigned each sample into one of two arbitrary groups.  \\
+We benchmarked type I error rate of the cILR approach in differential abundance analysis tasks on both real data and numerical experiments. For real data, we utilized 16S rRNA and WGS stool sequencing data from the Human Microbiome project obtained from the packages \emph{HMP16SData} (ver. 1.9.3) and \emph{curatedMetagenomicData} in R. We randomly assigned samples from each data set into two arbitrary groups and evaluated the type I error rate. This procedure was repeated 1000 times. Figure 3 demonstrated these results.\\
+We observed 
+\begin{figure}[H]
+    \centering
+    \includegraphics[scale=0.5]{figures/null_16s_da.png}
+    \caption{Type I error evaluated on 16S rRNA and WGS stool samples obtained from HMP. Enrichment of genus level taxa sets was tested across different methods where significance was determined at FDR cutoff of 0.05.}
+\end{figure}
 
 \newpage
 \bibliography{tax_agg}{}

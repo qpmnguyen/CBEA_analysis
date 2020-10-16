@@ -26,6 +26,7 @@ if (opt$setting == "fdr"){
     eff_size = 1,
     samp_prop = 1,
     n_sets = 1, 
+    vary_params = FALSE,
     prop_set_inflate = 1,
     method = "normal"
   )
@@ -41,6 +42,7 @@ if (opt$setting == "fdr"){
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 1,
     n_sets = 1,
+    vary_params = FALSE,
     prop_set_inflate = 1,
     method = "normal"
   )
@@ -56,6 +58,7 @@ if (opt$setting == "fdr"){
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 0.5,
     n_sets = 1,
+    vary_params = TRUE,
     prop_set_inflate = 1,
     method = "normal"
   )
@@ -76,7 +79,7 @@ qsave(sim %>% unnest(param), file = glue("{dir}/parameters.qs", dir = dir))
 
 print("Getting furrr going")
 tic()
-plan(multicore, workers = cores)
+plan(multisession, workers = cores)
 opt <- furrr_options(seed = T)
 
 sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
@@ -84,7 +87,7 @@ sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
   data <- zinb_simulation(n_samp = param$n_samp, spar = param$spar, b_rho = param$b_rho, 
                   eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, 
                   method = param$method, samp_prop = param$samp_prop, prop_set_inflate = param$prop_set_inflate,
-                  n_sets = param$n_sets, parameters = param_file)
+                  n_sets = param$n_sets, parameters = param_file, vary_params = param$vary_params)
   return(data)
 }, .options = opt, .progress = T)
 

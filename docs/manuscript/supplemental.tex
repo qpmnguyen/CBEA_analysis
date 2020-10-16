@@ -4,11 +4,14 @@
 \usepackage[margin=1in]{geometry}
 \usepackage{bm}
 \usepackage{amsmath}
+\usepackage{caption}
+\usepackage{float}
 
 \author{Quang P. Nguyen}
 \title{Supplementary Materials}
 \begin{document}
 \maketitle
+\captionsetup[figure]{labelfont={bf},name={Figure},labelsep=period, margin=2cm}
 
 \section{Distribution of cILR}
 \begin{figure}[h]
@@ -18,7 +21,8 @@
 \end{figure}
 
 \section{Simulation Design}
-We simulated microbiome relative abundance data using the NorTA method \cite{cario}. Using this method, we can generate synthetic microbial counts that incorporates a complex correlation structure and multiple types of marginals. The negative binomial distribution was chosen as it has been shown empirically to replicate the overall distribution of real microbiome count data \cite{kurtz2015,calgaro2020}. We fit the the parameters to our marginal model based on 16S rRNA sequencing of the V3-V5 region from stool samples in the Human Microbiome Project (HMP). This data was accquired via the \emph{HMP16S} package in R\cite{schiffer2019}.  
+We simulated microbiome relative abundance data using the Normal to Anything (NorTA) method \cite{cario}. Using this method, we can generate synthetic microbial counts that incorporates a complex correlation structure and multiple types of marginals. The negative binomial distribution was chosen as it has been shown empirically to replicate the overall distribution of real microbiome count data \cite{kurtz2015,calgaro2020}. Parameters used to generate marginal distributions were obtained by fitting non-zero counts of the 16S V3-V5 rRNA stool sequencing data from the human microbiome project (HMP), accquired through via the \emph{HMP16S} package in R \cite{schiffer2019}. In Figure 2, we can see the overall distribution of the fitted mean and size parameter values. \\
+To control for overall sparsity, we randomly sample from the count matrix with probability $1 - p_0$ where $p_0$ is the overall desired level of sparsity. Differentially abundant taxa were generated with elevated means with the effect size as the multiplier. We assumed that the overall inter-taxa correlation follows an exchangable structure. \\
 
 \subsection{Hypothesis testing at the sample level}
 \noindent For simulations for type I error control, we simulated 100 data sets of 1000 samples each with 1000 taxa per sample with no taxa being significantly enriched. Models were evaluate on a candidate set with varying sizes (50, 100, 150, 200). We also varied the overall sparsity (0.2, 0.4, 0.6, 0.8) and the degree of correlation (0.1, 0.2, 0.5). \\
@@ -30,7 +34,7 @@ We simulated microbiome relative abundance data using the NorTA method \cite{car
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\linewidth]{figures/HMP_fit.png}
-    \caption{Distribution of each parameter of the zero inflated negative binomial distribution fitted to HMP16S data. The parameters are size (panel A), mean (panel B) and probability of 0 (panel C)}
+    \caption{Distribution of each parameter of the zero inflated negative binomial distribution fitted to \emph{HMP16S} data. The parameters are size (panel A), mean (panel B) and probability of 0 (panel C)}
 \end{figure}
 
 

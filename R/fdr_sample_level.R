@@ -1,5 +1,4 @@
 library(tidyverse)
-library(furrr)
 library(tictoc)
 library(MASS)
 library(progressr)
@@ -14,7 +13,7 @@ parameters <- qread(file = "objects/fdr_sim/parameters.qs")
 
 # Generating scores ####
 tic()
-plan(multiprocess, workers = round(availableCores()/2,0))
+plan(multisession, workers = round(availableCores()/2,0))
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
@@ -27,7 +26,7 @@ plan(sequential)
 toc()
 
 tic()
-plan(multiprocess, workers = round(availableCores()/2,0))
+plan(multisession, workers = round(availableCores()/2,0))
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$label_wc <- future_map(1:nrow(parameters), .f = ~{
@@ -62,6 +61,32 @@ parameters$label_cilr_t <- future_map(1:nrow(parameters), .f = ~{
 }, .options = opt, .progress = T)
 plan(sequential)
 
+# theoretical_se <- function(label, ngroups = 200){
+#   label <- sample(label, size = length(label), replace = F)
+#   splits <- split(label, rep(1:ngroups, length.out = length(label), each = ceiling(length(label)/ngroups)))
+#   prop <- vector(length = length(splits))
+#   se <- vector(length = length(splits))
+#   for (i in 1:length(splits)){
+#     labs <- splits[[i]]
+#     counts <- sum(labs == 1)
+#     prop[i] <- p <- sum(labs == 1)/length(labs) # assigning prop to both p and prop[i]
+#     se[i] <- sqrt((p * (1 - p))/length(labs))
+#   }
+#   return(mean(se))
+# }
+
+# empirical_se <- function(label, ngroups = 200){
+#   label <- sample(label, size = length(label), replace = F)
+#   splits <- split(label, rep(1:ngroups, length.out = length(label), each = ceiling(length(label)/ngroups)))
+#   prop <- vector(length = length(splits))
+#   for (i in 1:length(splits)){
+#     labs <- splits[[i]]
+#     counts <- sum(labs == 1)
+#     prop[i] <- counts/length(labs)
+#   }
+#   return(sd(prop))
+# }
+
 
 
 # generating fdr comparable statistics ####
@@ -69,6 +94,19 @@ parameters$fdr_cilr_raw <- map(parameters$label_cilr_raw, .f = ~calculate_statis
 parameters$fdr_cilr_norm <- map(parameters$label_cilr_norm, .f = ~calculate_statistic(eval = "fdr", pred = .x))
 parameters$fdr_wc <- map(parameters$label_wc, .f = ~calculate_statistic(eval = "fdr", pred = .x))
 parameters$fdr_cilr_t <- map(parameters$label_cilr_t, .f = ~calculate_statistic(eval = "fdr", pred = .x))
+
+# parameters$fdr_se_theo_cilr_raw <- do.call(rbind, map(parameters$label_cilr_raw, .f = ~theoretical_se(.x)))
+# parameters$fdr_se_emp_cilr_raw <- do.call(rbind, map(parameters$label_cilr_raw, .f = ~empirical_se(.x)))
+# 
+# parameters$fdr_se_theo_cilr_norm <- do.call(rbind, map(parameters$label_cilr_norm, .f = ~theoretical_se(.x)))
+# parameters$fdr_se_emp_cilr_norm <- do.call(rbind, map(parameters$label_cilr_norm, .f = ~empirical_se(.x)))
+# 
+# parameters$fdr_se_theo_wc <- do.call(rbind, map(parameters$label_wc, .f = ~theoretical_se(.x)))
+# parameters$fdr_se_emp_wc <- do.call(rbind, map(parameters$label_wc, .f = ~empirical_se(.x)))
+# 
+# parameters$fdr_se_theo_cilr_t <- do.call(rbind, map(parameters$label_cilr_t, .f = ~theoretical_se(.x)))
+# parameters$fdr_se_emp_cilr_t <- do.call(rbind, map(parameters$label_cilr_t, .f = ~empirical_se(.x)))
+
 
 
 qs::qsave(parameters, "objects/fdr_ss_eval.qs")
