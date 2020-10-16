@@ -43,7 +43,7 @@ zinb_simulation <- function(n_samp, spar, b_rho, eff_size,
   set_size <- seq(n_inflate)
   set_sigma <- sigma[1:n_inflate, 1:n_inflate]
   set_sigma[set_sigma != 1] <- b_rho * rho_ratio
-  sigma[n_inflate,1:n_inflate] <- set_sigma
+  sigma[1:n_inflate,1:n_inflate] <- set_sigma
   
   # First create mvnorm variables with correlation set by sigma
   margins <- pnorm(mvrnorm(n = n_samp, mu = rep(0, n_tax), Sigma = sigma))
