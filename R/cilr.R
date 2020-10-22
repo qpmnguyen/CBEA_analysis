@@ -42,7 +42,6 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
     } else if (method == "sample"){
       denom <- geometricmeanRow(x = X)
     }
-    
     R[,i] <- scale * log(num/denom)
   }
   colnames(R) <- colnames(A)

@@ -21,7 +21,7 @@ if (opt$setting == "fdr"){
     n_samp = 20000,
     n_tax = 2000,
     spar = c(0.2, 0.4, 0.6, 0.8),
-    b_rho = c(0.1, 0.2, 0.5),
+    s_rho = c(0.1, 0.2, 0.5),
     n_inflate = c(50,100,150,200),
     eff_size = 1,
     samp_prop = 1,
@@ -37,7 +37,7 @@ if (opt$setting == "fdr"){
     n_samp = 20000,
     n_tax = 2000,
     spar = c(0.2, 0.4, 0.6, 0.8),
-    b_rho = c(0.1, 0.2, 0.5),
+    s_rho = c(0.1, 0.2, 0.5),
     n_inflate = 50,
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 1,
@@ -53,8 +53,8 @@ if (opt$setting == "fdr"){
     n_samp = 2000, 
     ntax = 2000, 
     spar = c(0.2, 0.4, 0.6, 0.8),
-    b_rho = c(0.1, 0.2, 0.5),
-    n_inflate = 100,
+    s_rho = c(0.1, 0.2, 0.5),
+    n_inflate = 50,
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 0.5,
     n_sets = 1,
@@ -84,8 +84,8 @@ opt <- furrr_options(seed = T)
 
 sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
   param <- sim$param[[.x]]
-  data <- zinb_simulation(n_samp = param$n_samp, spar = param$spar, b_rho = param$b_rho, 
-                  eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, 
+  data <- zinb_simulation(n_samp = param$n_samp, spar = param$spar, s_rho = param$s_rho, 
+                  eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, b_rho = 1,  
                   method = param$method, samp_prop = param$samp_prop, prop_set_inflate = param$prop_set_inflate,
                   n_sets = param$n_sets, parameters = param_file, vary_params = param$vary_params)
   return(data)

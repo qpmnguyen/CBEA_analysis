@@ -47,14 +47,14 @@ plt
 #ggsave(plt, filename = "docs/manuscript/figures/fdr_single_sample.png", dpi = 300, width = 10, height = 10)
 
 
-plot_df <- parameters %>% dplyr::select(-starts_with(c('scores', 'label'))) %>% unnest(starts_with("fdr")) %>%  pivot_longer(starts_with("fdr_se")) %>% mutate(type = case_when(str_detect(name, "emp")~ "Empirical",
-                              str_detect(name, "theo") ~ "Theoretical")) %>% 
-  mutate(model = case_when(str_detect(name, "cilr_raw") ~ "cILR Raw",
-                           str_detect(name, "cilr_norm") ~ "cILR Norm",
-                           str_detect(name, "cilr_t") ~ "cILR t",
-                           str_detect(name, "wc") ~ "Wilcox"))
-
-estimates_plt <- ggplot(plot_df, aes(x = spar, y = value, col = type, shape = model, group = name)) + geom_point() + geom_line() + facet_grid(n_inflate ~ b_rho) + scale_color_nejm()
+# plot_df <- parameters %>% dplyr::select(-starts_with(c('scores', 'label'))) %>% unnest(starts_with("fdr")) %>%  pivot_longer(starts_with("fdr_se")) %>% mutate(type = case_when(str_detect(name, "emp")~ "Empirical",
+#                               str_detect(name, "theo") ~ "Theoretical")) %>% 
+#   mutate(model = case_when(str_detect(name, "cilr_raw") ~ "cILR Raw",
+#                            str_detect(name, "cilr_norm") ~ "cILR Norm",
+#                            str_detect(name, "cilr_t") ~ "cILR t",
+#                            str_detect(name, "wc") ~ "Wilcox"))
+# 
+# estimates_plt <- ggplot(plot_df, aes(x = spar, y = value, col = type, shape = model, group = name)) + geom_point() + geom_line() + facet_grid(n_inflate ~ b_rho) + scale_color_nejm()
 
 
 ```
@@ -76,7 +76,7 @@ print(head(plot_df))
 plt <- ggplot(plot_df, aes(y = mean, x = as.factor(spar), col = name, group = name)) + geom_point() +
   scale_color_nejm(labels = c("cILR normal", "cILR raw", "cILR t", "Wilcoxon Rank Sum")) + 
   geom_line() + geom_hline(yintercept = 0.8, col = "red") +
-  geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.1) +
+  geom_pointrange(aes(ymax = upper, ymin = lower)) +
   facet_grid(`Inter-taxa Correlation` ~ `Effect Size`, scales = "free_y", labeller = label_both) +
   labs(col = "Evaluation Models", x = "Sparsity", y = "Power \n (N = 20000, alpha = 0.05)") + 
   theme_bw()

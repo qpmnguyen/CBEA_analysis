@@ -14,7 +14,7 @@ source("R/utils.R")
 parameters <- qread(file = "objects/pwr_sim/parameters.qs")
 
 tic()
-plan(multiprocess, workers = round(availableCores()/2,0))
+plan(multiprocess, workers = 3)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
@@ -27,7 +27,7 @@ plan(sequential)
 toc()
 
 tic()
-plan(multiprocess, workers = round(availableCores()/2,0))
+plan(multiprocess, workers = 3)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   parameters$label_wc <- future_map(1:nrow(parameters), .f = ~{
@@ -45,7 +45,7 @@ parameters$label_cilr_raw <- map(parameters$scores_cilr, .f = ~cilr_eval(scores 
                                                                          thresh = 0.05, resample = F, 
                                                                          return = "sig"))
 opt <- furrr_options(seed = T)
-plan(multisession, workers = round(availableCores()/2,0))
+plan(multisession, workers = 3)
 parameters$label_cilr_norm <- future_map(1:nrow(parameters), .f = ~{
   data <- qread(file = glue("objects/pwr_sim/simulation_{i}.qs",i = .x))
   cilr_eval(scores = parameters$scores_cilr[[.x]], 
@@ -54,7 +54,7 @@ parameters$label_cilr_norm <- future_map(1:nrow(parameters), .f = ~{
 }, .options = opt, .progress = T)
 plan(sequential)
 
-plan(multisession, workers = round(availableCores()/2,0))
+plan(multisession, workers = 3)
 parameters$label_cilr_t <- future_map(1:nrow(parameters), .f = ~{
   data <- qread(file = glue("objects/pwr_sim/simulation_{i}.qs", i = .x))
   cilr_eval(scores = parameters$scores_cilr[[.x]], 

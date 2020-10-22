@@ -18,6 +18,8 @@ create_parameters <- function(params){
 #' Simulating according to zero inflated negative binomial distribution 
 #' @param n_samp Number of samples
 #' @param spar Additive sparsity  
+#' @param b_rho Baseline inter-taxa correlation 
+#' @param s_rho Correlation within the set 
 #' @param rho_ratio Ratio of correlation between the set and baseline   
 #' @param n_tax Number of taxa  
 #' @param n_inflate Number of taxa with inflated counts   
@@ -33,15 +35,15 @@ create_parameters <- function(params){
 #' TODO: Adjust rho_ratio calculation when b_rho = 0 (no background correlation)
 #' TODO: Add shuffling to make sure that everything is randomized 
 #' TODO: Add a way to sample from empirical distribution of zinb values 
-zinb_simulation <- function(n_samp, spar, b_rho, eff_size, 
-                            rho_ratio = 1, n_tax = 300, n_inflate = 50, n_sets = 1, 
+zinb_simulation <- function(n_samp, spar, s_rho, eff_size, 
+                            b_rho = 0, n_tax = 300, n_inflate = 50, n_sets = 1, 
                             prop_set_inflate = 1, prop_inflate = 1, samp_prop = 0.5, 
                             method = "compensation", vary_params=TRUE, parameters=NULL){
   # generate the the diagnonal matrix
   sigma <- diag(n_tax)
   sigma[sigma == 0] <- b_rho
   set_sigma <- sigma[1:n_inflate, 1:n_inflate]
-  set_sigma[set_sigma != 1] <- b_rho * rho_ratio
+  set_sigma[set_sigma != 1] <- s_rho
   sigma[1:n_inflate,1:n_inflate] <- set_sigma
   
   # First create mvnorm variables with correlation set by sigma

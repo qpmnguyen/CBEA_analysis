@@ -30,11 +30,10 @@
 \section*{Background}
 \section*{Methods}
 \section*{Results}
-\subsection*{Hypothesis testing at the sample level}
+In this section we present the performance of our proposed method for three applicable microbiome analysis tasks: sample level enrichment testing, differential abundance testing, and prediction. We obtained these results from both parametric simulations and examples from real data.  
+\subsection*{Enrichment testing at the sample level}
 There are various settings where researchers want to test for enrichment of certain groups of microbes in an experiment. 
 \subsubsection*{Type I error control and power}
-\subsection*{Differential Abundance Analysis}
-\subsubsection*{Type I error control}
 We benchmarked type I error on real stool microbiome data from HMP for both 16S and WGS type data. 16S data was taken from the package \emph{HMP16SData} snapshot 2020-10-02. 
 
 \begin{figure}[H]
@@ -49,8 +48,8 @@ We benchmarked type I error on real stool microbiome data from HMP for both 16S 
     \caption{Median power as a function of data sparsity benchmarked on simulated microbiome data as enumerated in SI Methods. Enrichment of a specified set was tested at the sample level using cILR and the Wilcoxon rank sum test at $\alpha$ of 0.05. Each panel represents different effect sizes (horizontal) and inter-taxa correlation (vertical).}
 \end{figure}
 
-\section*{Real data analysis} 
-\subsection*{Type I error control}
+\subsection*{Differential abundance analysis} 
+\subsubsection*{Type I error control}
 We benchmarked type I error rate of the cILR approach in differential abundance analysis tasks on both real data and numerical experiments. For real data, we utilized 16S rRNA and WGS stool sequencing data from the Human Microbiome project obtained from the packages \emph{HMP16SData} (ver. 1.9.3) and \emph{curatedMetagenomicData} in R. We randomly assigned samples from each data set into two arbitrary groups and evaluated the type I error rate. This procedure was repeated 1000 times. Figure 3 demonstrated these results.\\
 We observed 
 \begin{figure}[H]
