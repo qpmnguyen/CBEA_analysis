@@ -7,22 +7,24 @@ library(ggsci)
 library(fitdistrplus)
 library(glue)
 library(patchwork)
-library(propagate)
 library(gnorm)
-library(SuppDists)
+library(gamlss.dist)
 library(VGAM)
 library(goftest)
 library(furrr)
+library(parameters)
+library(qs)
+
 source("R/cilr.R")
 source("R/simulations.R")
 source("R/utils.R")
 
 
-
+# Fitting distributions to data 
 # Function to get fit and estimate fit from data, calculate ks test, aic and bic. If using fitdistplus, obtain 
 # aic and bic directly. Else, use custon formula 
 get_fit <- function(scores, thresh = 10){
-  dist_list <- c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "JSU")
+  dist_list <- c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "JSU", "mnorm")
   result <- tibble(dist = dist_list, AIC = rep(0,length(dist_list)), BIC = rep(0, length(dist_list)),
                    AD = rep(0, length(dist_list)))
   for (i in 1:nrow(result)){
@@ -32,7 +34,7 @@ get_fit <- function(scores, thresh = 10){
       } else if (result[i,]$dist == "t"){
         fit <- try(fitdist(scores, distr = "t", start = list(df = 1)), silent = T)
       } else if (result[i,]$dist == "gnorm"){
-        fit <- fitdist(scores, distr = "gnorm", start = list(mu = 0, alpha = 3, beta = 2))
+        fit <- fitdist(scores, distr = "gnorm", start = list(mu = 0, alpha = 1, beta = 2), control = list(maxit = 10000))
       } else if (result[i,]$dist == "laplace"){
         fit <- fitdist(scores, distr = "laplace", start = list(location = 0, scale = 1))
       } else if (result[i,]$dist == "cauchy"){
@@ -41,7 +43,7 @@ get_fit <- function(scores, thresh = 10){
         fit <- fitdist(scores, distr = "logis", start = list(location = 0, scale = 1))
       } else if (result[i,]$dist == "JSU"){
         fit <- fitdist(scores, distr = "JSU", start = list(mu = 0, sigma = 3, nu = 2, tau = 2), 
-                       control = list(maxit = 1000))
+                       control = list(maxit = 10000))
       }
       try(stat <- gofstat(fit), silent = T)
       result[i,]$AIC <- stat$aic
@@ -52,6 +54,17 @@ get_fit <- function(scores, thresh = 10){
         fit <- JohnsonFit(scores)
         loglikelihood <- sum(dJohnson(x = scores, parms = fit, log = T))
         dist_name <- "pJohnson"
+      } else if (result[i,]$dist == "mnorm"){
+        fit <- normalmixEM(x = scores)
+        loglikelihood <- fit$loglik
+        pmnorm <- function(x, parm){
+          if (!c("mu","sigma", "pmix") %in% names(parm)){
+            stop("Parameters requires mu, sigma and pmix")
+          }
+          parm$pmix[1]*pnorm(x,parm$mu[1], parm$sigma[1]) + (1-parm$pmix[1])*pnorm(x,parm$mu[2],parm$sigma[2])
+        }
+        dist_name <- "pmnorm"
+        fit <- list(mu = fit$mu, sigma = fit$sigma, pmix = fit$lambda)
       }
       result[i,]$AIC <- 2*4 - 2*loglikelihood
       result[i,]$BIC <- 4*log(length(scores)) - 2*loglikelihood 
@@ -95,15 +108,15 @@ fit_plot <- parameters %>% unnest(c(param, fit_eval)) %>% group_by(spar, n_infla
          lowerAIC = mean(AIC) - sd(AIC), lowerBIC = mean(BIC) - sd(BIC), lowerAD = mean(AD) - sd(AD)) %>%
   rename("Set Size" = n_inflate, "Inter-taxa correlation" = s_rho)
 
-aic_plt <- ggplot(fit_plot, aes(x = spar, y = meanAIC, col = dist)) + geom_point() + 
-  geom_errorbar(aes(ymax = upperAIC, ymin = lowerAIC), width = 0.05) + 
-  geom_line() + facet_grid(`Set Size` ~ `Inter-taxa correlation`) + scale_color_lancet() + theme_bw()
-aic_plt
+# Remove t distribution
+
+fit_plot <- fit_plot %>% filter(dist != "t")
+
 bic_plt <- ggplot(fit_plot, aes(x = spar, y = meanBIC, col = dist)) + geom_point() + 
   geom_errorbar(aes(ymax = upperBIC, ymin = lowerBIC), width = 0.05) + 
   geom_line() + facet_grid(`Inter-taxa correlation` ~ `Set Size`, labeller = label_both) + 
   scale_color_npg(name = "Distributions", labels = c("Cauchy", "Generalized Normal", "Johnson SU", 
-                                                     "Laplace", "Logistic", "Normal", "Student's t")) + 
+                                                     "Laplace", "Logistic", "Mixture Normal", "Normal", "Student's t")) + 
   theme_bw() +
   labs(y = "Bayesian Information Criterion (10 data sets, N = 1000)", x = "Sparsity")
 
@@ -112,24 +125,93 @@ ad_plt <- ggplot(fit_plot, aes(x = spar, y = meanAD, col = dist)) + geom_point()
   geom_errorbar(aes(ymax = upperAD, ymin = lowerAD), width = 0.05) + 
   geom_line() + facet_grid(`Inter-taxa correlation` ~ `Set Size`, labeller = label_both) + 
   scale_color_npg(name = "Distributions", labels = c("Cauchy", "Generalized Normal", "Johnson SU", 
-                                                     "Laplace", "Logistic", "Normal", "Student's t")) + theme_bw() + 
+                                                       "Laplace", "Logistic", "Mixture Normal", "Normal", "Student's t")) + theme_bw() + 
   labs(y = "Anderson-Darling GoF (10 data sets, N = 1000)", x = "Sparsity")
 
 
 ftplot <- bic_plt + ad_plt + plot_layout(guides = "collect", tag_level = "new") 
-ggsave(ftplot, filename = "docs/manuscript/figures/fit_evaluation.png", dpi = 300, width = 15, height = 8)
+ggsave(ftplot, filename = "docs/manuscript/figures/fit_evaluation_without_t.png", dpi = 300, width = 15, height = 8)
 
 
-# TODO: Create bootstrapped estimates for kurtosis and skewness
-parameters$kurtosis <- map_dbl(parameters$scores, .f = ~{
-  boot <- vector(length = 500)
-  for (i in 1:length(boot)){
-    sample(.x, replace = T, size = length(.x))
+# Compute kurtosis and skewness with bootstrapped resampling
+parameters$shape <- map(parameters$scores, .f = ~{
+  kur <- vector(length = 100)
+  skew <- vector(length = 100)
+  for (i in 1:100){
+    samp <- sample(.x, replace = T, size = length(.x))
+    kur[i] <- kurtosis(as.vector(samp))$Kurtosis
+    skew[i] <- skewness(as.vector(samp))$Skewness
   }
-  kurtosis(as.vector(.x))
-  return(boot)
+  tibble(kurtosis = c(kurtosis(as.vector(.x))$Kurtosis, kur), 
+         skewness = c(skewness(as.vector(.x))$Skewness, skew),
+         label = c("obs",rep("boot",100)))
 })
 
-parameters$skewness <- map_dbl(parameters$scores, .f = ~{
-  skewness(as.vector(.x))
+
+shape_plot <- parameters %>% unnest(c(param, shape)) %>% rename("Set Size" = n_inflate, "Sparsity" = spar)
+
+
+
+low_corr <- ggplot(shape_plot %>% filter(s_rho == 0.1) %>% arrange(label), 
+                   aes(x = skewness, y = kurtosis, col = label, alpha = factor(label), size = factor(label))) + 
+            geom_point() +
+            facet_grid(`Set Size` ~ `Sparsity`, labeller = label_both) + 
+            scale_color_npg(name = "Label", labels = c("Bootstrapped", "Observed")) + 
+            scale_alpha_manual(guide = "none", values = c(0.3, 1)) + 
+            scale_size_manual(guide = "none", values  = c(1,2.5)) +
+            labs(x = "Skewness", y = "Kurtosis", subtitle = "Low Inter-taxa Correlation") + theme_bw()
+
+med_corr <- ggplot(shape_plot %>% filter(s_rho == 0.3) %>% arrange(label), 
+                   aes(x = skewness, y = kurtosis, col = label, alpha = factor(label), size = factor(label))) + 
+  geom_point() +
+  facet_grid(`Set Size` ~ `Sparsity`, labeller = label_both) + 
+  scale_color_npg(name = "Label", labels = c("Bootstrapped", "Observed")) + 
+  scale_alpha_manual(guide = "none", values = c(0.3, 1)) + 
+  scale_size_manual(guide = "none", values  = c(1,2.5)) +
+  labs(x = "Skewness", y = "Kurtosis", subtitle = "Medimum Inter-taxa Correlation") + theme_bw()
+
+high_corr <- ggplot(shape_plot %>% filter(s_rho == 0.5) %>% arrange(label), 
+                    aes(x = skewness, y = kurtosis, col = label, alpha = factor(label), size = factor(label))) + 
+  geom_point() +
+  facet_grid(`Set Size` ~ `Sparsity`, labeller = label_both) + 
+  scale_color_npg(name = "Label", labels = c("Bootstrapped", "Observed")) + 
+  scale_alpha_manual(guide = "none", values = c(0.3, 1)) + 
+  scale_size_manual(guide = "none", values  = c(1,2.5)) +
+  labs(x = "Skewness", y = "Kurtosis", subtitle = "High Inter-taxa Correlation") + theme_bw()
+
+shpplot <- low_corr + med_corr + high_corr +  plot_layout(guides = "collect", tag_level = "new") 
+ggsave(shpplot, filename = "docs/manuscript/figures/kurtosis_skewness_sim.png", dpi = 300, width = 20, height = 10)
+
+
+
+# Real data  
+data <- qread(file = "data/hmp_stool_16S.qs")
+otu_tab <- otu_table(data)
+otu_tab <- otu_tab[sample(1:nrow(otu_tab), replace = F),]
+otu_table(data) <- otu_table(otu_tab, taxa_are_rows = T)
+
+A <- taxtab2A(tax_table(data), agg_level = "GENUS")
+X <- unclass(t(otu_table(data)))
+
+cilr_scores <- simple_cilr(X = X, A = A, preprocess = T, pcount = 1)
+fitted <- apply(cilr_scores, 2, function(.x){
+  get_fit(scores = as.vector(.x))
 })
+
+plotdist(cilr_scores[,1],"gnorm", para = list(mu = 0, alpha = 1, beta = 2))
+
+real_data_fit <- as_tibble_col(fitted) %>% mutate(label = names(fitted)) %>% unnest(value)
+
+bic_plot <- ggplot(real_data_fit, aes(y = BIC, x = dist)) + geom_boxplot(fill = "steelblue", alpha = 0.8) + 
+  scale_x_discrete(labels = c("cauchy" = "Cauchy", "gnorm" = "Generalized \n Normal", "JSU" = "Johnson \n SU", 
+                              "laplace" = "Laplace", "logistic" = "Logistic", "mnorm" = "Mixture \n Normal", 
+                              "norm" = "Normal")) +
+  labs(x = "Distribution", y = "Bayesian Information Criterion (40 sets)") + theme_bw() 
+ad_plot <- ggplot(real_data_fit, aes(y = AD, x = dist)) + geom_boxplot(fill = "steelblue", alpha = 0.8) + 
+  scale_x_discrete(labels = c("cauchy" = "Cauchy", "gnorm" = "Generalized \n Normal", "JSU" = "Johnson \n SU", 
+                              "laplace" = "Laplace", "logistic" = "Logistic", "mnorm" = "Mixture \n Normal", 
+                              "norm" = "Normal")) +
+  labs(x = "Distribution", y = "Anderson Darling GoF (40 sets)") + theme_bw() 
+
+realdatplot <- bic_plot + ad_plot
+ggsave(realdatplot, filename = "docs/manuscript/figures/real_data_fit.png", dpi = 300, width = 10, height = 10)
