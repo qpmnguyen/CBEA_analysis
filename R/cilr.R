@@ -5,6 +5,8 @@
 # TODO: 
 library(compositions)
 library(fitdistrplus)
+library(sn)
+library(mixtools)
 
 #' @title Function to perform simple cilr transformation for a set
 #' @param X Matrix of n x p dimensions 
@@ -67,7 +69,6 @@ cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resa
     distr <- "norm"
     param <- c(mean = 0, sd = 1)
   }
-  
   p_val <- map_dfc(1:ncol(scores), ~get_p_values(scores = scores[,.x], distr = distr, param = param, alt = alt))
   colnames(p_val) <- colnames(scores)
   if (return == "sig"){
@@ -82,14 +83,20 @@ estimate_distr <- function(data, distr, init){
   dist <- tryCatch({
     if (missing(init)){
       if(distr == "t"){
-        init <- list(df = 13)
-      } else {
+        init <- list(df = 1)
+      } else if (distr == "norm"){
         init <- list(mean = 0, sd = 1)
+      } else if (distr == "st"){
+        init <- list(xi = 0, omega = 1, alpha = 1, nu = 1)
       }
-      message(glue("Fitting permuted null on the {d} distribution", d = distr))
-      message(glue("Using default initialization parameters {init}", init = init))
     }
-    fitdistrplus::fitdist(data, distr = distr, method = "mle", start = init)
+    message(glue("Fitting permuted null on the {d} distribution", d = distr))
+    if (distr != "mnorm"){
+      fitdistrplus::fitdist(data, distr = distr, method = "mle", start = init, control = list(maxit = 1000))
+    } else {
+      fit <- normalmixEM(x = data)
+      list(estimate = list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda))
+    }
   }, 
   error = function(cond){
     message("There fitting process cannot identify proper distribution parameters")
@@ -115,6 +122,11 @@ get_p_values <- function(scores, param, alt, distr){
         p_val <- 2*(1-pnorm(scores, mean = param['mean'], sd = param['sd']))
       } else if (distr == "t"){
         p_val <- 2*(1 - pt(scores, df = param['df']))
+      } else if (distr == "mnorm"){
+        p_val <- 2*(1 - pmnorm(scores, parm = param))
+      } else if (distr == "st"){
+        p_val <- 2*(1 - pst(scores, xi = param['xi'], omega = param['omega'], alpha = param['alpha'],
+                            nu = param['nu']))
       }
     } else {
       message("Using 1-sided test")
@@ -122,6 +134,11 @@ get_p_values <- function(scores, param, alt, distr){
         p_val <- 1 - pnorm(scores, mean = param['mean'], sd = param['sd'])
       }else if (distr == "t"){
         p_val <- 1 - pt(scores, df = param['df'])
+      } else if (distr == "mnorm"){
+        p_val <- 1- pmnorm(scores, parm = param)
+      } else if (distr == "st"){
+        p_val <- 1 - pst(scores, xi = param['xi'], omega = param['omega'], alpha = param['alpha'],
+                            nu = param['nu'])
       }
     }
   }

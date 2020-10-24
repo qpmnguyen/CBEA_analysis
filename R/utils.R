@@ -3,6 +3,7 @@ library(GSVA)
 library(ROCR)
 library(MASS)
 library(compositions)
+library(mixtools)
 
 
 #' Calculate test statistics  
@@ -161,4 +162,62 @@ sim2phylo <- function(sim){
   return(physeq)
 }
 
+
+#' Mixture p, d, r, q functions for mixture normals 
+#' Quantile
+qmnorm <- function(p, parm, log=FALSE){
+  p <- as.vector(p)
+  if(all(names(parm) == c('mu', 'sigma', 'lambda')) == FALSE){
+    stop("Parameters requires mu, sigma and lambda")
+  }
+  n_components <- length(parm$sigma)
+  print(paste(n_components, "components!"))
+  comp <- vector(mode = "list", length = n_components)
+  for (i in 1:n_components){
+    comp[[i]] <- parm$lambda[i] * qnorm(p, parm$mu[i], parm$sigma[i], log.p = log)
+  }
+  print(comp)
+  return(Reduce("+", comp))
+}
+
+# Density
+dmnorm <- function(x, parm, log=FALSE){
+  x <- as.vector(x)
+  if(all(names(parm) == c('mu', 'sigma', 'lambda')) == FALSE){
+    stop("Parameters requires mu, sigma and lambda")
+  }
+  n_components <- length(parm$sigma)
+  print(paste(n_components, "components!"))
+  comp <- vector(mode = "list", length = n_components)
+  for (i in 1:n_components){
+    comp[[i]] <- parm$lambda[i] * dnorm(x, parm$mu[i], parm$sigma[i], log = log)
+  }
+  print(comp)
+  return(Reduce("+", comp))
+}
+
+# Distribution 
+pmnorm <- function(q, parm, log = FALSE){
+  q <- as.vector(q)
+  if(all(names(parm) == c('mu', 'sigma', 'lambda')) == FALSE){
+    stop("Parameters requires mu, sigma and lambda")
+  }
+  n_components <- length(parm$sigma)
+  print(paste(n_components, "components!"))
+  comp <- vector(mode = "list", length = n_components)
+  for (i in 1:n_components){
+    comp[[i]] <- parm$lambda[i] * pnorm(q, parm$mu[i], parm$sigma[i], log.p = log)
+  }
+  print(comp)
+  return(Reduce("+", comp))
+}
+
+
+# Random generation 
+rmnorm <- function(n, parm){
+  if(names(parm) != c('mu', 'sigma', 'lambda')){
+    stop("Parameters requires mu, sigma and pmix")
+  }
+  rnormmix(n = n, lambda = parm$lambda, sigma = parm$sigma, mu = parm$mu)
+}
 

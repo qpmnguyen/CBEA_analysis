@@ -13,7 +13,10 @@ library(VGAM)
 library(goftest)
 library(furrr)
 library(parameters)
+library(mixtools)
 library(qs)
+library(sn)
+library(goftest)
 
 source("R/cilr.R")
 source("R/simulations.R")
@@ -24,11 +27,11 @@ source("R/utils.R")
 # Function to get fit and estimate fit from data, calculate ks test, aic and bic. If using fitdistplus, obtain 
 # aic and bic directly. Else, use custon formula 
 get_fit <- function(scores, thresh = 10){
-  dist_list <- c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "JSU", "mnorm")
+  dist_list <- c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "mnorm", "st", "JSU")
   result <- tibble(dist = dist_list, AIC = rep(0,length(dist_list)), BIC = rep(0, length(dist_list)),
                    AD = rep(0, length(dist_list)))
   for (i in 1:nrow(result)){
-    if (result[i,]$dist %in% c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "JSU")){
+    if (result[i,]$dist %in% c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "JSU", "st")){
       if(result[i,]$dist == "norm"){
         fit <- fitdist(scores, distr = "norm")
       } else if (result[i,]$dist == "t"){
@@ -44,6 +47,9 @@ get_fit <- function(scores, thresh = 10){
       } else if (result[i,]$dist == "JSU"){
         fit <- fitdist(scores, distr = "JSU", start = list(mu = 0, sigma = 3, nu = 2, tau = 2), 
                        control = list(maxit = 10000))
+      } else if (result[i,]$dist == "st"){
+        fit <- fitdist(scores, distr = "st", start = list(xi = 0, omega = 1, alpha = 1, nu = 1), 
+                       control = list(maxit = 10000))
       }
       try(stat <- gofstat(fit), silent = T)
       result[i,]$AIC <- stat$aic
@@ -57,14 +63,8 @@ get_fit <- function(scores, thresh = 10){
       } else if (result[i,]$dist == "mnorm"){
         fit <- normalmixEM(x = scores)
         loglikelihood <- fit$loglik
-        pmnorm <- function(x, parm){
-          if (!c("mu","sigma", "pmix") %in% names(parm)){
-            stop("Parameters requires mu, sigma and pmix")
-          }
-          parm$pmix[1]*pnorm(x,parm$mu[1], parm$sigma[1]) + (1-parm$pmix[1])*pnorm(x,parm$mu[2],parm$sigma[2])
-        }
         dist_name <- "pmnorm"
-        fit <- list(mu = fit$mu, sigma = fit$sigma, pmix = fit$lambda)
+        fit <- list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda)
       }
       result[i,]$AIC <- 2*4 - 2*loglikelihood
       result[i,]$BIC <- 4*log(length(scores)) - 2*loglikelihood 
@@ -198,7 +198,6 @@ fitted <- apply(cilr_scores, 2, function(.x){
   get_fit(scores = as.vector(.x))
 })
 
-plotdist(cilr_scores[,1],"gnorm", para = list(mu = 0, alpha = 1, beta = 2))
 
 real_data_fit <- as_tibble_col(fitted) %>% mutate(label = names(fitted)) %>% unnest(value)
 
@@ -215,3 +214,38 @@ ad_plot <- ggplot(real_data_fit, aes(y = AD, x = dist)) + geom_boxplot(fill = "s
 
 realdatplot <- bic_plot + ad_plot
 ggsave(realdatplot, filename = "docs/manuscript/figures/real_data_fit.png", dpi = 300, width = 10, height = 10)
+
+# Generating simulated values based on fitted distributions
+generate_based_fit <- function(scores, n_sim = 1e4, distr = "t"){
+  scores <- as.vector(scores)
+  if (distr == "t"){
+    fit <- fitdist(scores, distr = "t", method = "mle", start = list(df = 2), control = list(maxit = 1e4))
+    data <- rt(n_sim, df = fit$estimate['df'])
+    parms <- list(df = fit$estimate['df'])
+  } else if (distr == "norm"){
+    fit <- fitdist(scores, distr = "norm", method = "mle")
+    data <- rnorm(n_sim, mean = fit$estimate['mean'], sd = fit$estimate['sd'])
+    parms <- list(mean = fit$estimate['mean'], sd = fit$estimate['sd'])
+  } else if (distr == "mnorm"){
+    fit <-  normalmixEM(scores)
+    data <- rnormmix(n_sim, lambda = fit$lambda, mu = fit$mu, sigma = fit$sigma)
+    parms <- list(lambda = fit$lambda, mu = fit$mu, sigma = fit$sigma)
+  }
+  return(data)
+}
+
+# Plot for density
+colors <- pal_npg('nrc')(3)
+plot_fit <- qplot(x = cilr_scores[,1], geom = "blank", xlim = c(min(cilr_scores[,1]), max(cilr_scores[,1]))) + 
+  geom_histogram(aes(y = stat(density)), fill = "steelblue", alpha = 0.8) + 
+  geom_density(data = data.frame(fit = generate_based_fit(cilr_scores[,1], distr = 't')), 
+               aes(x = fit, col = colors[1]), size = 2) +
+  geom_density(data = data.frame(fit = generate_based_fit(cilr_scores[,1], distr = 'norm')), 
+               aes(x = fit, col = colors[2]), size = 2) +
+  geom_density(data = data.frame(fit = generate_based_fit(cilr_scores[,1], distr = 'mnorm')), 
+               aes(x = fit, col = c('test' = colors[3])), size = 2) +
+  scale_color_manual(name = "Distributions", labels = c("Mixed Normal", "Normal", "t"), values = colors) + 
+  theme_bw() + labs(x = "cILR scores from null HMP data (1 set)", y = "Density")
+
+ggsave(plot_fit, filename = "docs/manuscript/figures/distr_density_plot_real.png", dpi = 300, width = 5, height = 5)
+

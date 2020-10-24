@@ -9,7 +9,7 @@
 \usepackage{float}
 \renewcommand{\familydefault}{\sfdefault}
 
-\title{Taxonomic Enrichment Analysis with Isometric Log-Ratios}
+\title{cILR: Taxonomic Enrichment Analysis with Isometric Log-Ratios}
 \author[1,2]{Quang P. Nguyen}
 \author[1,2]{Anne G. Hoen}
 \author[1]{H. Robert Frost}
@@ -24,11 +24,12 @@
 \captionsetup[figure]{labelfont={bf},name={Figure},labelsep=period, margin=2cm}
 
 \begin{abstract}
-    \noindent High-dimensionality is a challenging problem in analyzing microbiome relative abundance data. Studies commonly alleviate this problem by aggregating variables into sets, most commonly higher order taxonomic classifications. However, such approaches are often naive and does not consider the hypothesis aggregation problem when testing for significance at multiple taxonomic levels. Here we introduced a novel competitive taxonomic enrichment method based on the isometric log-ratio transformation (cILR) for single samples. We demonstrated that our method controls type I error and power for hypothesis testing at the single sample level, as well as providing more robust results than other single sample enrichment methods for differential abundance and prediction tasks.   
+    \noindent High-dimensionality and sparsity are challenging problems in statistical analysis of microbiome relative abundance data. One approach is to aggregate taxa to sets, most commonly to Linnean taxonomic categories identified through classification of representative sequences. However, most researchers perform aggregation through simple pairwise summation of counts. This approach is naive, whereby downstream analyses still suffer from the same statistical problems. To address this issue, we developed a competitive enrichment method based on the isometric log-ratio transformation (cILR) for microbiome relative abundance data. Our method generates sample-specific taxa group enrichment scores based on a taxa-by-group matrix with a well-defined null hypothesis allowing for inference at both the sample and population levels. Here we demonstrated the performance of our method for multiple microbiome analysis tasks.   
 \end{abstract}
 
 \section*{Background}
 \section*{Methods}
+
 \section*{Results}
 In this section we present the performance of our proposed method for three applicable microbiome analysis tasks: sample level enrichment testing, differential abundance testing, and prediction. We obtained these results from both parametric simulations and examples from real data.  
 \subsection*{Enrichment testing at the sample level}

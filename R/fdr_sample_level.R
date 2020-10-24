@@ -52,14 +52,22 @@ parameters$label_cilr_norm <- future_map(1:nrow(parameters), .f = ~{
 }, .options = opt, .progress = T)
 plan(sequential)
 
-plan(multisession, workers = 3)
-parameters$label_cilr_t <- future_map(1:nrow(parameters), .f = ~{
+
+parameters$label_cilr_st <- map(1:nrow(parameters), .f = ~{
   data <- qread(file = glue("objects/fdr_sim/simulation_{i}.qs", i = .x))
   cilr_eval(scores = parameters$scores_cilr[[.x]], 
-            distr = "t", alt = "greater", thresh = 0.05, resample = T, 
+            distr = "st", alt = "greater", thresh = 0.05, resample = T, 
             X = data$X, A = data$A, return = "sig")
-}, .options = opt, .progress = T)
-plan(sequential)
+})
+
+
+
+parameters$label_cilr_mnorm <- map(1:nrow(parameters), .f = ~{
+  data <- qread(file = glue("objects/fdr_sim/simulation_{i}.qs", i = .x))
+  cilr_eval(scores = parameters$scores_cilr[[.x]], 
+            distr = "mnorm", alt = "greater", thresh = 0.05, resample = T, 
+            X = data$X, A = data$A, return = "sig")
+})
 
 # theoretical_se <- function(label, ngroups = 200){
 #   label <- sample(label, size = length(label), replace = F)
@@ -93,8 +101,8 @@ plan(sequential)
 parameters$fdr_cilr_raw <- map(parameters$label_cilr_raw, .f = ~calculate_statistic(eval = "fdr", pred = .x))
 parameters$fdr_cilr_norm <- map(parameters$label_cilr_norm, .f = ~calculate_statistic(eval = "fdr", pred = .x))
 parameters$fdr_wc <- map(parameters$label_wc, .f = ~calculate_statistic(eval = "fdr", pred = .x))
-parameters$fdr_cilr_t <- map(parameters$label_cilr_t, .f = ~calculate_statistic(eval = "fdr", pred = .x))
-
+parameters$fdr_cilr_st <- map(parameters$label_cilr_st, .f = ~calculate_statistic(eval = "fdr", pred = .x))
+parameters$fdr_cilr_mnorm <- map(parameters$label_cilr_mnorm, .f = ~calculate_statistic(eval = "fdr", pred = .x))
 # parameters$fdr_se_theo_cilr_raw <- do.call(rbind, map(parameters$label_cilr_raw, .f = ~theoretical_se(.x)))
 # parameters$fdr_se_emp_cilr_raw <- do.call(rbind, map(parameters$label_cilr_raw, .f = ~empirical_se(.x)))
 # 

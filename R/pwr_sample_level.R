@@ -54,15 +54,22 @@ parameters$label_cilr_norm <- future_map(1:nrow(parameters), .f = ~{
 }, .options = opt, .progress = T)
 plan(sequential)
 
-plan(multisession, workers = 3)
-parameters$label_cilr_t <- future_map(1:nrow(parameters), .f = ~{
+
+parameters$label_cilr_st <- map(1:nrow(parameters), .f = ~{
   data <- qread(file = glue("objects/pwr_sim/simulation_{i}.qs", i = .x))
   cilr_eval(scores = parameters$scores_cilr[[.x]], 
-            distr = "t", alt = "greater", thresh = 0.05, resample = T, 
+            distr = "st", alt = "greater", thresh = 0.05, resample = T, 
             X = data$X, A = data$A, return = "sig")
-}, .options = opt, .progress = T)
-plan(sequential)
+})
 
+
+
+parameters$label_cilr_mnorm <- map(1:nrow(parameters), .f = ~{
+  data <- qread(file = glue("objects/pwr_sim/simulation_{i}.qs", i = .x))
+  cilr_eval(scores = parameters$scores_cilr[[.x]], 
+            distr = "mnorm", alt = "greater", thresh = 0.05, resample = T, 
+            X = data$X, A = data$A, return = "sig")
+})
 
 
 # generating fdr comparable statistics 
@@ -72,9 +79,10 @@ parameters$pwr_cilr_norm <- map(parameters$label_cilr_norm, .f = ~calculate_stat
                                                                                       true = rep(1, length(.x))))
 parameters$pwr_wc <- map(parameters$label_wc, .f = ~calculate_statistic(eval = "pwr", pred = .x, 
                                                                         true = rep(1, length(.x))))
-parameters$pwr_cilr_t <- map(parameters$label_cilr_t, .f = ~calculate_statistic(eval = "pwr", pred = .x,
+parameters$pwr_cilr_st <- map(parameters$label_cilr_st, .f = ~calculate_statistic(eval = "pwr", pred = .x,
                                                                                 true = rep(1, length(.x))))
-
+parameters$pwr_cilr_mnorm <- map(parameters$label_cilr_mnorm, .f = ~calculate_statistic(eval = "pwr", pred = .x, 
+                                                                                        true = rep(1, length(.x))))
 qsave(parameters, file = "objects/pwr_ss_eval.qs")
 
 
