@@ -24,14 +24,14 @@
 \captionsetup[figure]{labelfont={bf},name={Figure},labelsep=period, margin=2cm}
 
 \begin{abstract}
-    \noindent High-dimensionality and sparsity are challenging problems in statistical analysis of microbiome relative abundance data. One approach is to aggregate taxa to sets, most commonly to Linnean taxonomic categories identified through classification of representative sequences. However, most researchers perform aggregation through simple pairwise summation of counts. This approach is naive, whereby downstream analyses still suffer from the same statistical problems. To address this issue, we developed a competitive enrichment method based on the isometric log-ratio transformation (cILR) for microbiome relative abundance data. Our method generates sample-specific taxa group enrichment scores based on a taxa-by-group matrix with a well-defined null hypothesis allowing for inference at both the sample and population levels. Here we demonstrated the performance of our method for multiple microbiome analysis tasks.   
+    \noindent High-dimensionality and sparsity are challenging problems in statistical analysis of microbiome relative abundance data. One approach is to aggregate taxa to sets, most commonly to Linnean taxonomic categories identified through classification of representative sequences. However, most researchers perform aggregation through simple pairwise summation of counts. To address this issue, we developed a competitive set enrichment method based on the isometric log-ratio transformation (cILR) for microbiome relative abundance data. Our method generates sample-specific taxa set enrichment scores with a well-defined null hypothesis allowing for inference at both the sample and population levels. Here we demonstrated the performance of our method for multiple microbiome analysis tasks, including differential abundance testing and prediction. 
 \end{abstract}
 
 \section*{Background}
 \section*{Methods}
 
 \section*{Results}
-In this section we present the performance of our proposed method for three applicable microbiome analysis tasks: sample level enrichment testing, differential abundance testing, and prediction. We obtained these results from both parametric simulations and examples from real data.  
+In this section we present the performance of our proposed method for three applicable microbiome analysis tasks: sample level enrichment, differential abundance, and prediction. We obtained these results from both parametric simulations and examples from real data.  
 \subsection*{Enrichment testing at the sample level}
 There are various settings where researchers want to test for enrichment of certain groups of microbes in an experiment. 
 \subsubsection*{Type I error control and power}
