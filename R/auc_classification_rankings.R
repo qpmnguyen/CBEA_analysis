@@ -42,7 +42,8 @@ with_progress({
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
     p()
     data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
-    simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1, resample = T, method = "zscore", maxrestarts = 50, maxit=2000)
+    simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1, resample = T, method = "zscore", on_error = "NA",
+                maxrestarts = 50, maxit=2000)
   }, .progress = TRUE)
 })
 plan(sequential)
@@ -56,7 +57,8 @@ with_progress({
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
     p()
     data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
-    simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1, resample = T, method = "cdf", maxrestarts = 50, maxit=2000)
+    simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1, resample = T, method = "cdf", on_error = "NA",
+                maxrestarts = 50, maxit=2000)
   }, .progress = TRUE)
 })
 plan(sequential)
