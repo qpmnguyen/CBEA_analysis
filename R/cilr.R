@@ -11,7 +11,8 @@ library(mixtools)
 #' @title Function to perform simple cilr transformation for a set
 #' @param X Matrix of n x p dimensions 
 #' @param A Matrix of p x m dimensions
-simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transform = NULL, method = "raw"){
+simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, transform = NULL, 
+                        abs = F, method = "cdf", ...){
   if(preprocess == T){
     if (missing(pcount)){
       message("Adding default pseudocount of 1")
@@ -26,6 +27,7 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
     }
     X <- process(X, pcount = pcount, transform = transform)
   }
+  M <- X[,sample(1:ncol(X))] # shuffling columns since we use index 
   R <- matrix(0, ncol = ncol(A), nrow = nrow(X))
   p <- ncol(X)
   for (i in seq(ncol(A))){
@@ -36,16 +38,28 @@ simple_cilr <- function(X, A, abs = FALSE, preprocess = T, pcount = NULL, transf
     }
     #TODO: Deal with Singleton Sets 
     num <- geometricmeanRow(x = as.matrix(X[,A[,i] == 1]))
-    if (method == "raw"){
-      denom <- geometricmeanRow(x = X[,A[,i] == 0])
-    } else if (method == "random"){
-      rand_idx <- sample(1:ncol(X), size = sum(data$A[,1] == 0), replace = F)
-      denom <- geometricmeanRow(x = X[,rand_idx])
-    } else if (method == "sample"){
-      denom <- geometricmeanRow(x = X)
+    denom <- geometricmeanRow(x = X[,A[,i] == 0])
+    cilr <- scale * log(num/denom)
+    if (resample == T){
+      if (missing(method)){
+        stop("Need to require score adjustment if resample is TRUE")
+      }
+      cilr_resamp <- scale * log(geometricmeanRow(x = as.matrix(M[,A[,i] == 1]))/geometricmeanRow(x = M[,A[,i] == 0]))
+      # Fitting a normal mixture distribution
+      fit <- normalmixEM(cilr_resamp, ...)
+      parm <- list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda)
+      if (method == "cdf"){
+        R[,i] <- pmnorm(cilr, parm = parm)
+      } else if (method == "zscore"){
+        mean <- sum(fit$lambda * fit$mu)
+        sd <- sqrt(sum((fit$sigma + fit$mu - mean)*fit$lambda))
+        R[,i] <- (cilr - mean) * (1/sd)
+      }
+    } else {
+      R[,i] <- cilr
     }
-    R[,i] <- scale * log(num/denom)
   }
+  
   colnames(R) <- colnames(A)
   rownames(R) <- rownames(X)
   if (abs == T){
@@ -144,3 +158,60 @@ get_p_values <- function(scores, param, alt, distr){
   }
   return(p_val)
 }
+
+
+#' Mixture p, d, r, q functions for mixture normals 
+#' Quantile
+qmnorm <- function(p, parm, log=FALSE){
+  p <- as.vector(p)
+  if(all(names(parm) == c('mu', 'sigma', 'lambda')) == FALSE){
+    stop("Parameters requires mu, sigma and lambda")
+  }
+  n_components <- length(parm$sigma)
+  print(paste(n_components, "components!"))
+  comp <- vector(mode = "list", length = n_components)
+  for (i in 1:n_components){
+    comp[[i]] <- parm$lambda[i] * qnorm(p, parm$mu[i], parm$sigma[i], log.p = log)
+  }
+  return(Reduce("+", comp))
+}
+
+# Density
+dmnorm <- function(x, parm, log=FALSE){
+  x <- as.vector(x)
+  if(all(names(parm) == c('mu', 'sigma', 'lambda')) == FALSE){
+    stop("Parameters requires mu, sigma and lambda")
+  }
+  n_components <- length(parm$sigma)
+  print(paste(n_components, "components!"))
+  comp <- vector(mode = "list", length = n_components)
+  for (i in 1:n_components){
+    comp[[i]] <- parm$lambda[i] * dnorm(x, parm$mu[i], parm$sigma[i], log = log)
+  }
+  return(Reduce("+", comp))
+}
+
+# Distribution 
+pmnorm <- function(q, parm, log = FALSE){
+  q <- as.vector(q)
+  if(all(names(parm) == c('mu', 'sigma', 'lambda')) == FALSE){
+    stop("Parameters requires mu, sigma and lambda")
+  }
+  n_components <- length(parm$sigma)
+  print(paste(n_components, "components!"))
+  comp <- vector(mode = "list", length = n_components)
+  for (i in 1:n_components){
+    comp[[i]] <- parm$lambda[i] * pnorm(q, parm$mu[i], parm$sigma[i], log.p = log)
+  }
+  return(Reduce("+", comp))
+}
+
+
+# Random generation 
+rmnorm <- function(n, parm){
+  if(names(parm) != c('mu', 'sigma', 'lambda')){
+    stop("Parameters requires mu, sigma and pmix")
+  }
+  rnormmix(n = n, lambda = parm$lambda, sigma = parm$sigma, mu = parm$mu)
+}
+

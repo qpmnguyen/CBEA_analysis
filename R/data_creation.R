@@ -51,7 +51,7 @@ if (opt$setting == "fdr"){
   sim <- list(
     rep = seq(1,100),
     n_samp = 2000, 
-    ntax = 2000, 
+    n_tax = 2000, 
     spar = c(0.2, 0.4, 0.6, 0.8),
     s_rho = c(0.1, 0.2, 0.5),
     n_inflate = 50,

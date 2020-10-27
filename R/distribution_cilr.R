@@ -193,7 +193,7 @@ otu_table(data) <- otu_table(otu_tab, taxa_are_rows = T)
 A <- taxtab2A(tax_table(data), agg_level = "GENUS")
 X <- unclass(t(otu_table(data)))
 
-cilr_scores <- simple_cilr(X = X, A = A, preprocess = T, pcount = 1)
+cilr_scores <- simple_cilr(X = X, A = A, preprocess = T, pcount = 1, resample = T, method = "zscore")
 fitted <- apply(cilr_scores, 2, function(.x){
   get_fit(scores = as.vector(.x))
 })

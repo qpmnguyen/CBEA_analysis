@@ -13,3 +13,5 @@ data <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.stool", dryrun 
 data <- data[[1]]
 data <- data %>% subset_samples(!duplicated(subjectID)) %>% subset_samples(disease = "healthy") %>%
   filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE) 
+
+# Data from 
