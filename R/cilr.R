@@ -46,14 +46,19 @@ simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, trans
       }
       cilr_resamp <- scale * log(geometricmeanRow(x = as.matrix(M[,A[,i] == 1]))/geometricmeanRow(x = M[,A[,i] == 0]))
       # Fitting a normal mixture distribution
-      fit <- normalmixEM(cilr_resamp, ...)
-      parm <- list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda)
-      if (method == "cdf"){
-        R[,i] <- pmnorm(cilr, parm = parm)
-      } else if (method == "zscore"){
-        mean <- sum(fit$lambda * fit$mu)
-        sd <- sqrt(sum((fit$sigma + fit$mu - mean)*fit$lambda))
-        R[,i] <- (cilr - mean) * (1/sd)
+      fit <- tryCatch(normalmixEM(cilr_resamp, ...), error = function(e) return(NULL))
+      if (is.null(fit)){
+        message("Cannot fit mixture distribution, you can try to solve this situation by updating the fitting parameters. Returning normal unfitted values...")
+        R[,i] <- cilr
+      } else {
+        parm <- list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda)
+        if (method == "cdf"){
+          R[,i] <- pmnorm(cilr, parm = parm)
+        } else if (method == "zscore"){
+          mean <- sum(fit$lambda * fit$mu)
+          sd <- sqrt(sum((fit$sigma + fit$mu - mean)*fit$lambda))
+          R[,i] <- (cilr - mean) * (1/sd)
+        }
       }
     } else {
       R[,i] <- cilr
