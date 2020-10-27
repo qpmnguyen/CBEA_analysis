@@ -161,6 +161,3 @@ sim2phylo <- function(sim){
   physeq <- phyloseq(tax,tab,meta)
   return(physeq)
 }
-
-
-pnorm(1 - pmnorm(cilr_scores[,1], parm = parms) + pmnorm(-1 * cilr_scores[,1], parm = parms))
