@@ -12,7 +12,7 @@ library(mixtools)
 #' @param X Matrix of n x p dimensions 
 #' @param A Matrix of p x m dimensions
 simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, transform = NULL, 
-                        abs = F, method = "cdf", ...){
+                        abs = F, method = "cdf", on_error = "unfitted",...){
   if(preprocess == T){
     if (missing(pcount)){
       message("Adding default pseudocount of 1")
@@ -48,9 +48,16 @@ simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, trans
       # Fitting a normal mixture distribution
       fit <- tryCatch(normalmixEM(cilr_resamp, ...), error = function(e) return(NULL))
       if (is.null(fit)){
-        message("Cannot fit mixture distribution, you can try to solve this situation by updating the fitting parameters. Returning normal unfitted values...")
-        R[,i] <- cilr
+        message("Cannot fit mixture distribution, you can try to solve this situation by updating the fitting parameters")
+        if (on_error == "unfitted"){
+          message("Returning normal unfitted values...")
+          R[,i] <- cilr
+        } else {
+          message("Returning NA values")
+          R[,i] <- rep(NA, length(cilr))
+        }
       } else {
+        # generate parameters
         parm <- list(mu = fit$mu, sigma = fit$sigma, lambda = fit$lambda)
         if (method == "cdf"){
           R[,i] <- pmnorm(cilr, parm = parm)
