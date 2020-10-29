@@ -47,7 +47,7 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
   set_sigma[set_sigma != 1] <- s_rho
   sigma[1:n_inflate,1:n_inflate] <- set_sigma
   
-  # First create mvnorm variables with correlation set by sigma
+  # First create mvrnorm variables with correlation set by sigma
   margins <- pnorm(mvrnorm(n = n_samp, mu = rep(0, n_tax), Sigma = sigma))
   # Second, set marginals
   # default marginals for negative binomial is from size of 0.595 and mu of 6.646 from HMP data

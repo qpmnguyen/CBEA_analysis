@@ -88,7 +88,7 @@ cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resa
       stop("Using the resampling method to generate p-values and scores requires")
     }
     X_perm <- X[,sample(seq(ncol(X)))]
-    cilr_perm <- simple_cilr(X = X_perm, A = A, preprocess = T, pcount = 1, transform = NULL)
+    cilr_perm <- simple_cilr(X = X_perm, A = A, preprocess = T, pcount = 1, transform = NULL, resample = F)
     cilr_perm <- as.vector(cilr_perm) # convert matrix to one vector 
     param <- estimate_distr(data = cilr_perm, distr = distr)
   } else { # if there is no resampling 

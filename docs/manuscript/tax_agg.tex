@@ -29,6 +29,25 @@
 
 \section*{Background}
 \section*{Methods}
+\subsection*{Competitive Isometric Log-ratio (cILR)}
+The cILR method generates sample-specific enrichment scores for microbial sets using the isometric log-ratio transformation \cite{egozcue2003}. The cILR method takes two inputs:  
+\begin{itemize}
+    \item $\mathbf{X}$: $n$ by $p$ matrix of positive counts for $p$ taxa and $n$ samples measured through either targeted sequencing (such as 16S rRNA) or whole genome shotgun sequening. Usually $\mathbf{X}$ is generated from standard sequence processing pipelines such as DADA2 \cite{callahan2016} and MetaPhlAn2 \cite{truong2015}. 
+    \item $\mathbf{A}$: $p$ by $m$ indicator matrix annotating the membership of each taxa $p$ to $m$ sets of interest. These sets can be Linnean taxonomic classifications annotated using databases such as SILVA \cite{quast2013}, or those based on more functionally driven categories such as the tropism of each microbe ($a_{i,j} = 1$ indicates that microbe $i$ belongs to set $j$). 
+\end{itemize}
+The cILR method generates one output:  
+\begin{itemize}
+    \item $\mathbf{E}$: $n$ by $m$ matrix indicating the enrichment score of $m$ pre-defined sets identified in $\mathbf{A}$ across $n$ samples. 
+\end{itemize}
+The procedure is as follows:  
+\begin{enumerate}
+    \item \textbf{Compute the cILR statistic}: Let $\mathbf{M}$ be a $n$ by $m$ matrix of cILR scores. Let $\mathbf{M}_{i,k}$ be cILR scores for set $k$ of sample $i$:   
+    $$\mathbf{M}_{i,k} = \sqrt{\frac{\sum_k A_{ik}(p - \sum_k A_{ik})}{p}} \ln \left( \frac{g(\mathbf{X}_{i,j}|\mathbf{A}_{j,k} = 1)}{g(\mathbf{X}_{i,j}|\mathbf{A}_{j,k} \neq 1))} \right)$$
+    where $g()$ is the geometric mean. This represents the ratio of the geometric mean of the relative abundance of taxa assigned to set $k$ and remainder taxa.   
+    \item \textbf{Compute the cILR statistic on permuted $\mathbf{X}$}: We seek to evaluate the empirical null distribution of the cILR statistic under $H_o$ that relative abundances in $\mathbf{X}$ of members of set $k$ are not enriched compared to those not in set $k$. Let $\mathbf{X}_p$ be the column permuted relative abundance matrix, and $\mathbf{M}_p$ be the corresponding cILR scores generated from $\mathbf{X}_p$. 
+    \item \textbf{Fit Gaussian mixture distribution for each column of $\mathbf{M}_p$}
+\end{enumerate}
+
 
 \section*{Results}
 In this section we present the performance of our proposed method for three applicable microbiome analysis tasks: sample level enrichment, differential abundance, and prediction. We obtained these results from both parametric simulations and examples from real data.  
@@ -39,13 +58,13 @@ We benchmarked type I error on real stool microbiome data from HMP for both 16S 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale = 0.5]{figures/fdr_single_sample.png}
+    \includegraphics[scale = 0.4]{figures/fdr_single_sample.png}
     \caption{Median type I error rate as a function of data sparsity benchmarked on simulated null microbiome data as enumerated in SI methods. Enrichment of a specified set was tested at the sample level using cILR and the Wilcoxon rank sum test at $\alpha$ of 0.05. Each panel represents different in set size (horizontal) and inter-taxa correlation (vertical)}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[scale=0.5]{figures/pwr_single_sample.png}
+    \includegraphics[scale=0.4]{figures/pwr_single_sample.png}
     \caption{Median power as a function of data sparsity benchmarked on simulated microbiome data as enumerated in SI Methods. Enrichment of a specified set was tested at the sample level using cILR and the Wilcoxon rank sum test at $\alpha$ of 0.05. Each panel represents different effect sizes (horizontal) and inter-taxa correlation (vertical).}
 \end{figure}
 

@@ -19,7 +19,7 @@ with_progress({
   parameters$scores_cilr <- future_map(1:nrow(parameters), .f = ~{
     p()
     data <- qread(file = glue("objects/fdr_sim/simulation_{.x}.qs"))
-    simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1)
+    simple_cilr(X = data$X, A = data$A, preprocess = T, pcount = 1, resample = F)
   })
 })
 plan(sequential)
