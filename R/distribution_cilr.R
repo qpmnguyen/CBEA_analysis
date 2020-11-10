@@ -168,7 +168,7 @@ med_corr <- ggplot(shape_plot %>% filter(s_rho == 0.3) %>% arrange(label),
   scale_color_npg(name = "Label", labels = c("Bootstrapped", "Observed")) + 
   scale_alpha_manual(guide = "none", values = c(0.3, 1)) + 
   scale_size_manual(guide = "none", values  = c(1,2.5)) +
-  labs(x = "Skewness", y = "Kurtosis", subtitle = "Medimum Inter-taxa Correlation") + theme_bw()
+  labs(x = "Skewness", y = "Kurtosis", subtitle = "Medium Inter-taxa Correlation") + theme_bw()
 
 high_corr <- ggplot(shape_plot %>% filter(s_rho == 0.5) %>% arrange(label), 
                     aes(x = skewness, y = kurtosis, col = label, alpha = factor(label), size = factor(label))) + 
@@ -187,16 +187,26 @@ ggsave(shpplot, filename = "docs/manuscript/figures/kurtosis_skewness_sim.png", 
 # Real data  
 data <- qread(file = "data/hmp_stool_16S.qs")
 otu_tab <- otu_table(data)
-otu_tab <- otu_tab[sample(1:nrow(otu_tab), replace = F),]
-otu_table(data) <- otu_table(otu_tab, taxa_are_rows = T)
 
 A <- taxtab2A(tax_table(data), agg_level = "GENUS")
 X <- unclass(t(otu_table(data)))
 
-cilr_scores <- simple_cilr(X = X, A = A, preprocess = T, pcount = 1, resample = T, method = "zscore")
+real <- simple_cilr(X = X, A = A, preprocess = T, pcount = 1, resample = F, method = "raw")
+
+otu_tab <- otu_tab[sample(1:nrow(otu_tab), replace = F),]
+otu_table(data) <- otu_table(otu_tab, taxa_are_rows = T)
+A <- taxtab2A(tax_table(data), agg_level = "GENUS")
+X <- unclass(t(otu_table(data)))
+
+perm <- simple_cilr(X = X, A = A, preprocess = T, pcount = 1, resample = F, method = "raw")
+
+
 fitted <- apply(cilr_scores, 2, function(.x){
   get_fit(scores = as.vector(.x))
 })
+
+
+
 
 
 real_data_fit <- as_tibble_col(fitted) %>% mutate(label = names(fitted)) %>% unnest(value)

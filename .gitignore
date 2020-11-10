@@ -12,3 +12,4 @@ data/download/
 objects/
 R/parameters_*.rds
 cache/
+archive/

@@ -46,13 +46,20 @@ The procedure is as follows:
     where $g()$ is the geometric mean. This represents the ratio of the geometric mean of the relative abundance of taxa assigned to set $k$ and remainder taxa.   
     \item \textbf{Compute the cILR statistic on permuted $\mathbf{X}$}: We seek to evaluate the empirical null distribution of the cILR statistic under $H_o$ that relative abundances in $\mathbf{X}$ of members of set $k$ are not enriched compared to those not in set $k$. Let $\mathbf{X}_p$ be the column permuted relative abundance matrix, and $\mathbf{M}_p$ be the corresponding cILR scores generated from $\mathbf{X}_p$. 
     \item \textbf{Fit Gaussian mixture distribution for each column of $\mathbf{M}_p$}
+    \item \textbf{Calculate finalized cILR scores as CDF values of the fitted mixture distribution}
 \end{enumerate}
 
+\subsection*{cILR and the Isometric Log Ratio Transformation}
+Microbiome data is compositional \cite{gloor2017} and as such data transformation strategies from compositional data analysis \cite{aitchison} were often employed in analyses workflows.  
+
+\subsection*{Statistical properties of cILR}
+
+\subsection*{Simulation Design}
 
 \section*{Results}
 In this section we present the performance of our proposed method for three applicable microbiome analysis tasks: sample level enrichment, differential abundance, and prediction. We obtained these results from both parametric simulations and examples from real data.  
 \subsection*{Enrichment testing at the sample level}
-There are various settings where researchers want to test for enrichment of certain groups of microbes in an experiment. 
+Our method provides a well-defined null hypothesis for significance testing at the sample level. Researchers who are interested in the enrichment of certain groups of microbes (for example, those of the \emph{Bifidobacterium} genus in infant gut microbiomes)  
 \subsubsection*{Type I error control and power}
 We benchmarked type I error on real stool microbiome data from HMP for both 16S and WGS type data. 16S data was taken from the package \emph{HMP16SData} snapshot 2020-10-02. 
 

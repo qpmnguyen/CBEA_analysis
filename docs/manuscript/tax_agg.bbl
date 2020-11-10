@@ -1,5 +1,10 @@
 \begin{thebibliography}{1}
 
+\bibitem{aitchison}
+John Aitchison.
+\newblock A {{Concise Guide}} to {{Compositional Data Analysis}}.
+\newblock page 134.
+
 \bibitem{callahan2016}
 Benjamin~J. Callahan, Paul~J. McMurdie, Michael~J. Rosen, Andrew~W. Han, Amy
   Jo~A. Johnson, and Susan~P. Holmes.
@@ -12,6 +17,13 @@ J~J Egozcue, V~{Pawlowsky-Glahn}, G~{Mateu-Figueras}, and C~{Barcelo-Vidal}.
 \newblock Isometric {{Logratio Transformations}} for {{Compositional Data
   Analysis}}.
 \newblock {\em Mathematical Geology}, page~22, 2003.
+
+\bibitem{gloor2017}
+Gregory~B. Gloor, Jean~M. Macklaim, Vera {Pawlowsky-Glahn}, and Juan~J.
+  Egozcue.
+\newblock Microbiome {{Datasets Are Compositional}}: {{And This Is Not
+  Optional}}.
+\newblock {\em Frontiers in Microbiology}, 8, 2017.
 
 \bibitem{quast2013}
 Christian Quast, Elmar Pruesse, Pelin Yilmaz, Jan Gerken, Timmy Schweer, Pablo

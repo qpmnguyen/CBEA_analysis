@@ -13,6 +13,7 @@ library(mixtools)
 #' @param A Matrix of p x m dimensions
 simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, transform = NULL, 
                         abs = F, method = "cdf", on_error = "unfitted",...){
+  # If X needs preprocessing  
   if(preprocess == T){
     if (missing(pcount)){
       message("Adding default pseudocount of 1")
@@ -27,6 +28,8 @@ simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, trans
     }
     X <- process(X, pcount = pcount, transform = transform)
   }
+  
+  # If X does not need preprocessing  
   M <- X[,sample(1:ncol(X))] # shuffling columns since we use index 
   R <- matrix(0, ncol = ncol(A), nrow = nrow(X))
   p <- ncol(X)
@@ -62,7 +65,7 @@ simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, trans
         if (method == "cdf"){
           R[,i] <- pmnorm(cilr, parm = parm)
         } else if (method == "zscore"){
-          mean <- sum(fit$lambda * fit$mu)
+          mean <- get_sum()
           sd <- sqrt(sum((fit$sigma + fit$mu - mean)*fit$lambda))
           R[,i] <- (cilr - mean) * (1/sd)
         }
@@ -80,8 +83,59 @@ simple_cilr <- function(X, A, resample = T, preprocess = T, pcount = NULL, trans
   return(R)
 }
 
+
+#' Variance adjusted null hypothesis distribution fitting 
+cilr_adj_eval <- function(scores, X, A, distr, thresh, alt = "greater", return = "sig"){
+  X_perm <- X[,sample(1:ncol(X))]
+  
+  cilr <- simple_cilr(X = X, A = A, resample = F, preprocess = T, pcount = 1, transform = "prop", 
+                      method = "raw")
+  cilr_perm <- simple_cilr(X = X_perm, A = A, resample = F, preprocess = T, transform = "prop",
+                           pcount = 1, method = "raw")
+  
+  # initialize parameter and p_values 
+  p_values <- matrix(0, nrow = nrow(X), ncol = ncol(A))
+  # if using mixture distribution 
+  if (distr == "mnorm"){
+    for (i in 1:ncol(cilr)){
+      # fit model on unpermuted data
+      mod <- normalmixEM(x = cilr[,i])
+      # fit model on permuted data
+      perm_mod <- normalmixEM(x = cilr_perm[,i])
+      # retrieve overall means 
+      mean <- get_mean(mu = mod$mu, lambda = mod$lambda)
+      perm_mean <- get_mean(mu = perm_mod$mu, lambda = perm_mod$lambda)
+      # retrieve overall standard deviation 
+      true <- get_sd(sigma = mod$sigma, mu = mod$mu, mean = mean, lambda = mod$lambda)
+      # optimize for combination of means, lambdas
+      opt <- optim(par = c(0.01,0.01), l2_objective, mu = perm_mod$mu, 
+                   lambda = perm_mod$lambda, 
+                   mean = perm_mean, true = true)
+      param <- list(mu = perm_mod$mu, sigma = opt$par, lambda = perm_mod$lambda)
+      p_values[,i] <- get_p_values(cilr[,i], param = param, alt = alt, distr = "mnorm")
+    }
+  # if using normal distribution 
+  } else if (distr == "norm"){
+    for (i in 1:ncol(cilr)){
+      fit <- fitdist(cilr[,i], method = "mle", distr = "norm")
+      fit_perm <- fitdist(cilr_perm[,i], method = "mle", distr = "norm")
+      param <- c(fit_perm$estimate["mean"], fit$estimate["sd"])
+      names(param) <- c("mean", "sd")
+      p_values[,i] <- get_p_values(cilr[,i], param = param, alt = alt, distr = "norm")
+    }
+  }
+  if (return == "p-values"){
+    return(p_values)
+  } else if (return == "sig"){
+    sig <- ifelse(p_values <= thresh, 1, 0)
+    return(sig)
+  }
+}
+
+
 #' Evaluate cilr based on criteria 
-cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resample = T, X=NULL, A=NULL, 
+cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resample = T, 
+                      X=NULL, A=NULL, method = "mixed", 
                       return = "sig"){
   if(resample == T){
     if (missing(X)|missing(A)){
@@ -227,3 +281,23 @@ rmnorm <- function(n, parm){
   rnormmix(n = n, lambda = parm$lambda, sigma = parm$sigma, mu = parm$mu)
 }
 
+
+get_sd <- function(sigma, mu, mean, lambda){
+  sqrt(sum((sigma + mu - mean)*lambda))
+}
+
+get_mean <- function(mu, lambda){
+  sum(lambda * mu)
+}
+
+l2_objective <- function(sigma, mu, lambda, mean, true){
+  s1 <- sigma[1]
+  s2 <- sigma[2]
+  m1 <- mu[1]
+  m2 <- mu[2]
+  l1 <- lambda[1]
+  l2 <- lambda[2]
+  estimate <- sqrt((s1 + m1 - mean)*l1 + (s2 + m2 - mean)*l2)
+  l2_norm <- sqrt(sum((estimate - true)^2))
+  return(l2_norm)
+}

@@ -169,49 +169,6 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
   return(output)
 }
 
-# Quick simulation of data from negative binomial distribution
-quick_sim <- function(n_samp, spar, n_tax, eff_size, n_inflate, method="normal", samp_prop=1){
-  #means <- runif(n_tax, 5,10)
-  #sizes <- runif(n_tax, 1,5)
-  # generate inflated data 
-  inf_size <- round(n_samp * samp_prop,0)
-  inf_df <- sapply(1:n_tax, function(x){
-    if (x %in% 1:n_inflate){ # if inflated
-      rnbinom(inf_size, size = 1, mu = 5 * eff_size)
-    } else {
-      rnbinom(inf_size, size = 1, mu = 5)
-    }
-  })
-  # generate non-inflated data 
-  noninf_df <- sapply(1:n_tax, function(x){
-    rnbinom(n_samp - inf_size, size = 1, mu = 5)
-  })
-  # binding for final data set
-  if (samp_prop < 1){
-    df <- rbind(inf_df, noninf_df)
-  } else {
-    df <- inf_df
-  }
-  zeroes <- rbinom(length(df), size = 1, prob = 1 - spar)
-  df[zeroes] <- 0
-  colnames(df) <- glue("Tax{i}", i=1:n_tax)
-  rownames(df) <- glue("Samp{i}", i=1:n_samp)
-  df <- as.data.frame(df)
-  
-  # Generate sample label 
-  label <- rep(0, n_samp)
-  label[1:inf_size] <- 1
-  
-  # Generate matrix A
-  A <- rep(0,n_tax)
-  A[1:n_inflate] <- 1
-  A <- as.matrix(A)
-  rownames(A) <- colnames(df)
-  colnames(A) <- "Set1"
-  
-  output <- list(X = df, A = A, label = label)
-  return(output)
-}
 
 
 

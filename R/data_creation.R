@@ -58,12 +58,27 @@ if (opt$setting == "fdr"){
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 0.5,
     n_sets = 1,
-    vary_params = TRUE,
+    vary_params = FALSE,
     prop_set_inflate = 1,
     method = "normal"
   )
   dir <- "auc_sim"
-}
+} else if (opt$setting == "diff_abundance"){
+  sim <- list(
+    rep = seq(1,100),
+    n_samp = 1000,
+    n_tax = 2000,
+    spar = c(0.2, 0.4, 0.6, 0.8),
+    s_rho = c(0.1, 0.2, 0.5),
+    n_inflate = 50, 
+    eff_size = c(1.5, 2, 2.5, 3),
+    n_sets = 40,
+    samp_prop = 0.5, 
+    vary_params = TRUE, 
+    prop_set_inflate = 0.5, 
+    method = "compensation"
+  )
+} 
 
 param_file <- opt$paramfile
 cores <- opt$ncores
@@ -79,29 +94,23 @@ qsave(sim %>% unnest(param), file = glue("{dir}/parameters.qs", dir = dir))
 
 print("Getting furrr going")
 tic()
-plan(multisession, workers = cores)
-opt <- furrr_options(seed = T)
-
-sim$sim <- furrr::future_map(1:nrow(sim), .f = ~{
+plan(multicore, workers = cores)
+# plan(sequential)
+sim$sim <- future_map(1:nrow(sim), .f = ~{
+  print(.x)
   param <- sim$param[[.x]]
   data <- zinb_simulation(n_samp = param$n_samp, spar = param$spar, s_rho = param$s_rho, 
-                  eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, b_rho = 1,  
+                  eff_size = param$eff_size, n_inflate = param$n_inflate, n_tax = param$n_tax, b_rho = 0,  
                   method = param$method, samp_prop = param$samp_prop, prop_set_inflate = param$prop_set_inflate,
                   n_sets = param$n_sets, parameters = param_file, vary_params = param$vary_params)
-  return(data)
-}, .options = opt, .progress = T)
-
+  name <- paste0(dir,"/simulation_",.x,".qs")
+  print(name)
+  print("Saving file...")
+  qsave(data, file = name)
+  return("Done!")
+},.options = furrr_options(seed = TRUE), .progress = TRUE)
 plan(sequential)
 toc()
-print("Done with furrr. Splitting data into multiple files...")
-
-# Save data 
-sim_vec <- sim$sim 
-for (i in 1:length(sim_vec)){
-   name <- paste0(dir,"/simulation_",i,".qs")
-   print(name)
-   qsave(sim_vec[[i]], file = name)
-}
-print("Done!")
+print("Done with furrr...")
 
 
