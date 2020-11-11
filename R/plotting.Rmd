@@ -36,7 +36,7 @@ plot_df <- plot_df %>% dplyr::rename("Set Size" = "n_inflate", "Inter-taxa Corre
 print(head(plot_df))
 
 plt <- ggplot(plot_df, aes(y = mean, x = as.factor(spar), col = name, group = name)) + geom_point() +
-  scale_color_npg(labels = c("cILR Mixture Normal", "cILR normal", "cILR raw", "Wilcoxon Rank Sum")) + 
+  scale_color_npg(labels = c("Mixture normal", "Adj. mixture normal", "normal", "Adj. normal", "Wilcoxon Rank Sum")) + 
   geom_line() + geom_hline(yintercept = 0.05, col = "red") +
   geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.3) +
   facet_grid(`Inter-taxa Correlation` ~ `Set Size`, scales = "free_y", labeller = label_both) +
@@ -74,7 +74,7 @@ plot_df <- plot_df %>% dplyr::rename("Effect Size" = "eff_size", "Inter-taxa Cor
 print(head(plot_df))
 #plot_df <- plot_df %>% filter(name != "fdr_cilr_resample")
 plt <- ggplot(plot_df, aes(y = mean, x = as.factor(spar), col = name, group = name)) + geom_point() +
-  scale_color_npg(labels = c("cILR Mixture Normal", "cILR normal", "cILR raw", "Wilcoxon Rank Sum")) + 
+  scale_color_npg(labels = c("Mixture normal", "Adj. mixture normal", "normal", "Adj. normal", "Wilcoxon Rank Sum")) + 
   geom_line() + geom_hline(yintercept = 0.8, col = "red") + 
   geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.3) + 
   facet_grid(`Inter-taxa Correlation` ~ `Effect Size`, scales = "free_y", labeller = label_both) +

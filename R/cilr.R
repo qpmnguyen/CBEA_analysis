@@ -135,7 +135,7 @@ cilr_adj_eval <- function(scores, X, A, distr, thresh, alt = "greater", return =
 
 #' Evaluate cilr based on criteria 
 cilr_eval <- function(scores, alt="two.sided", distr = "norm", thresh=0.05, resample = T, 
-                      X=NULL, A=NULL, method = "mixed", 
+                      X=NULL, A=NULL, 
                       return = "sig"){
   if(resample == T){
     if (missing(X)|missing(A)){

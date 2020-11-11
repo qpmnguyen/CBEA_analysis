@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2020/W32TeX)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: supplemental.aux
+The style file: plain.bst
+Database file #1: tax_agg.bib
+Warning--empty journal in cario
+Warning--empty year in cario
+You've used 3 entries,
+            2118 wiz_defined-function locations,
+            516 strings with 4769 characters,
+and the built_in function-call counts, 1201 in all, are:
+= -- 102
+> -- 88
+< -- 1
++ -- 35
+- -- 32
+* -- 101
+:= -- 217
+add.period$ -- 9
+call.type$ -- 3
+change.case$ -- 25
+chr.to.int$ -- 0
+cite$ -- 5
+duplicate$ -- 37
+empty$ -- 68
+format.name$ -- 32
+if$ -- 231
+int.to.chr$ -- 0
+int.to.str$ -- 3
+missing$ -- 3
+newline$ -- 18
+num.names$ -- 6
+pop$ -- 28
+preamble$ -- 1
+purify$ -- 22
+quote$ -- 0
+skip$ -- 25
+stack$ -- 0
+substring$ -- 43
+swap$ -- 7
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 12
+warning$ -- 2
+while$ -- 8
+width$ -- 4
+write$ -- 32
+(There were 2 warnings)
