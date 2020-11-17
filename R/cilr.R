@@ -59,7 +59,10 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 	if (resample == T){
 		if (missing(distr)){
 			warning("No distribution chosen, defaulting to the normal distribution")
-		}
+		} 
+	  if (missing(init) | is.null(init)){
+	    message("Default initialization")
+	  }
 		# generate permuted values and bootstrap values that are unpermuted
 		perm <- map(1:nperm, ~{
 			X[,sample(1:p, replace = FALSE)]
@@ -145,7 +148,6 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
 	distr <- match.arg(distr)
 	dist <- tryCatch({
 		if (missing(init) | is.null(init)){
-			message("Default initialization")
 			if (distr == "norm"){
 				init <- list(mean = 0, sd = 1)
 			} else if (distr == "mnorm"){
@@ -183,13 +185,13 @@ scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), para
 	} else {
 		f <- "pnorm"
 	}
-	if(method %in% c("pdf", "pval", "sig")){
+	if(method %in% c("pdf", "pval")){
 		param <- rlist::list.append(q = as.vector(scores), param)
 		scale <- do.call(f, param)
 		if (method == "pval"){
-			scale <- 1 - scale 
+		  scale <- 1 - scale
 		} else if (method == "sig"){
-			scale <- ifelse(scale <= thresh, 1, 0)
+		  scale <- ifelse(scale <= thresh, 1, 0)
 		}
 	} else if (method == "z-score"){
 		if (f == "pmnorm"){
