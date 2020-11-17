@@ -1,0 +1,1 @@
+# Script to string operations into one plan to generate all files supposedly for all single sample generation 

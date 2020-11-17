@@ -49,10 +49,14 @@ The procedure is as follows:
     \item \textbf{Calculate finalized cILR scores as CDF values of the fitted mixture distribution}
 \end{enumerate}
 
-\subsection*{cILR and the Isometric Log Ratio Transformation}
-Microbiome data is compositional \cite{gloor2017} and as such data transformation strategies from compositional data analysis \cite{aitchison} were often employed in analyses workflows.  
 
-\subsection*{Statistical properties of cILR}
+
+\subsection*{Properties of cILR}
+\subsubsection*{cILR and the Isometric Log Ratio Transformation}
+Microbiome data is compositional \cite{gloor2017} and as such data transformation strategies from compositional data analysis (CoDA) \cite{aitchison} were often employed in analyses workflows. 
+\subsubsection*{Null distribution of cILR}
+\subsubsection*{Accounting for inter-taxa correlation}
+Competitive enrichment tests, particularly those based on feature permutations, are sensitive to inter-feature correlations \cite{wu2012}. This is because the permutation procedure does not preserve the correlation structure, and any estimation based on the permuted null will underestimate the inflation in variance caused by
 
 \subsection*{Simulation Design}
 

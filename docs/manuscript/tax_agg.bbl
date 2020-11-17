@@ -1,0 +1,48 @@
+\begin{thebibliography}{1}
+
+\bibitem{aitchison}
+John Aitchison.
+\newblock A {{Concise Guide}} to {{Compositional Data Analysis}}.
+\newblock page 134.
+
+\bibitem{callahan2016}
+Benjamin~J. Callahan, Paul~J. McMurdie, Michael~J. Rosen, Andrew~W. Han, Amy
+  Jo~A. Johnson, and Susan~P. Holmes.
+\newblock {{DADA2}}: {{High}}-resolution sample inference from {{Illumina}}
+  amplicon data.
+\newblock {\em Nature Methods}, 13(7):581--583, July 2016.
+
+\bibitem{egozcue2003}
+J~J Egozcue, V~{Pawlowsky-Glahn}, G~{Mateu-Figueras}, and C~{Barcelo-Vidal}.
+\newblock Isometric {{Logratio Transformations}} for {{Compositional Data
+  Analysis}}.
+\newblock {\em Mathematical Geology}, page~22, 2003.
+
+\bibitem{gloor2017}
+Gregory~B. Gloor, Jean~M. Macklaim, Vera {Pawlowsky-Glahn}, and Juan~J.
+  Egozcue.
+\newblock Microbiome {{Datasets Are Compositional}}: {{And This Is Not
+  Optional}}.
+\newblock {\em Frontiers in Microbiology}, 8, 2017.
+
+\bibitem{quast2013}
+Christian Quast, Elmar Pruesse, Pelin Yilmaz, Jan Gerken, Timmy Schweer, Pablo
+  Yarza, J{\"o}rg Peplies, and Frank~Oliver Gl{\"o}ckner.
+\newblock The {{SILVA}} ribosomal {{RNA}} gene database project: Improved data
+  processing and web-based tools.
+\newblock {\em Nucleic Acids Research}, 41(D1):D590--D596, January 2013.
+
+\bibitem{truong2015}
+Duy~Tin Truong, Eric~A. Franzosa, Timothy~L. Tickle, Matthias Scholz, George
+  Weingart, Edoardo Pasolli, Adrian Tett, Curtis Huttenhower, and Nicola
+  Segata.
+\newblock {{MetaPhlAn2}} for enhanced metagenomic taxonomic profiling.
+\newblock {\em Nature Methods}, 12(10):902--903, October 2015.
+
+\bibitem{wu2012}
+Di~Wu and Gordon~K. Smyth.
+\newblock Camera: A competitive gene set test accounting for inter-gene
+  correlation.
+\newblock {\em Nucleic Acids Research}, 40(17):e133, September 2012.
+
+\end{thebibliography}

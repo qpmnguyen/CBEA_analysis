@@ -21,7 +21,7 @@ if (opt$setting == "fdr"){
     n_samp = 20000,
     n_tax = 2000,
     spar = c(0.2, 0.4, 0.6, 0.8),
-    s_rho = c(0.1, 0.2, 0.5),
+    s_rho = c(0, 0.2, 0.5),
     n_inflate = c(50,100,150,200),
     eff_size = 1,
     samp_prop = 1,
@@ -37,8 +37,8 @@ if (opt$setting == "fdr"){
     n_samp = 20000,
     n_tax = 2000,
     spar = c(0.2, 0.4, 0.6, 0.8),
-    s_rho = c(0.1, 0.2, 0.5),
-    n_inflate = 50,
+    s_rho = c(0, 0.2, 0.5),
+    n_inflate = 100,
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 1,
     n_sets = 1,
@@ -49,36 +49,37 @@ if (opt$setting == "fdr"){
   dir <- "pwr_sim"
 } else if (opt$setting == "auc"){
   sim <- list(
-    rep = seq(1,100),
+    rep = seq(1,10),
     n_samp = 2000, 
     n_tax = 2000, 
     spar = c(0.2, 0.4, 0.6, 0.8),
-    s_rho = c(0.1, 0.2, 0.5),
-    n_inflate = 50,
+    s_rho = c(0, 0.2, 0.5),
+    n_inflate = 100,
     eff_size = c(1.5,2,2.5,3),
     samp_prop = 0.5,
     n_sets = 1,
-    vary_params = FALSE,
+    vary_params = TRUE,
     prop_set_inflate = 1,
     method = "normal"
   )
   dir <- "auc_sim"
-} else if (opt$setting == "diff_abundance"){
+} else if (opt$setting == "diff_ab"){
   sim <- list(
-    rep = seq(1,100),
-    n_samp = 1000,
-    n_tax = 2000,
-    spar = c(0.2, 0.4, 0.6, 0.8),
-    s_rho = c(0.1, 0.2, 0.5),
-    n_inflate = 50, 
-    eff_size = c(1.5, 2, 2.5, 3),
-    n_sets = 40,
+    rep = seq(1,10),
+    n_samp = 2000,
+    n_tax = 5000,
+    spar = c(0.2, 0.4, 0.6, 0.8), 
+    rho = c(0, 0.2, 0.5),
+    n_inflate = 50,
+    eff_size = c(1.5,2,2.5,3),
+    n_sets = 100,
+    vary_params = TRUE,
     samp_prop = 0.5, 
-    vary_params = TRUE, 
-    prop_set_inflate = 0.5, 
+    prop_set_inflate = 0.5,
     method = "compensation"
   )
-} 
+  dir <- "diff_ab_sim"
+}
 
 param_file <- opt$paramfile
 cores <- opt$ncores

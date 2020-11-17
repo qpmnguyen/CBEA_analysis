@@ -9,17 +9,9 @@ NumericVector cilr(NumericMatrix X, NumericMatrix A){
 }
 
 
+// Calculate the geometric mean of the matrix X by row given a numeric vector index 
+NumericVector gm(NumericMatrix X, NumericVector idx){
 
-NumericVector evaluate(NumericVector score, 
-                       NumericMatrix X, 
-                       NumericMatrix A, float thresh, Int32 nperm){
-  int ncolumns = X.ncol();
-  IntegerVector sequence = seq_len(ncolumns);
-  for (int i=0;i<=nperm;i=i+1){
-    IntegerVector samp = sample(sequence, ncolumns, false);
-    NumericMatrix X_samp = X(_, sequence);
-    
-  }
 }
 
 

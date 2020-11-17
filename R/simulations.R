@@ -65,7 +65,7 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
       sizes <- sample(estimated$size, size = n_tax, replace = T)
     }
   } else {
-    message("Setting mean to be constant at 6.646 and size at 0.595 estimated from HMP data...")
+    message("Setting mean to be constant at 3.06 and size at 1.67 estimated from HMP data...")
     means <- rep(3.05,n_tax)
     sizes <- rep(1.67, n_tax)
   }
@@ -169,6 +169,10 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
   return(output)
 }
 
+#' @param ... parameters to pass to the zinb simulation function
+sim_prediction <- function(...){
+  
+}
 
 
 

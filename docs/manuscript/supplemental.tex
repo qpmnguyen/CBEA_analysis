@@ -14,13 +14,6 @@
 \maketitle
 \captionsetup[figure]{labelfont={bf},name={Figure},labelsep=period, margin=2cm}
 
-\section{Distribution of cILR}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.8\linewidth]{figures/HMP_fit_evaluation.png}
-    \caption{The distribution of cILR statistic under the null. We compared the null distribution of the test statistic and compare it with the standard normal distribution, and the t-distribution with degrees of freedom fitted to cILR scores using the maximum likelihood method}
-\end{figure}
-
 \section{Simulation Design} 
 
 We simulated microbiome relative abundance data with flexible correlation structures using the Normal to Anything (NorTA) approach \cite{cario}. This technique can generate arbitrary multivariate continuous distributions from a target correlation structure and marginal univariate distribution. Given an $n$ by $p$ matrix of values $\mathbf{U}$ sampled from multivariate normal distribution with correlation matrix $\mathbf{\rho}$, we can generate target microbiome count vector $\mathbf{X_i}$ for taxa $i$ following distribution $\mathbf{P}$ characterized by the cumulative distribution $\mathbb{F}$:
@@ -34,20 +27,32 @@ $$X_i = \mathbb{F}^{-1}(\Phi_{U_i})$$
 \subsection{Hypothesis testing at the sample level}  
 \noindent To test for hypothesis testing at the sample level, we simulate microbiome counts with marginals generated from a negative binomial distribution with mean 3.05 and size 1.67 which are the median values of fitted mean and size parameters from the HMP 16S stool data. For each experiment, the enrichment of one set will be evaluated. 
 
-\noindent For simulations to evalute type I error control, we simulated 1 data set of 20,000 samples each with 1,000 taxa per sample with no taxa being significantly enriched for each simulation condition. Models were evaluated on a candidate set with varying sizes (50, 100, 150, 200). We also varied the overall added sparsity (0.2, 0.4, 0.6, 0.8) and the degree of inter-taxa correlation within the set (0, 0.2, 0.5).  
-
-\noindent For simulations to evaluate power, we simulated 1 data set of 20,000 samples each with 1,000 taxa per sample for each simulation condition. Models were evaluated on a candidate set with set size of 100 taxa, enriched across all samples under different effect sizes (1.5, 2, 2.5, 3). We also varied the overall added sparsity (0.2, 0.4, 0.6, 0.8) and the degree of inter-taxa correlation within the set (0, 0.2, 0.5). 
-
-\noindent For simulations of power and AUC classification capacity, we simulated 10 data sets of 1,000 samples each with 1,000 taxa for each simulation condition. We evaluated enrichment for one candidate set with size of 50 taxa per set.  per sample with one set of 50 taxa being significantly enriched in either all samples (power evaluation) or half the samples (AUC evaluation). We varied the overall sparsity (0.2, 0.4, 0.8), the correlation (0, 0.2, 0.5) and the effect size (1.5, 2, 2.5, 3).
-
-
+\begin{itemize}
+    \item For simulations to evalute type I error control, we simulated 1 data set of 20,000 samples each with 1,000 taxa per sample with no taxa being significantly enriched for each simulation condition. Models were evaluated on a candidate set with varying sizes (50, 100, 150, 200). We also varied the overall added sparsity (0.2, 0.4, 0.6, 0.8) and the degree of inter-taxa correlation within the set (0, 0.2, 0.5).  
+    \item For simulations to evaluate power, we simulated 1 data set of 20,000 samples each with 1,000 taxa per sample for each simulation condition. Models were evaluated on a candidate set with set size of 100 taxa, enriched across all samples under different effect sizes (1.5, 2, 2.5, 3). We also varied the overall added sparsity (0.2, 0.4, 0.6, 0.8) and the degree of inter-taxa correlation within the set (0, 0.2, 0.5). 
+    \item For simulations of power and AUC classification capacity, we simulated 10 data sets of 1,000 samples each with 1,000 taxa for each simulation condition. We evaluated enrichment for one candidate set with size of 50 taxa per set.  per sample with one set of 50 taxa being significantly enriched in either all samples (power evaluation) or half the samples (AUC evaluation). We varied the overall sparsity (0.2, 0.4, 0.8), the correlation (0, 0.2, 0.5) and the effect size (1.5, 2, 2.5, 3).
+\end{itemize}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\linewidth]{figures/HMP_fit_nonzero.png}
-    \caption{Distribution of each parameter of the zero inflated negative binomial distribution fitted to non-zero values of \emph{HMP16S} data. The parameters are size (panel A) and mean (panel B).}
+    \caption{Distribution of each parameter of the zero inflated negative binomial distribution fitted to non-zero values for each OTU in stool samples from HMP data set. The parameters are size (panel A) and mean (panel B).}
 \end{figure}
 
+\section{Distribution of cILR}
+We investigated the distribution of the cILR statistic under the taxa-permuted null. Under parametric simulations, we observed that the 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\linewidth]{figures/kurtosis_skewness_sim.png}
+    \caption{Kurtosis and Skewness}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.6]{figures/distr_density_plot_real.png}
+    \caption{The distribution of cILR statistic under the taxa-permuted null. We compared the different fit for the mixture Gaussian distribution, the Gaussian distribution and the t-distribution. The t and Gaussian distribution was fitted using maximum likelihood while the mixture Gaussian was fitted using Expectaiton Maximization (EM)}
+\end{figure}
 
 \newpage
 \bibliography{tax_agg}{}

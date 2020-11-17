@@ -4,13 +4,14 @@ library(ROCR)
 library(MASS)
 library(compositions)
 library(mixtools)
-
+library(binom)
 
 #' Calculate test statistics  
 calculate_statistic <- function(eval, pred, true=NULL){
   if(eval %in% c("fdr","pwr")){
-    print(length(pred))
     stat <- sum(pred == 1)
+    conf <- binom.confint(stat, length(pred), conf.level = 0.95, methods = "ac")
+    stat <- conf %>% dplyr::select(c(mean, upper, lower)) %>% as.list()
   } else if (eval == "auc"){
     if(missing(true)){
       stop("Need true values")
@@ -161,3 +162,27 @@ sim2phylo <- function(sim){
   physeq <- phyloseq(tax,tab,meta)
   return(physeq)
 }
+
+
+# Function to wrap single sample evaluation into one function  
+#' @param n_settings Number of settings, equivalent to number of rows in the parameters data set 
+#' @param dir Directory of where the simulation files are generated from 
+#' @param method The basic function for the most basic evaluation
+#' @param ... Other arguments to functional defined in method 
+ss_eval <- function(n_settings, dir, method, ..., ncores=3){
+  opt <- furrr_options(seed = TRUE)
+  tic()
+  plan(multisession, workers = ncores)
+  with_progress({
+    p <- progressor(steps = n_settings)
+    scores <- future_map(1:n_settings, .f = ~{
+      p()
+      data <- qread(file = glue("{dir}/simulation_{.x}.qs", dir = dir))
+      method(X = data$X, A = data$A, ...)
+    }, .options = opt)
+  })
+  plan(sequential)
+  toc()
+  return(scores)
+}
+
