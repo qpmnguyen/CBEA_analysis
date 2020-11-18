@@ -76,9 +76,9 @@ get_fit <- function(scores, thresh = 10){
 
 parameters <- create_parameters(list(
   rep = seq(1,10),
-  spar = c(0.2, 0.4, 0.6, 0.8),
-  n_inflate = c(50,100,150),
-  s_rho = c(0.1, 0.3, 0.5)
+  spar = c(0.6),
+  n_inflate = c(100),
+  s_rho = c(0.0, 0.2, 0.4, 0.6, 0.8)
 ))
 
 # Generating data 

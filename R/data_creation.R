@@ -69,7 +69,7 @@ if (opt$setting == "fdr"){
     n_samp = 2000,
     n_tax = 5000,
     spar = c(0.2, 0.4, 0.6, 0.8), 
-    rho = c(0, 0.2, 0.5),
+    s_rho = c(0, 0.2, 0.5),
     n_inflate = 50,
     eff_size = c(1.5,2,2.5,3),
     n_sets = 100,

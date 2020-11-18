@@ -185,7 +185,7 @@ scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), para
 	} else {
 		f <- "pnorm"
 	}
-	if(method %in% c("pdf", "pval")){
+	if(method %in% c("cdf", "sig","pval")){
 		param <- rlist::list.append(q = as.vector(scores), param)
 		scale <- do.call(f, param)
 		if (method == "pval"){
