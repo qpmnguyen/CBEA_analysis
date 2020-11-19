@@ -17,10 +17,11 @@ library(Rfast)
 #' @param init The initialization vector for estimating distribution
 #' @param adj  Boolean, indicating whether correlation adjustment will be performed 
 #' @param thresh Threshold if sig is returned to return significance 
-cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"), 
+cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig", "distr"), 
                  distr = c("mnorm", "norm"), nperm=5, init=NULL, adj=TRUE, thresh=0.05, 
                  preprocess=TRUE, pcount=1, transform = "prop", ...){
   output <- match.arg(output)
+  print(glue("Output is {opt}", opt = output))
   distr <- match.arg(distr)
 	# check type 
 	if (is.matrix(X) == F){
@@ -178,32 +179,36 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
 }
 
 # this function rescales the scores into significance (0,1), p-value, zscore or cdf values 
-scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), param, thresh=0.05){
-	# detect if parameter length is concordant with distribution type 
-	if (length(param) > 2){
-		f <- "pmnorm"
-	} else {
-		f <- "pnorm"
-	}
-	if(method %in% c("cdf", "sig","pval")){
-		param <- rlist::list.append(q = as.vector(scores), param)
-		scale <- do.call(f, param)
-		if (method == "pval"){
-		  scale <- 1 - scale
-		} else if (method == "sig"){
-		  scale <- ifelse(scale <= thresh, 1, 0)
-		}
-	} else if (method == "z-score"){
-		if (f == "pmnorm"){
-			mean <- get_mean(mu = param$mu, lambda = param$lambda)
-			sd <- get_sd(sigma = param$sigma, mu = param$mu, mean = mean, lambda = param$lambda)
-		} else if (f == "pnorm"){
-			mean <- param$mean
-			sd <- param$sd
-		}
-		scale <- (scores - mean) * 1/sd
-	}
-	return(scale)
+scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig", "distr"), param, thresh=0.05){
+  if(method == "distr"){
+    return(param)
+  } else {
+  	# detect if parameter length is concordant with distribution type 
+  	if (length(param) > 2){
+  		f <- "pmnorm"
+  	} else {
+  		f <- "pnorm"
+  	}
+  	if(method %in% c("cdf", "sig","pval")){
+  		param <- rlist::list.append(q = as.vector(scores), param)
+  		scale <- do.call(f, param)
+  		if (method == "pval"){
+  		  scale <- 1 - scale
+  		} else if (method == "sig"){
+  		  scale <- ifelse(scale <= thresh, 1, 0)
+  		}
+  	} else if (method == "z-score"){
+  		if (f == "pmnorm"){
+  			mean <- get_mean(mu = param$mu, lambda = param$lambda)
+  			sd <- get_sd(sigma = param$sigma, mu = param$mu, mean = mean, lambda = param$lambda)
+  		} else if (f == "pnorm"){
+  			mean <- param$mean
+  			sd <- param$sd
+  		}
+  		scale <- (scores - mean) * 1/sd
+  	}
+  	return(scale)
+  }
 }
 
 # function to get the adjusted mixed normal using BFGS optimization 

@@ -84,6 +84,22 @@ plt
 
  #ggsave(plt, filename = "docs/manuscript/figures/pwr_single_sample.png", dpi = 300, width = 10, height = 10)
 ```
+```{r pwr_eval_new}
+data <- qread("../objects/pwr_sim/samp_eval_pwr.qs")
+wc <- data$wc
+stat <- data$sim
+wc <- do.call(rbind,map(wc, as_tibble))
+wc$adj <- rep(FALSE, nrow(wc))
+wc$distr <- rep("Wilcoxon", nrow(wc))
+wc$id <- unique(stat$id)
+
+left_join(stat, wc)
+
+
+stat <- stat %>% mutate(eval = map(eval, as_tibble)) %>% unnest(eval)
+ggplot(stat, aes(y = mean, x = spar)) + geom_point() + geom_line(aes(color = distr, linetype = adj)) + 
+  facet_grid(eff_size ~ s_rho)
+```
 
 
 

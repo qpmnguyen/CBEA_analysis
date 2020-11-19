@@ -3,10 +3,8 @@
 # Last updated 9/24
 
 library(tidyverse)
-library(ggsci)
 library(fitdistrplus)
 library(glue)
-library(patchwork)
 library(gnorm)
 library(gamlss.dist)
 library(VGAM)
@@ -22,12 +20,32 @@ source("R/cilr.R")
 source("R/simulations.R")
 source("R/utils.R")
 
+data <- qread("objects/fdr_sim/simulation_21.qs")
+sim <- qread("objects/fdr_sim/parameters.qs")
+sim
+cilr_adj <- cilr(X = data$X, A = data$A, resample = T, distr = "mnorm", adj = T,
+                 output = "pval",
+                 maxit = 1e6, maxrestarts = 1e3, epsilon = 1e-6)
+cilr_unadj <- cilr(X = data$X, A = data$A, resample = T, distr = "mnorm", adj = F,
+                 output = "pval",
+                 maxit = 1e6, maxrestarts = 1e3, epsilon = 1e-6)
+
+hist(cilr_adj, main = "Histogram of p-values", xlab = "Adjusted cILR w/ mixture normal distribution", col = "steelblue")
+hist(cilr_unadj, main = "Histogram of p-values", xlab = "Unadjusted cILR w/ mixture normal distribution", col = "steelblue")
+
+qqplot(x = qunif(ppoints(2e4), 0,1), cilr_adj, pch = 18)
+qqline(cilr_adj, distribution = function(p) qunif(p, 0, 1), col = "salmon", lwd = 2)
+
+
+
+
 
 # Fitting distributions to data 
 # Function to get fit and estimate fit from data, calculate ks test, aic and bic. If using fitdistplus, obtain 
 # aic and bic directly. Else, use custon formula 
 get_fit <- function(scores, thresh = 10){
-  dist_list <- c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "mnorm", "st", "JSU")
+  #dist_list <- c("norm", "t", "gnorm", "laplace", "cauchy", "logistic", "mnorm", "st", "JSU")
+  dist_list <- c("norm", "mnorm", "t")
   result <- tibble(dist = dist_list, AIC = rep(0,length(dist_list)), BIC = rep(0, length(dist_list)),
                    AD = rep(0, length(dist_list)))
   for (i in 1:nrow(result)){
@@ -78,7 +96,7 @@ parameters <- create_parameters(list(
   rep = seq(1,10),
   spar = c(0.6),
   n_inflate = c(100),
-  s_rho = c(0.0, 0.2, 0.4, 0.6, 0.8)
+  s_rho = c(0.0, 0.2, 0.4, 0.6)
 ))
 
 # Generating data 
@@ -86,14 +104,14 @@ plan(multisession, workers = 3)
 opt <- furrr_options(seed = TRUE)
 parameters$data <- future_map(parameters$param, .f = ~{
   zinb_simulation(n_samp = 1e3, spar = .x$spar, s_rho = .x$s_rho, b_rho = 0, eff_size = 1, 
-                  vary_params = FALSE, n_tax = 1000, 
+                  vary_params = FALSE, n_tax = 2000, 
                   n_inflate = .x$n_inflate, n_sets = 1, samp_prop = 1, method = "normal")
 },.options = opt, .progress = TRUE)
 plan(sequential)
 
 # cILR scores  
 parameters$scores <- map(parameters$data, .f = ~ {
-  simple_cilr(X = .x$X, A = .x$A, pcount = 1, transform = NULL, preprocess = T, method = "raw")
+  cilr(X = .x$X, A = .x$A, resample = F, pcount = 1, transform = "prop", preprocess = T)
 })
 
 

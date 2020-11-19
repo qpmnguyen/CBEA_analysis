@@ -22,21 +22,18 @@ cores <- opt$ncores
 furopt <- furrr::furrr_options(seed = TRUE)
 
 print("Estimating GSVA Pois scores")
-plan(multisession, workers = cores)
-with_progress({
-  p <- progressor(steps = nrow(parameters))
-  gsva_pois <- future_map(1:nrow(parameters), .f = ~{
-    p()
-    data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
-    scores <- generate_alt_scores(X = data$X, A = data$A, method = "gsva", 
-                                  preprocess = T, transform=NULL, pcount=1)
-    calculate_statistic(eval = "auc", pred = scores, true = data$label)
+plan(multicore, workers = cores)
+gsva_pois <- future_map(1:nrow(parameters), .f = ~{
+data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
+scores <- generate_alt_scores(X = data$X, A = data$A, method = "gsva", 
+                              preprocess = T, transform=NULL, pcount=1)
+calculate_statistic(eval = "auc", pred = scores, true = data$label)
   }, .options = furopt,  .progress = TRUE)
-})
+
 plan(sequential)
 
 print("Estimating GSVA Gauss scores")
-plan(multisession, workers = cores)
+plan(multicore, workers = cores)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   gsva_gauss <- future_map(1:nrow(parameters), .f = ~{
@@ -50,7 +47,7 @@ with_progress({
 plan(sequential)
 
 print("Estimating GSEA scores")
-plan(multisession, workers = cores)
+plan(multicore, workers = cores)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   ssgsea <- future_map(1:nrow(parameters), .f = ~{
@@ -64,7 +61,7 @@ with_progress({
 plan(sequential)
 
 print("Estimating proportional counts as scores")
-plan(multisession, workers = cores)
+plan(multicore, workers = cores)
 with_progress({
   p <- progressor(steps = nrow(parameters))
   prop <- future_map(1:nrow(parameters), .f = ~{
@@ -78,17 +75,15 @@ with_progress({
 plan(sequential)
 
 print("Estimating cilr scores")
-plan(multisession, workers = cores)
-with_progress({
-  p <- progressor(steps = nrow(parameters))
-  cilr_raw <- future_map(1:nrow(parameters), .f = ~{
-    p()
-    data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
-    scores <- cilr(X = data$X, A = data$A, resample = F, nperm = 5, preprocess = T, pcount = 1, 
-                   transform = "prop")
-    calculate_statistic(eval = "auc", pred = scores, true = data$label)
-  }, .options = furopt, .progress = TRUE)
-})
+plan(multicore, workers = cores)
+
+cilr_raw <- future_map(1:nrow(parameters), .f = ~{
+  data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
+  scores <- cilr(X = data$X, A = data$A, resample = F, nperm = 5, preprocess = T, pcount = 1, 
+                 transform = "prop")
+  calculate_statistic(eval = "auc", pred = scores, true = data$label)
+}, .options = furopt, .progress = TRUE)
+
 plan(sequential)
 
 # Estimating scores 
@@ -102,18 +97,14 @@ eval_settings <- cross_df(list(
 parameters <- left_join(parameters, eval_settings, by = "rep")
 
 print("Estimating cilr scores with resampling and adjustment")
-plan(multisession, workers = cores)
-with_progress({
-  p <- progressor(steps = nrow(parameters))
-  parameters$auc <- future_map(1:nrow(parameters), .f = ~{
-    p()
-    data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
-    scores <- cilr(X = data$X, A = data$A, resample = T, nperm = 5, preprocess = T, pcount = 1, 
-                   transform = "prop", output = parameters$output[.x], 
-                   distr = parameters$distr[.x], adj = parameters$adj[.x], thresh = 0.05)
-    calculate_statistic(eval = "auc", pred = scores, true = data$label)
-  }, .options = furopt, .progress = TRUE)
-})
+plan(multicore, workers = cores)
+parameters$auc <- future_map(1:nrow(parameters), .f = ~{
+  data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
+  scores <- cilr(X = data$X, A = data$A, resample = T, nperm = 5, preprocess = T, pcount = 1, 
+                 transform = "prop", output = parameters$output[.x], 
+                 distr = parameters$distr[.x], adj = parameters$adj[.x], thresh = 0.05)
+  calculate_statistic(eval = "auc", pred = scores, true = data$label)
+}, .options = furopt, .progress = TRUE)
 plan(sequential)
 
 output <- list(
