@@ -17,7 +17,7 @@ library(Rfast)
 #' @param init The initialization vector for estimating distribution
 #' @param adj  Boolean, indicating whether correlation adjustment will be performed 
 #' @param thresh Threshold if sig is returned to return significance 
-cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig", "distr"), 
+cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"), 
                  distr = c("mnorm", "norm"), nperm=5, init=NULL, adj=TRUE, thresh=0.05, 
                  preprocess=TRUE, pcount=1, transform = "prop", ...){
   output <- match.arg(output)
@@ -262,6 +262,18 @@ pmnorm <- function(q, mu, sigma, lambda, log = FALSE){
 		comp[[i]] <- lambda[i] * pnorm(q, mu[i], sigma[i], log.p = log)
 	}
 	return(Reduce("+", comp))
+}
+
+
+dmnorm <- function(x, mu, sigma, lambda, log=FALSE){
+  x <- as.vector(x)
+  n_components <- length(sigma)
+  print(paste(n_components, "components!"))
+  comp <- vector(mode = "list", length = n_components)
+  for (i in 1:n_components){
+    comp[[i]] <- lambda[i] * dnorm(x, mu[i], sigma[i], log = log)
+  }
+  return(Reduce("+", comp))
 }
 
 

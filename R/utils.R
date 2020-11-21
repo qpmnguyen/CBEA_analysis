@@ -186,3 +186,52 @@ ss_eval <- function(n_settings, dir, method, ..., ncores=3){
   return(scores)
 }
 
+
+# Fit assuming there is only one set
+get_fit <- function(data, adj, distr=c("norm", "mnorm"), init=NULL, ...){
+  X <- data$X
+  A <- data$A
+  print("Estimating distribution")
+  # actual scores raw wich is also the distributed 
+  scores <- cilr(X = X, A = A, resample = F, preprocess = T, transform = "prop", pcount = 1, adj = F, nperm = 1)
+  p <- ncol(X)
+  # let's create the permuted and unperumted values 
+  perm <- X[,sample(1:p, replace = FALSE)]
+  # if adjusted == TRUE generate the unpermuted data with 
+  sc_perm <- cilr(X = perm, A = A, resample = F, preprocess = T, transform = "prop", pcount = 1, adj = F, nperm = 1)
+  perm_dist <- estimate_distr(as.vector(sc_perm), distr = distr, init = init, ...)
+  if (adj == TRUE){ # if correlation adjustment is true 
+    print("Adjusting for correlation")
+    unperm_dist <- estimate_distr(as.vector(scores), distr = distr, init = init, ...)
+    if (distr == "norm"){
+      final_distr <- list(mean = perm_dist$mean, sd = unperm_dist$sd)
+      dist_name <- "pnorm"
+      f <- "dnorm"
+      k <- 2
+    } else if (distr == "mnorm"){
+      final_distr <- get_adj_mnorm(perm = perm_dist, unperm = unperm_dist)
+      dist_name <- "pmnorm"
+      f <- "dmnorm"
+      k <- 5
+    }
+  } else {
+    f <- paste0("d",distr)
+    dist_name <- paste0("p", distr)
+    final_distr <- perm_dist
+    if (distr == "norm"){
+      k <- 2
+    } else if (distr == "mnorm"){
+      k <- 5
+    }
+  }
+  print("Getting output")
+  param <- rlist::list.append(final_distr, log = T, x = as.vector(scores))
+  loglikelihood <- sum(do.call(f, param))
+  ks_param <- rlist::list.append(final_distr, x = as.vector(scores), y = dist_name)
+  output <- tibble(ks = do.call(ks.test, ks_param)$statistic, 
+                   aic = 2*k - 2*loglikelihood, 
+                   bic = k*log(length(scores)) - 2*loglikelihood)
+  return(output)
+}
+
+

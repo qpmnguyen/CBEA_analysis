@@ -2,7 +2,6 @@ library(tidyverse)
 library(furrr)
 library(tictoc)
 library(MASS)
-library(progressr)
 library(qs)
 library(optparse)
 source("../R/cilr.R")
@@ -34,49 +33,39 @@ plan(sequential)
 
 print("Estimating GSVA Gauss scores")
 plan(multicore, workers = cores)
-with_progress({
-  p <- progressor(steps = nrow(parameters))
-  gsva_gauss <- future_map(1:nrow(parameters), .f = ~{
-    p()
+gsva_gauss <- future_map(1:nrow(parameters), .f = ~{
     data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
     scores <- generate_alt_scores(X = data$X, A = data$A, method = "gsva", preprocess = T, 
-                                  transform="clr", pcount=1)
+                                    transform="clr", pcount=1)
     calculate_statistic(eval = "auc", pred = scores, true = data$label)
-  }, .options = furopt, .progress = TRUE)
-})
+}, .options = furopt, .progress = TRUE)
+
 plan(sequential)
 
 print("Estimating GSEA scores")
 plan(multicore, workers = cores)
-with_progress({
-  p <- progressor(steps = nrow(parameters))
-  ssgsea <- future_map(1:nrow(parameters), .f = ~{
-    p()
+ssgsea <- future_map(1:nrow(parameters), .f = ~{
     data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
     scores <- generate_alt_scores(X = data$X, A = data$A, method = "ssgsea", 
-                                  preprocess = T, transform=NULL, pcount=1)
+                                    preprocess = T, transform=NULL, pcount=1)
     calculate_statistic(eval = "auc", pred = scores, true = data$label)
-  }, .options = furopt, .progress = TRUE)
-})
+}, .options = furopt, .progress = TRUE)
+
 plan(sequential)
 
 print("Estimating proportional counts as scores")
 plan(multicore, workers = cores)
-with_progress({
-  p <- progressor(steps = nrow(parameters))
-  prop <- future_map(1:nrow(parameters), .f = ~{
-    p()
+
+prop <- future_map(1:nrow(parameters), .f = ~{
     data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
     scores <- generate_alt_scores(X = data$X, A = data$A, method = "prop", preprocess = T, 
-                                  transform="prop", pcount=1)
+                                    transform="prop", pcount=1)
     calculate_statistic(eval = "auc", pred = scores, true = data$label)
-  }, .options = furopt, .progress = TRUE)
-})
+    }, .options = furopt, .progress = TRUE)
 plan(sequential)
 
 print("Estimating cilr scores")
 plan(multicore, workers = cores)
-
 cilr_raw <- future_map(1:nrow(parameters), .f = ~{
   data <- qread(file = glue("auc_sim/simulation_{.x}.qs"))
   scores <- cilr(X = data$X, A = data$A, resample = F, nperm = 5, preprocess = T, pcount = 1, 
