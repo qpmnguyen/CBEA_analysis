@@ -57,8 +57,8 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
   if (vary_params == T){
     if (is.null(parameters)){
       message("Randomly sample means from 1 to 10 and sizes from 1 to 5")
-      means <- runif(n_tax, 1,10)
-      sizes <- runif(n_tax, 1,5)
+      means <- runif(n_tax, 3,5)
+      sizes <- runif(n_tax, 1,3)
     } else {
       estimated <- readRDS(file = parameters)
       means <- sample(estimated$mean, size = n_tax, replace = T)

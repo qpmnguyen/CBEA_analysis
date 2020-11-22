@@ -20,35 +20,24 @@ library(Rfast)
 cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"), 
                  distr = c("mnorm", "norm"), nperm=5, init=NULL, adj=TRUE, thresh=0.05, 
                  preprocess=TRUE, pcount=1, transform = "prop", ...){
-  output <- match.arg(output)
-  print(glue("Output is {opt}", opt = output))
-  distr <- match.arg(distr)
+    output <- match.arg(output)
+    print(glue("Output is {opt}", opt = output))
+    distr <- match.arg(distr)
 	# check type 
-	if (is.matrix(X) == F){
-		message("Coercing X to matrix")
-		X <- as.matrix(X)
-	}
-	if (is.vector(A) == F){
-		message("Coercing A to a numeric vector")
-		A <- as.matrix(A)
-	}
-  if (nperm > 5 && pryr_object_size(X) >= 100){
-    cost <- pryr::object_size(X) * nperm 
-    warning("Beware! Resampling will cost {c} memory!", c = cost)
-  }
+    if (is.matrix(X) == F){
+        message("Coercing X to matrix")
+        X <- as.matrix(X)
+    }
+    if (is.vector(A) == F){
+        message("Coercing A to a numeric vector")
+        A <- as.matrix(A)
+    }
+    if (nperm > 5 && pryr_object_size(X) >= 100){
+        cost <- pryr::object_size(X) * nperm 
+        warning("Beware! Resampling will cost {c} memory!", c = cost)
+    }
 	# processing
 	if(preprocess == T){
-	    message("Pre-processing...")
-	    if (missing(pcount)){
-	    	message("Adding default pseudocount of 1")
-	    	pcount <- 1
-	    }
-	    message(glue("Adding pseudocount of {pcount}", pcount = pcount))
-	    if (missing(transform)){
-	      message("No transformation")
-	    } else {
-	    	message(glue("Performing transformation of {trans}", trans = transform))
-	    }
 	    X <- process(X, pcount = pcount, transform = transform)
 	}
 
@@ -61,9 +50,9 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 		if (missing(distr)){
 			warning("No distribution chosen, defaulting to the normal distribution")
 		} 
-	  if (missing(init) | is.null(init)){
-	    message("Default initialization")
-	  }
+        if (missing(init) | is.null(init)){
+            message("Default initialization")
+        }
 		# generate permuted values and bootstrap values that are unpermuted
 		perm <- map(1:nperm, ~{
 			X[,sample(1:p, replace = FALSE)]
@@ -74,7 +63,7 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 		 	train_list <- purrr::map(unperm$splits, training)
 		 	unperm <- do.call(rbind, train_list)
 		 	rm(train_list)
-		 	gc(reset = T)
+		 	gc()
 		}
 	}
 
@@ -88,9 +77,9 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 	  message("Not adjusting for correlation...")
 	}
 	for (i in seq(ncol(A))){
-		score <- get_score(X, A[,i] %>% as.vector())
+		score <- get_score(X, A[,i])
 		if (resample == T){
-			sc_perm <- get_score(perm, A[,i] %>% as.vector())
+			sc_perm <- get_score(perm, A[,i])
 			perm_dist <- estimate_distr(sc_perm, distr = distr, init = init, ...)
 			rm(sc_perm)
 			gc()
@@ -179,7 +168,7 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
 }
 
 # this function rescales the scores into significance (0,1), p-value, zscore or cdf values 
-scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig", "distr"), param, thresh=0.05){
+scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), param, thresh=0.05){
   if(method == "distr"){
     return(param)
   } else {
@@ -193,9 +182,10 @@ scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig", "dist
   		param <- rlist::list.append(q = as.vector(scores), param)
   		scale <- do.call(f, param)
   		if (method == "pval"){
-  		  scale <- 1 - scale
+              scale <- 1 - scale
   		} else if (method == "sig"){
-  		  scale <- ifelse(scale <= thresh, 1, 0)
+              scale <- 1 - scale
+              scale <- ifelse(scale <= thresh, 1, 0)
   		}
   	} else if (method == "z-score"){
   		if (f == "pmnorm"){

@@ -92,7 +92,7 @@ wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F, transform=N
       wilcox.test(x = x[which(A[,i] == 1)], y = x[which(A[,i] != 1)], alternative = alt, ...)$p.value
     })
   }
-  R <- ifelse(R < thresh, 1, 0)
+  R <- ifelse(R <= thresh, 1, 0)
   return(R)
 }
 

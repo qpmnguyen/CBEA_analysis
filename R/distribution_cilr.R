@@ -51,18 +51,22 @@ parameters$evaluation <- future_map(1:nrow(parameters), .f = ~{
 }, .options = furrr_options(seed = TRUE), .progress = TRUE)
 plan(sequential)
 
-saveRDS(parameters, file = "cache/parameter_fit.rds")
-
+#saveRDS(parameters, file = "cache/parameter_fit.rds")
+parameters <- readRDS(file = "cache/parameter_fit.rds")
 parameters <- parameters %>% unnest(evaluation)
 
 parameters <- parameters %>% 
-    pivot_longer(c(aic, bic, ad), names_to = "eval") %>%
+    pivot_longer(c(aic, bic, ks), names_to = "eval") %>%
     mutate(value = na_if(value, Inf)) %>% 
     group_by(s_rho, distr, adj, eval) %>% 
-    summarise(mean = mean(value, na.rm = TRUE), 
-        upper = mean(value, na.rm = TRUE) + sd(value, na.rm = TRUE), 
-        lower = mean(value, na.rm = TRUE) - sd(value, na.rm = TRUE)) 
+    summarise(mean = mean(value, na.rm = TRUE, trim = 0.1), 
+        upper = mean(value, na.rm = TRUE, trim = 0.1) + sd(value, na.rm = TRUE), 
+        lower = mean(value, na.rm = TRUE, trim = 0.1) - sd(value, na.rm = TRUE)) 
 
-ggplot(parameters, aes(x = s_rho, y = mean, col = distr)) + 
-    geom_line(aes(linetype = adj)) + geom_point(aes(shape = adj)) + 
-    facet_grid(eval~., scales = "free_y")
+parameters <- parameters %>% mutate(eval = case_when(
+    eval == "aic" ~ "AIC",
+    eval == "bic" ~ "BIC",
+    eval == "ks" ~ "Kolmogrov-Smirnov"
+)) 
+
+saveRDS(parameters, file = "objects/parameter_fit_correlation.rds")
