@@ -19,6 +19,7 @@ sim <- list(
     prop_set_inflate = 1,
     method = "normal"
 )
+
 sim <- create_parameters(sim)
 dir <- "objects/fdr_sim"
 saveRDS(sim %>% unnest(param), glue("{dir}/parameters.rds", dir = dir))
@@ -70,3 +71,28 @@ toc()
 plan(sequential)
 
 saveRDS(sim, file = "objects/fdr_sim/fdr_eval.rds")
+
+
+sim <- readRDS(file = "objects/fdr_sim/parameters.rds")
+data <- readRDS(file = "objects/fdr_sim/simulation_11.rds")
+
+parm <- cross_df(list(
+    distr = c('norm', 'mnorm'),
+    adj = c(TRUE, FALSE)
+))
+
+plot_list <- map(1:nrow(parm),  ~ {
+    scores <- cilr(data$X, data$A, resample = T, output = "pval", nperm = 5, 
+                distr = parm$distr[.x], adj = parm$adj[.x], maxrestarts = 1000, epsilon=1e-6, 
+                maxit=1e5)
+    if (parm$adj[.x] == TRUE){
+        title <- "Adjusted"
+    } else {
+        title <- "Unadjusted"
+    }
+    qplot(scores, geom = "histogram", color = I("black"), fill = I("steelblue")) + 
+        labs(x = "p-values", y = "Frequency", title = title, subtitle = parm$distr[.x]) + 
+        theme_bw()
+})
+plot_list
+wrap_plots(plot_list)

@@ -83,11 +83,13 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 			perm_dist <- estimate_distr(sc_perm, distr = distr, init = init, ...)
 			rm(sc_perm)
 			gc()
-			if (adj == TRUE){ # if correlation adjustment is true 
+			if (adj == TRUE){ # if correlation adjustment is true
 				sc_unperm <- get_score(unperm, A[,i] %>% as.vector())
+                #saveRDS(sc_unperm, "cache/testing.rds")
+                #print(
+                #    estimate_distr(as.vector(sc_unperm), distr = "norm", init = init, ...)
+                #)
 				unperm_dist <- estimate_distr(sc_unperm, distr = distr, init = init, ...)
-				rm(sc_unperm)
-				gc()
 				if (distr == "norm"){
 					final_distr <- list(mean = perm_dist$mean, sd = unperm_dist$sd)
 				} else if (distr == "mnorm"){
@@ -96,7 +98,8 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 			} else {
 				final_distr <- perm_dist
 			}
-			score <- scale_scores(score, method = output, param = final_distr, thresh = thresh)
+			score <- scale_scores(score, method = output, param = final_distr, 
+                                thresh = thresh)
 		}
 		R[,i] <- score
 	}
@@ -120,7 +123,7 @@ get_score <- function(X, idx){
 	# get total columns and define size ans scale funciton 
 	p <- ncol(X)
 	size <- sum(idx == 1)
-	scale <- size * (p - size)/p %>% sqrt()
+	scale <- sqrt(size * (p - size)/p)
 	# calculate geometric mean 
 	num <- geometricmeanRow(x = as.matrix(X[,idx == 1]))
 	denom <- geometricmeanRow(x = as.matrix(X[,idx == 0]))
@@ -139,12 +142,12 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
 	dist <- tryCatch({
 		if (missing(init) | is.null(init)){
 			if (distr == "norm"){
-				init <- list(mean = 0, sd = 1)
+				init <- NULL
 			} else if (distr == "mnorm"){
 				init <- list(lambda = NULL, mu = NULL, sigma = NULL)
 			}
 		}
-		message(glue("Fitting permuted null on the {d} distribution", d = distr))
+		message(glue("Fitting the {d} distribution", d = distr))
 		if (distr %in% c("norm")){
 			fit <- fitdistrplus::fitdist(data, distr = distr, method = "mle", start = init)
 			list(mean = fit$estimate[['mean']], sd = fit$estimate[['sd']])
@@ -169,10 +172,7 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
 
 # this function rescales the scores into significance (0,1), p-value, zscore or cdf values 
 scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), param, thresh=0.05){
-  if(method == "distr"){
-    return(param)
-  } else {
-  	# detect if parameter length is concordant with distribution type 
+    # detect if parameter length is concordant with distribution type 
   	if (length(param) > 2){
   		f <- "pmnorm"
   	} else {
@@ -187,7 +187,7 @@ scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), para
               scale <- 1 - scale
               scale <- ifelse(scale <= thresh, 1, 0)
   		}
-  	} else if (method == "z-score"){
+  	} else if (method == "zscore"){
   		if (f == "pmnorm"){
   			mean <- get_mean(mu = param$mu, lambda = param$lambda)
   			sd <- get_sd(sigma = param$sigma, mu = param$mu, mean = mean, lambda = param$lambda)
@@ -198,7 +198,6 @@ scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), para
   		scale <- (scores - mean) * 1/sd
   	}
   	return(scale)
-  }
 }
 
 # function to get the adjusted mixed normal using BFGS optimization 

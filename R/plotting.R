@@ -1,10 +1,11 @@
 library(tidyverse)
 library(patchwork)
 library(glue)
+library(ggsci)
 
 # FDR
 plotting <- readRDS(file = "objects/fdr_sim/fdr_eval.rds")
-plotting <- sim %>% unnest(param) %>% mutate(eval = map(eval, as_tibble)) %>% unnest(eval)
+plotting <- plotting %>% unnest(param) %>% mutate(eval = map(eval, as_tibble)) %>% unnest(eval)
 
 plotting <- plotting %>% rename("Set Size" = "n_inflate", 
 "Correlation" = "s_rho")
@@ -34,4 +35,4 @@ pwr_plot <- ggplot(plotting, aes(y = mean, x = spar, col = distr)) + geom_point(
     labs(x = "Sparsity", y = "Power (N = 2,000)", col = "Method", linetype = "Correlation adjusted") +
     geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.01)
 
-ggsave(fdr_plot, file = "docs/manuscript/figures/ss_pwr_plot.png", dpi = 300, width = 8, height = 5)
+ggsave(pwr_plot, file = "docs/manuscript/figures/ss_pwr_plot.png", dpi = 300, width = 8, height = 5)
