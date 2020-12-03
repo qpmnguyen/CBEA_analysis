@@ -1,7 +1,6 @@
 library(tidyverse)
 library(furrr)
 library(tictoc)
-library(MASS)
 library(optparse)
 source("../R/cilr.R")
 source("../R/simulations.R")
@@ -19,15 +18,15 @@ dir <- "auc_sim"
 sim <- readRDS(file = glue("{dir}/parameters.rds", dir = dir))
 
 eval_settings <- cross_df(list(
-  distr = c("mnorm", "norm", "GSVA", "GSEA", "raw"),
+  distr = c("mnorm", "norm", "gsva", "ssgsea", "none"),
   output = c("cdf", "zscore", "scores"),
   adj = c(TRUE, FALSE),
   id = sim$id
 ))
 
 eval_settings <- eval_settings %>% 
-    filter(!(distr %in% c("gsva", "ssgsea", "raw") & adj == TRUE)) %>% 
-    filter(!(distr %in% c("gsva", "ssgsea", "raw") & output %in% c("cdf", "zscore"))) %>% 
+    filter(!(distr %in% c("gsva", "ssgsea", "none") & adj == TRUE)) %>% 
+    filter(!(distr %in% c("gsva", "ssgsea", "none") & output %in% c("cdf", "zscore"))) %>% 
     filter(!(distr %in% c("norm", "mnorm") & output == "scores"))
 
 sim <- left_join(sim, eval_settings, by = "id")

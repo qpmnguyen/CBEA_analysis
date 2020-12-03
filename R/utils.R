@@ -151,15 +151,18 @@ aggregate <- function(X, A){
 # Function to convert simulation data to phyloseq type objects to be used in ancom, deseq2 and other related
 # packages
 sim2phylo <- function(sim){
-  tab <- sim$A %>% as.data.frame() %>% rownames_to_column(var = "tax") %>% 
-    pivot_longer(-tax, "SetLevel") %>% 
-    dplyr::select(-value) %>% as.data.frame() %>% 
-    column_to_rownames(var = "tax") %>% as.matrix() %>% tax_table()
-  meta <- sample_data(data.frame(group = dim$label))
-  X <- sim$X %>% as.data.frame()
-  rownames(X) <- sample_names(meta)
-  tax <- otu_table(X, taxa_are_rows = F) 
-  physeq <- phyloseq(tax,tab,meta)
+    tab <- sim$A
+    tab <- tab %>% as.data.frame() %>% rownames_to_column(var = "tax") %>% 
+            pivot_longer(c(-tax, starts_with("Set")), names_to = "GENUS") %>% 
+            filter(value == 1) %>% mutate(DUMMY = paste0("dum", GENUS)) %>% 
+            dplyr::select(-value) %>% 
+            column_to_rownames(var = "tax") %>%  
+            as.matrix() %>% tax_table()
+    meta <- sample_data(data.frame(group = sim$label))
+    X <- sim$X %>% as.data.frame()
+    rownames(X) <- sample_names(meta)
+    tax <- otu_table(X, taxa_are_rows = F) 
+    physeq <- phyloseq(tax,tab,meta)
   return(physeq)
 }
 
@@ -234,4 +237,9 @@ get_fit <- function(data, adj, distr=c("norm", "mnorm"), init=NULL, ...){
   return(output)
 }
 
-
+#' This function handles the ability to merge supplied and defaults 
+merge_lists <- function(defaults, supplied){
+    similar_idx <- which(names(defaults) %in% names(supplied))
+    merged <- c(defaults[-similar_idx], supplied)
+    return(merged)
+}
