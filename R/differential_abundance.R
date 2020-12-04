@@ -7,17 +7,38 @@ source("R/cilr.R")
 source("R/utils.R")
 source("R/simulations.R")
 
-dat <- zinb_simulation(200, spar = 0.2, eff_size = 2, s_rho = 0, b_rho = 0, 
-                            n_tax = 300, n_inflate = 50, n_sets = 6, 
-                            prop_set_inflate = 1, prop_inflate = 0.5, samp_prop = 0.5, 
-                            method = "compensation", vary_params=TRUE, parameters=NULL)
-physeq <- sim2phylo(dat)
+#' Interface function to perform differential abundance test 
+#' @param method The method used to test differential abundance
+#' @param thresh Threshold for adjustment 
+#' @param adj Whether to perform p-value adjustment 
+#' @param output What type of output "pvalue" or "significance" 
+#' @param ... Additional arguments passed to the differential abundance functions
+diff_ab <- function(physeq, method = c("cilr_welch", "cilr_wilcox", 
+                                       "corncob", "deseq2"), thresh, agg_level, adj = FALSE, output = c("pvalue", "sig"), ...){
+    method <- match.arg(method)
+    output <- match.arg(output)
+    if (method %in% c("corncob", "deseq2")){
+        physeq <- tax_glom(physeq, taxrank = "GENUS")
+        physeq <- transform_sample_counts(physeq, function(x) ifelse(x == 0, 1, x))
+    } 
+    results <- model_interface(physeq, method, agg_level, ...)
+    if (adj == TRUE){
+        results <- p.adjust(p = results, method = "BH")
+    }
+    if (output == "pvalue"){
+        return(results)
+    } else if (output == "sig"){
+        return((sig < thresh)*1)
+    }
+}
 
-physeq <- tax_glom(physeq, taxrank = "GENUS")
-physeq <- transform_sample_counts(physeq, function(x) ifelse(x == 0, 1, x))
-
-model_interface <- function(physeq, method, thresh, agg_level, ...){
-    message(glue("Running {model}", model = "method"))
+#' Function to run models, with the defining feature labelled "group"
+#' TODO: Add functionality to have different covariates being the discerning variable 
+#' @param physeq Phyloseq type object containing taxtable and data points 
+#' @param agg_level Level to aggregate variables too 
+#' @param ... Additional arguments to assed to differentialTest, DESeq and cilr
+model_interface <- function(physeq, method, agg_level, ...){
+    message(glue("Running {model}", model = method))
     if (method == "deseq2"){
         def <- list(test = "LRT", fitType = "local", reduced = ~1)
         if (missing(...)){
@@ -29,9 +50,8 @@ model_interface <- function(physeq, method, thresh, agg_level, ...){
         deseq <- phyloseq_to_deseq2(physeq, ~as.factor(group))
         args$object <- deseq
         mod <- do.call(DESeq2::DESeq, args)
-        #mod <- DESeq2::DESeq(deseq, test = "LRT", fitType = "parametric", reduced = ~1)
         res <- DESeq2::results(mod)
-        sig <- (res$pvalue < thresh) * 1 
+        sig <- res$pvalue
         names(sig) <- as.vector(tax_table(physeq)[rownames(res), agg_level])
     } else if (method == "corncob"){
         def <- list(formula = ~ group, phi.formula = ~ group, formula_null = ~1, 
@@ -45,7 +65,7 @@ model_interface <- function(physeq, method, thresh, agg_level, ...){
         }
         args$data <- physeq
         mod <- do.call(corncob::differentialTest, args)
-        sig <- (mod$p < thresh) * 1
+        sig <- mod$p
         names(sig) <- as.vector(tax_table(physeq)[names(sig), agg_level])
     } else if (stringr::str_detect(method, 'cilr')){
         def <- list(resample = T, distr = "norm", nperm = 5, adj = T, output = "zscore",
@@ -61,23 +81,19 @@ model_interface <- function(physeq, method, thresh, agg_level, ...){
         X <- as(physeq@otu_table, "matrix")
         args$A <- A 
         args$X <- X 
-        scores <- do.call(cilr, def)
+        label <- physeq@sam_data$group
+        idx <- which(label == 1)
+        scores <- do.call(cilr, args)
         if (stringr::str_detect(method, "wilcox")){
-            f <- wilcox.test
+            sig <- map_dbl(1:ncol(scores), .f = ~{
+                wilcox.test(scores[-idx, .x], scores[idx, .x])$p.value
+            })
         } else if (stringr::str_detect(method, "welch")) {
-            f <- t.test
+            sig <- map_dbl(1:ncol(scores), .f = ~{
+                t.test(scores[-idx, .x], scores[idx, .x])$p.value
+            })
         }
-        
     } 
     return(sig)
 }
 
-model_interface(physeq, "corncob", 0.05)
-
-agg_level <- "GENUS"
-thresh <- 0.05
-diff_ab_eval <- function(physeq, method, thresh, ...){
-    message(glue("Running {model}", model = "method"))
-
-        
-}
