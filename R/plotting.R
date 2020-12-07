@@ -36,3 +36,18 @@ pwr_plot <- ggplot(plotting, aes(y = mean, x = spar, col = distr)) + geom_point(
     geom_errorbar(aes(ymax = upper, ymin = lower), width = 0.01)
 
 ggsave(pwr_plot, file = "docs/manuscript/figures/ss_pwr_plot.png", dpi = 300, width = 8, height = 5)
+
+# Plotting AUC 
+parameters <- readRDS(file = "objects/auc_sim/parameters.rds")
+results <- readRDS(file = "objects/auc_sim/auc_eval.rds")
+results <- results %>% unnest(eval)
+results <- results %>% filter(!distr %in% c("gsva", "ssgsea"))
+results <- results %>% group_by(spar, s_rho, eff_size, method, distr, output, adj) %>% summarise(auc = mean(eval), upper = mean(eval) + sd(eval), lower = mean(eval) - sd(eval))
+
+ggplot(results, aes(x = spar, y = auc, color = distr, shape = output, linetype = adj)) + geom_line() + 
+    facet_grid(s_rho ~ eff_size, labeller = label_both, scales = "free_y") + 
+    geom_pointrange(aes(ymax = upper, ymin = lower)) + 
+    scale_color_npg() + theme_bw() + 
+    labs(y = "Mean AUC (10 data sets)", x = "Sparsity", shape = "Output type", linetype = "Correlation Adjustment", 
+         color = "Model type")
+#labels = c("GSVA", "Mixture Normal", "Raw", "Normal", "ssGSEA")

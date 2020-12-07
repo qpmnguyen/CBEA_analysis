@@ -1,11 +1,11 @@
+# This file holds functions to test for differential abundance 
+# Quang Nguyen 
+
 library(furrr)
 library(tidyverse)
 library(phyloseq)
 library(DESeq2)
 library(corncob)
-source("R/cilr.R")
-source("R/utils.R")
-source("R/simulations.R")
 
 #' Interface function to perform differential abundance test 
 #' @param method The method used to test differential abundance
@@ -14,7 +14,7 @@ source("R/simulations.R")
 #' @param output What type of output "pvalue" or "significance" 
 #' @param ... Additional arguments passed to the differential abundance functions
 diff_ab <- function(physeq, method = c("cilr_welch", "cilr_wilcox", 
-                                       "corncob", "deseq2"), thresh, agg_level, adj = FALSE, output = c("pvalue", "sig"), ...){
+                                       "corncob", "deseq2"), thresh, agg_level, padj = FALSE, return = c("pvalue", "sig"), ...){
     method <- match.arg(method)
     output <- match.arg(output)
     if (method %in% c("corncob", "deseq2")){
