@@ -1,77 +1,47 @@
 library(tidyverse)
-library(progressr)
-library(optparse)
-library(qs)
 library(furrr)
+library(tictoc)
+library(optparse)
 source("../R/cilr.R")
 source("../R/simulations.R")
 source("../R/utils.R")
 
+
 option_list <- list(
-  make_option("--ncores", type = "integer", help="Number of workers to use for parallelization"),
-  make_option("--eval", help="What is the evaluation method")
+    make_option("--ncores", type="integer", help="Number of cores going to be used"),
+    make_option("--eval", type="character", help="What is the evaluation criteria")
 )
 
-opt <- parse_args(OptionParser(option_list=option_list))
-eval <- opt$eval
-workers <- opt$ncores
-dir <- paste0(eval,"_sim")
+ncores <- opt$ncores
+dir <- paste0(opt$eval, "_sim")
+type <- opt$eval
 
-# Loading object files ####
-sim <- qread(file = glue("{dir}/parameters.qs", dir = dir))
-
-# wilcoxon rank per id 
-plan(multisession, workers = workers)
-wc_eval <- future_map(1:nrow(sim), .f = ~{
- data <- qread(file = glue("{dir}/simulation_{id}.qs", dir = dir, id = .x))
- label <- wc_test(X = data$X, A = data$A, thresh = 0.05, preprocess = T, 
-                     pcount = 1, alt = "greater")
- return(calculate_statistic(eval = eval, pred = label))
-}, .progress = TRUE, .options = furrr::furrr_options(seed = TRUE))
-
-plan(sequential)
-
+sim <- readRDS(file = glue("{dir}/parameters.rds", dir = dir))
 eval_settings <- cross_df(list(
-  distr = c("mnorm", "norm"),
-  adj = c(TRUE, FALSE),
-  id = sim$id
+    distr = c("mnorm", "norm", "Wilcoxon"),
+    adj = c(TRUE, FALSE),
+    id = sim$id
 ))
+eval_settings <- eval_settings %>% slice(-which(eval_settings$distr == "Wilcoxon" & eval_settings$adj == TRUE))
 
 sim <- left_join(sim, eval_settings, by = "id")
+
+plan(multisession, workers = ncores)
 tic()
-plan(multisession, workers = workers)
 sim$eval <- future_map(1:nrow(sim), .f = ~{
-  dat <- qread(file = glue("{dir}/simulation_{i}.qs", dir = dir, i = sim$id[.x]))
-  score <- cilr(X = dat$X, A = dat$A, resample = T, output = "sig", nperm = 5, distr = sim$distr[.x], 
-                adj = sim$adj[.x], maxrestarts=1000, epsilon = 1e-6, maxit= 1e5) 
-  return(calculate_statistic(eval = eval, pred = score))
+    source("../R/cilr.R")
+    data <- readRDS(file = glue("{dir}/simulation_{i}.rds", 
+                            dir = dir, i = sim$id[.x]))
+    if (sim$distr[.x] == "Wilcoxon"){
+        score <- wc_test(X = data$X, A = data$A, thresh = 0.05, preprocess = T, pcount = 1, transform = "prop", alt = "greater")
+    } else {
+        score <- cilr(X = data$X, A = data$A, resample = T, 
+                output = "sig", nperm = 5, distr = sim$distr[.x], 
+                adj = sim$adj[.x], maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
+    }
+    return(calculate_statistic(eval = type, pred = as.vector(score)))
 }, .options = furrr_options(seed = TRUE), .progress = TRUE)
-
-plan(sequential)
 toc()
+plan(sequential)
 
-obj <- list(wc = wc_eval, sim = sim)
-
-qsave(sim, file = glue("{dir}/samp_eval.qs", dir = dir))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+saveRDS(sim, file = glue("{dir}/{type}_eval.rds", dir = dir, type = type))

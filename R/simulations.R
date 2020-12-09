@@ -169,10 +169,59 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
   return(output)
 }
 
-#' @param ... parameters to pass to the zinb simulation function
-sim_prediction <- function(...){
-  
+#'  @param modeltype What type of simulations 
+#'  @param snr Signal to noise ratio (or effect size)
+#'  @param sat Saturation proportion (proportion of sets associated with outcome)
+#'  @param ... parameters to pass to the zinb simulation function
+sim_prediction <- function(modeltype = c("continuous", "binary"), beta, snr, sat, ...){
+  modeltype <- match.arg(modeltype)
+  # handle defaults 
+  def <- list(n_samp = 300, spar = 0.2, s_rho = 0, eff_size = 1, 
+              b_rho = 0, n_tax = 2000, n_inflate = 50, n_sets = 40, 
+              prop_set_inflate = 0.5, prop_inflate = 1, samp_prop = 0.5, 
+              method = "compensation", vary_params=TRUE, parameters=NULL)
+  if (missing(...)){
+    args <- def
+  } else {
+    sup <- list(...)
+    args <- merge_lists(defaults = def, supplied = sup)
+  }
+  # generate baseline data based on arguments
+  baseline <- do.call(zinb_simulation, args)
+  # index of samples that are related to the outcome based on model saturation 
+  # TODO: Create exceptions for when sat == 0
+  sat <- 0.5
+  set_names <- colnames(baseline$A) 
+  if (sat > 0){
+    important_sets <- sample(1:length(set_names), size = length(set_names)*sat)
+  }
+  index_list <- lapply(important_sets, function(x){
+    as.vector(which(baseline$A[,x] == 1))
+  })
+  col_idx <- do.call(c, index_list)
+  beta <- rlnorm(nrow(1:1000))
+  snr <- 2
+  y <- as.matrix(baseline$X[,col_idx]) %*% as.matrix(beta)
+  noise <- rnorm(300)
+  k <- sqrt(var(y)/(snr * var(noise)))
+  y <- as.vector(k) * noise + y
+  y <- log(y)
 }
 
+testing <- as.matrix(baseline$X[,col_idx])
+comb <- cbind(y, testing)
 
 
+splits <- rbinom(n = nrow(comb), size = 1, prob = 0.25)
+training <- comb[splits == 0,]
+testing <- comb[splits == 1,]
+
+cv <- cv.glmnet(training[,-1], training[,1])
+model <- glmnet(training[,-1], training[,1], lambda = cv$lambda.min)
+
+values <- predict(model, newx = testing[,-1])
+library(yardstick)
+yardstick::rsq_vec(truth = testing[,1], estimate = as.vector(values))
+yardstick::rmse_vec(truth = testing[,1], estimate = as.vector(values))
+plot(testing[,1], as.vector(values))
+plot(testing[,1], testing[,1])
