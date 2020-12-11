@@ -32,10 +32,10 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
         message("Coercing A to a numeric vector")
         A <- as.matrix(A)
     }
-    if (nperm > 5 && pryr_object_size(X) >= 100){
-        cost <- pryr::object_size(X) * nperm 
-        warning("Beware! Resampling will cost {c} memory!", c = cost)
-    }
+    # if (nperm > 5 && pryr_object_size(X) >= 100){
+    #     cost <- pryr::object_size(X) * nperm 
+    #     warning("Beware! Resampling will cost {c} memory!", c = cost)
+    # }
 	# processing
 	if(preprocess == T){
 	    X <- process(X, pcount = pcount, transform = transform)
