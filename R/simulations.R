@@ -188,7 +188,6 @@ sim_prediction <- function(beta_eff, snr, sat, ...){
     # generate baseline data based on arguments
     baseline <- do.call(zinb_simulation, args)
     # index of samples that are related to the outcome based on model saturation 
-    # TODO: Create exceptions for when sat == 0
     set_names <- colnames(baseline$A) 
     if (sat > 0){
         important_sets <- sample(1:length(set_names), size = length(set_names)*sat)
@@ -196,17 +195,17 @@ sim_prediction <- function(beta_eff, snr, sat, ...){
             as.vector(which(baseline$A[,x] == 1))
         })
         col_idx <- do.call(c, index_list)
-        beta <- rep(rlnorm(1, meanlog = beta_eff, sdlog = 0.5),length(col_idx))
-        y <- as.matrix(baseline$X[,col_idx]) %*% as.matrix(beta)
-        noise <- rnorm(nrow(baseline$X))
-        k <- sqrt(var(y)/(snr * var(noise)))
-        y <- as.vector(k) * noise + y
-        y <- log(y)
-        results_idx <- rep(0, ncol(baseline$X))
-        results_idx[col_idx] <- beta[1]
+        y <- rep(0, nrow(baseline$X))
+        while (sd(y) == 0){ # remake y until the standard deviation is larger than 0 
+          beta_0 <- 6/sqrt(10)
+          beta <- rep(0, ncol(baseline$X))
+          beta[col_idx] <- rnorm(length(col_idx))
+          y_mean <- beta_0 + as.matrix(baseline$X) %*% beta
+          y <- y_mean + rnorm(nrow(baseline$X), mean = 0, sd = sd(y_mean)* (1/snr))
+        }
     } else {
         y <- rnorm(nrow(baseline$X))
-        results_idx <- rep(0, ncol(baseline$X))
+        beta <- rep(0, ncol(baseline$X))
     }
-    output <- list(outcome = y, predictors = baseline, idx = results_idx)
+    output <- list(outcome = y, predictors = baseline, beta = beta)
 }

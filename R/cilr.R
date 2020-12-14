@@ -103,7 +103,9 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 		}
 		R[,i] <- score
 	}
-	return(R) 
+	colnames(R) <- colnames(A)
+	rownames(R) <- rownames(X)
+	return(as.data.frame(R)) 
 }
 
 #' This function is going to take X and a vector of index for columns to get score for 

@@ -67,8 +67,10 @@ generate_alt_scores <- function(X, A, method=c("plage", "zscore", "gsva", "prop"
     scores <- t(gsva(expr = t(X), gset.idx.list = set, method = method, kcdf = kernel))
   } else if (method == "prop"){
     scores <- aggregate(X = X, A = A)
+    colnames(scores) <- colnames(A)
+    rownames(scores) <- rownames(X)
   }
-  return(scores)
+  return(as.data.frame(scores))
 }
 
 #' @title Perform wilcoxon rank sum test per sample 
