@@ -12,6 +12,8 @@ option_list <- list(
     make_option("--eval", type="character", help="What is the evaluation criteria")
 )
 
+opt <- parse_args(OptionParser(option_list=option_list))
+
 ncores <- opt$ncores
 dir <- paste0(opt$eval, "_sim")
 type <- opt$eval

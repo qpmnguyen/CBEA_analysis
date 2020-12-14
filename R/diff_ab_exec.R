@@ -10,6 +10,8 @@ option_list <- list(
     make_option("--ncores", type="integer", help="Number of cores going to be used")
 )
 
+opt <- parse_args(OptionParser(option_list=option_list))
+
 ncores <- opt$ncores
 dir <- "diff_ab_sim"
 
