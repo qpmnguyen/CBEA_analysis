@@ -40,10 +40,10 @@ sim$eval <- future_map(1:nrow(sim), .f = ~{
                             dir = dir, i = sim$id[.x]))
     phydat <- sim2phylo(data)
     if (sim$methods %in% c("corncob", "deseq2")){
-        scores <- diff_ab(phydat, method = sim$method[.x], agg_level = "GENUS", 
+        scores <- diff_ab(phydat, method = sim$methods[.x], agg_level = "GENUS",
                         thresh = 0.05, padj = FALSE, return = "sig")
     } else {
-        scores <- diff_ab(phydat, method = sim$method[.x], agg_level = "GENUS", 
+        scores <- diff_ab(phydat, method = sim$methods[.x], agg_level = "GENUS",
                             thresh = 0.05, padj = FALSE, return = "sig", 
                             distr = sim$distr[.x], adj = sim$adj[.x], 
                             output = sim$output[.x])

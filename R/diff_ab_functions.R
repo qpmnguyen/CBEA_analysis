@@ -14,7 +14,9 @@ library(corncob)
 #' @param output What type of output "pvalue" or "significance" 
 #' @param ... Additional arguments passed to the differential abundance functions
 diff_ab <- function(physeq, method = c("cilr_welch", "cilr_wilcox", 
-                                       "corncob", "deseq2"), thresh, agg_level, padj = FALSE, return = c("pvalue", "sig"), ...){
+                                       "corncob", "deseq2"),
+                    thresh, agg_level,
+                    padj = FALSE, return = c("pvalue", "sig"), ...){
     method <- match.arg(method)
     return <- match.arg(output)
     if (method %in% c("corncob", "deseq2")){
@@ -37,7 +39,9 @@ diff_ab <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
 #' @param physeq Phyloseq type object containing taxtable and data points 
 #' @param agg_level Level to aggregate variables too 
 #' @param ... Additional arguments to assed to differentialTest, DESeq and cilr
-model_interface <- function(physeq, method, agg_level, ...){
+model_interface <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
+                                       "corncob", "deseq2"), agg_level, ...){
+    method <- match.arg(method)
     message(glue("Running {model}", model = method))
     if (method == "deseq2"){
         def <- list(test = "LRT", fitType = "local", reduced = ~1)
@@ -93,6 +97,7 @@ model_interface <- function(physeq, method, agg_level, ...){
                 t.test(scores[-idx, .x], scores[idx, .x])$p.value
             })
         }
+        names(sig) <- colnames(A)
     } 
     return(sig)
 }
