@@ -85,10 +85,6 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 			gc()
 			if (adj == TRUE){ # if correlation adjustment is true
 				sc_unperm <- get_score(unperm, A[,i] %>% as.vector())
-                #saveRDS(sc_unperm, "cache/testing.rds")
-                #print(
-                #    estimate_distr(as.vector(sc_unperm), distr = "norm", init = init, ...)
-                #)
 				unperm_dist <- estimate_distr(sc_unperm, distr = distr, init = init, ...)
 				if (distr == "norm"){
 					final_distr <- list(mean = perm_dist$mean, sd = unperm_dist$sd)
