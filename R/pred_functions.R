@@ -1,7 +1,7 @@
 library(mlr3)
-library(mlr3measures)
 library(mlr3learners)
 library(phyloseq)
+library(compositions)
 source("R/utils.R")
 
 #' @title Function to fit
@@ -36,32 +36,32 @@ fit_prediction <- function(object, type=c("regr", "classif"), ...) {
     methods <- c("cilr", "gsva", "clr")
     task_list <- vector(mode = "list", length = 3)
     # creating the list of tasks
-    for (i in seq(length(methods)){
+    for (i in seq(length(methods))){
         if (methods[i] == "cilr"){
-            scores <- do.call(predictors, args)
+            args$X <- predictors
+            args$A <- A
+            scores <- do.call(cilr, args)
         } else if (methods[i] == "gsva"){
             scores <- generate_alt_scores(predictors, A, method = "gsva")
         } else if (methods[i] == "clr"){
             scores <- generate_alt_scores(predictors, A, method = "prop")
-            scores <- unclass(clr(acomp(scores))) %>% as.data.frame()
-        } else if (methods[i] == "everything"){
-            scores <- unclass(clr(acomp(dat$predictors$X))) %>% as.data.frame()
-        } 
+            scores <- unclass(compositions::clr(compositions::acomp(scores))) %>% as.data.frame()
+        }
         comb <- cbind(dat$outcome, scores)
         colnames(comb)[1] <- "outcome"
-        task_list[[i]] <- create_task(type = type, id = methods[i], backend = comb, id = "outcome")
+        task_list[[i]] <- create_task(type = type, id = methods[i], backend = comb, target = "outcome")
     }
     if (type == "classif"){
         learner <- lrn("classif.ranger")
         learner$predict_type <- "prob"
-        mtry <- round(sqrt(ncol(predictors)),0)
+        #mtry <- round(sqrt(ncol(predictors)),0)
         measure <- list(msr("classif.auc"), msr("classif.acc"))
     } else if (type == "regr"){
         learner <- mlr_learners$get("regr.ranger")
-        mtry <- round(ncol(predictors)/3,0)
+        #mtry <- round(ncol(predictors)/3,0)
         measure <- list(msr("regr.rmse"), msr("regr.srho"))
     }
-    learner$param_set$values <- list(num.trees = 1000, mtry = mtry)
+    learner$param_set$values <- list(num.trees = 1000)
     # getting values in a grid for benchmarking
     design <- benchmark_grid(
         tasks = task_list,
@@ -80,11 +80,11 @@ fit_prediction <- function(object, type=c("regr", "classif"), ...) {
 #' @param backend The dataframe backend of the task
 #' @param target A strong for the target column of the task
 create_task <- function(type = c("classif", "regr"), id, backend, target){
-    type <- match.arg()
+    type <- match.arg(type)
     if (type == "classif"){
-        task <- mlr3::TaskClassif$new(id, backend, target)
+        task <- mlr3::TaskClassif$new(id = id, backend, target)
     } else if (type == "regr"){
-        task <- mlr3::TaskRegr$new(id, backend, target)
+        task <- mlr3::TaskRegr$new(id = id, backend, target)
     }
     return(task)
 }

@@ -16,18 +16,18 @@ library(corncob)
 diff_ab <- function(physeq, method = c("cilr_welch", "cilr_wilcox", 
                                        "corncob", "deseq2"), thresh, agg_level, padj = FALSE, return = c("pvalue", "sig"), ...){
     method <- match.arg(method)
-    output <- match.arg(output)
+    return <- match.arg(output)
     if (method %in% c("corncob", "deseq2")){
         physeq <- tax_glom(physeq, taxrank = "GENUS")
         physeq <- transform_sample_counts(physeq, function(x) ifelse(x == 0, 1, x))
     } 
     results <- model_interface(physeq, method, agg_level, ...)
-    if (adj == TRUE){
+    if (padj == TRUE){
         results <- p.adjust(p = results, method = "BH")
     }
-    if (output == "pvalue"){
+    if (return == "pvalue"){
         return(results)
-    } else if (output == "sig"){
+    } else if (return == "sig"){
         return((sig < thresh)*1)
     }
 }
@@ -85,11 +85,11 @@ model_interface <- function(physeq, method, agg_level, ...){
         idx <- which(label == 1)
         scores <- do.call(cilr, args)
         if (stringr::str_detect(method, "wilcox")){
-            sig <- map_dbl(1:ncol(scores), .f = ~{
+            sig <- map_dbl(seq(ncol(scores)), .f = ~{
                 wilcox.test(scores[-idx, .x], scores[idx, .x])$p.value
             })
         } else if (stringr::str_detect(method, "welch")) {
-            sig <- map_dbl(1:ncol(scores), .f = ~{
+            sig <- map_dbl(seq(ncol(scores)), .f = ~{
                 t.test(scores[-idx, .x], scores[idx, .x])$p.value
             })
         }
