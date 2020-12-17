@@ -12,6 +12,8 @@ option_list <- list(
     make_option("--eval", type="character", help="What is the evaluation criteria")
 )
 
+
+
 opt <- parse_args(OptionParser(option_list=option_list))
 
 ncores <- opt$ncores
@@ -27,10 +29,9 @@ eval_settings <- cross_df(list(
 eval_settings <- eval_settings %>% slice(-which(eval_settings$distr == "Wilcoxon" & eval_settings$adj == TRUE))
 
 sim <- left_join(sim, eval_settings, by = "id")
-
-plan(multisession, workers = ncores)
 tic()
-sim$eval <- future_map(1:nrow(sim), .f = ~{
+plan(multisession, workers = ncores)
+sim$eval <- future_map(seq(nrow(sim)), .f = ~{
     source("../R/cilr.R")
     data <- readRDS(file = glue("{dir}/simulation_{i}.rds", 
                             dir = dir, i = sim$id[.x]))
@@ -40,10 +41,10 @@ sim$eval <- future_map(1:nrow(sim), .f = ~{
         score <- cilr(X = data$X, A = data$A, resample = T, 
                 output = "sig", nperm = 5, distr = sim$distr[.x], 
                 adj = sim$adj[.x], maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
+        score <- as.vector(score[,1])
     }
     return(calculate_statistic(eval = type, pred = as.vector(score)))
 }, .options = furrr_options(seed = TRUE), .progress = TRUE)
-toc()
 plan(sequential)
-
+toc()
 saveRDS(sim, file = glue("{dir}/{type}_eval.rds", dir = dir, type = type))

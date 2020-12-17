@@ -14,3 +14,4 @@ R/parameters_*.rds
 cache/
 archive/
 .idea/
+R/test.R

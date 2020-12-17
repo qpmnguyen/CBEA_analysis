@@ -6,8 +6,17 @@ library(compositions)
 library(mixtools)
 library(binom)
 
-#' Calculate test statistics  
+#' Calculate test statistics
+#' Check if these are vectors
 calculate_statistic <- function(eval, pred, true=NULL){
+  if (is.vector(pred) == F){
+    warning("Coercing pred to vector")
+    pred <- as.vector(pred)
+  }
+  if (is.null(true) == F & is.vector(true) == F){
+    warning("Coercing true to vector")
+    true <- as.vector(true)
+  }
   if(eval %in% c("fdr","pwr")){
     stat <- sum(pred == 1)
     conf <- binom.confint(stat, length(pred), conf.level = 0.95, methods = "ac")
