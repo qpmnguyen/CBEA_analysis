@@ -18,7 +18,7 @@ diff_ab <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
                     thresh, agg_level,
                     padj = FALSE, return = c("pvalue", "sig"), ...){
     method <- match.arg(method)
-    return <- match.arg(output)
+    return <- match.arg(return)
     if (method %in% c("corncob", "deseq2")){
         physeq <- tax_glom(physeq, taxrank = "GENUS")
         physeq <- transform_sample_counts(physeq, function(x) ifelse(x == 0, 1, x))
@@ -30,7 +30,7 @@ diff_ab <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
     if (return == "pvalue"){
         return(results)
     } else if (return == "sig"){
-        return((sig < thresh)*1)
+        return((results <= thresh)*1)
     }
 }
 
@@ -51,7 +51,7 @@ model_interface <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
             sup <- list(...)
             args <- merge_lists(defaults = def, supplied = sup)
         }
-        deseq <- phyloseq_to_deseq2(physeq, ~as.factor(group))
+        deseq <- phyloseq_to_deseq2(physeq, ~factor(group))
         args$object <- deseq
         mod <- do.call(DESeq2::DESeq, args)
         res <- DESeq2::results(mod)
