@@ -59,6 +59,8 @@ Microbiome data is compositional \cite{gloor2017} and as such data transformatio
 Competitive enrichment tests, particularly those based on feature permutations, are sensitive to inter-feature correlations \cite{wu2012}. This is because the permutation procedure does not preserve the correlation structure, and any estimation based on the permuted null will underestimate the inflation in variance caused by
 
 \subsection*{Simulation Design}
+\subsection*{Real Datasets}
+To evaluate our method on real microbiome data, we leverage open source data sets from the HMP16SData \cite{schiffer2019} and curatedMetagenomicData \cite{pasolli2017} packages from Bioconductor. 
 
 \section*{Results}
 In this section we present the performance of our proposed method for three applicable microbiome analysis tasks: sample level enrichment, differential abundance, and prediction. We obtained these results from both parametric simulations and examples from real data.  
@@ -66,6 +68,8 @@ In this section we present the performance of our proposed method for three appl
 Our method provides a well-defined null hypothesis for significance testing at the sample level. Researchers who are interested in the enrichment of certain groups of microbes (for example, those of the \emph{Bifidobacterium} genus in infant gut microbiomes)  
 \subsubsection*{Type I error control and power}
 We benchmarked type I error on real stool microbiome data from HMP for both 16S and WGS type data. 16S data was taken from the package \emph{HMP16SData} snapshot 2020-10-02. 
+
+
 
 \begin{figure}[H]
     \centering

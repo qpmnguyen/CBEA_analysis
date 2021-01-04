@@ -9,7 +9,8 @@ source("../R/utils.R")
 
 option_list <- list(
     make_option("--ncores", type="integer", help="Number of cores going to be used"),
-    make_option("--eval", type="character", help="What is the evaluation criteria")
+    make_option("--eval", type="character", help="What is the evaluation criteria"),
+    make_option("--parallel", type = "logical", help = "Whether to perform this in parallel or not")
 )
 
 
@@ -29,8 +30,12 @@ eval_settings <- cross_df(list(
 eval_settings <- eval_settings %>% slice(-which(eval_settings$distr == "Wilcoxon" & eval_settings$adj == TRUE))
 
 sim <- left_join(sim, eval_settings, by = "id")
-tic()
-plan(multisession, workers = ncores)
+tic
+if (opt$parallel == TRUE){
+    plan(multisession, workers = ncores)
+} else {
+    plan(sequential)
+}
 sim$eval <- future_map(seq(nrow(sim)), .f = ~{
     source("../R/cilr.R")
     data <- readRDS(file = glue("{dir}/simulation_{i}.rds", 
