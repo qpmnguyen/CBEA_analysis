@@ -3,36 +3,88 @@ library(HMP16SData)
 library(curatedMetagenomicData)
 library(phyloseq)
 
+#' @title Function to process 16S data 
+process_16S <- function(physeq){
+  physeq <- physeq %>% filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE)
+  physeq <- prune_samples(sample_sums(physeq) >= 1000, physeq)
+  return(physeq)
+}
+
+#' @title Function to process WGS data 
+process_WGS <- function(physeq){
+  physeq <- physeq %>% filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE) %>% 
+    transform_sample_counts(function(x) x/100)
+  # Then use number_reads to extrapolate back the absolute counts per bug 
+  otu_tab <- otu_table(physeq)
+  samp_names <- colnames(otu_tab) # keep sample names 
+  otu_tab <- otu_tab %>% as("matrix") %>% t() %>% as.data.frame() %>% 
+    mutate(num_reads = physeq@sam_data$number_reads) %>% 
+    summarise(across(-num_reads, ~ round(.x * num_reads, digits = 0))) %>% t()
+  colnames(otu_tab) <- samp_names
+  otu_table(physeq) <- otu_table(otu_tab, taxa_are_rows = TRUE)
+  physeq <- prune_samples(sample_sums(physeq) >= 1000, physeq)
+  return(physeq)
+}
+
+
+
 # 16S data stool
 data <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Stool" & VISITNO == 1) %>% as_phyloseq()
-data <- subset_samples(data,!duplicated(RSID)) %>% 
-  filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE)
-data <- prune_samples(sample_sums(data) >= 1000, data)
-
+data <- subset_samples(data,!duplicated(RSID)) %>% process_16S()
 saveRDS(data, "data/hmp_stool_16S.rds")
 
-# WGS data stool
-data <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.stool", dryrun = F, bugs.as.phyloseq = T) 
-data <- data[[1]]
-# subset out duplicated subject ids, keep only those who are healthy, filter for those who are not missing for more than 
-# 90%, transform percentage back to proportions 
-data <- data %>% subset_samples(!duplicated(subjectID)) %>% subset_samples(disease = "healthy") %>%
-  filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE) %>% transform_sample_counts(function(x) x/100)
-# Then use number_reads to extrapolate back the absolute counts per bug 
-otu_tab <- otu_table(data)
-samp_names <- colnames(otu_tab) # keep sample names 
-otu_tab <- otu_tab %>% as("matrix") %>% t() %>% as.data.frame() %>% 
-  mutate(num_reads = data@sam_data$number_reads) %>% 
-  summarise(across(-num_reads, ~ round(.x * num_reads, digits = 0))) %>% t()
-colnames(otu_tab) <- samp_names
-otu_table(data) <- otu_table(otu_tab, taxa_are_rows = TRUE)
-saveRDS(data, "data/hmp_stool_wgs.rds")
+# 16S data stool and tongue 
+stool <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Stool" & VISITNO == 1) %>% as_phyloseq()
+tongue <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Tongue Dorsum" & VISITNO == 1) %>% as_phyloseq()
+data <- merge_phyloseq(stool, tongue)
+data <- data %>% subset_samples(!duplicated(RSID)) %>% process_16S()
+saveRDS(data, "data/hmp_stool_tongue_16S.rds")
 
 
 # 16S data supragingival and subgingival
 annotation <- read.table(file = "../sc2meta/data/genera_methabolism.tsv", sep = "\t", header = TRUE)
-data <- V35() %>% subset(select = HMP_BODY_SUBSITE %in% c("Supragingival Plaque", "Subgingival Plaque") & VISITNO == 1) %>% as_phyloseq()
-data <- subset_samples(data, !duplicated(RSID)) %>% filter_taxa(function(x) (sum(x == 0)/length(x)) < 0.9, TRUE)
-data <- prune_samples(sample_sums(data) >= 1000, data)
 
-which(data@sam_data@.Data[[6]] == "Supragingival Plaque")
+supra <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Supragingival Plaque" & VISITNO == 1) %>% 
+  as_phyloseq() 
+
+sub <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Subgingival Plaque" & VISITNO == 1) %>% 
+  as_phyloseq() 
+
+merged <- merge_phyloseq(supra, sub)
+merged <- merged %>% subset_samples(!duplicated(RSID)) %>% process_16S()
+
+output <- list(
+  physeq = merged, 
+  annotation = annotation
+)
+saveRDS(output, "data/hmp_supergingival_supragingival_16S.rds")
+
+
+# WGS data stool
+data <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.stool", dryrun = F, bugs.as.phyloseq = T) 
+data <- data[[1]]
+data <- data %>% subset_samples(!duplicated(subjectID)) %>% subset_samples(disease = "healthy") %>% process_WGS()
+saveRDS(data, "data/hmp_stool_wgs.rds")
+
+# wgs tongue dorsum  
+oral <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.oralcavity", dryrun = F, bugs.as.phyloseq = T) 
+stool <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.stool", dryrun = F, bugs.as.phyloseq = T) 
+oral <- oral[[1]]
+stool <- stool[[1]]
+oral <- oral %>% subset_samples(body_subsite == "tongue_dorsum")
+data <- merge_phyloseq(oral, stool)
+data <- data %>% subset_samples(!duplicated(subjectID)) %>% 
+  subset_samples(disease = "healthy") %>% process_WGS()
+saveRDS(data, "data/hmp_stool_tongue_wgs.rds")
+
+
+
+# Prediction data sets  
+# Easy prediction using HMP 16S tongue dorsum and stool  
+# Disease prediction using WGS IBD
+data <- curatedMetagenomicData(x = "NielsenHB_2014.metaphlan_bugs_list.stool", dryrun = F, bugs.as.phyloseq = T)
+data <- data[[1]]
+data <- data %>% subset_samples(!duplicated(subjectID)) %>% process_WGS()
+saveRDS(data, "data/nielsen_ibd_wgs.rds")
+
+

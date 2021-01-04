@@ -30,9 +30,9 @@ eval_settings <- cross_df(list(
 eval_settings <- eval_settings %>% slice(-which(eval_settings$distr == "Wilcoxon" & eval_settings$adj == TRUE))
 
 sim <- left_join(sim, eval_settings, by = "id")
-tic
+tic()
 if (opt$parallel == TRUE){
-    plan(multisession, workers = ncores)
+    plan(multicore, workers = ncores)
 } else {
     plan(sequential)
 }
