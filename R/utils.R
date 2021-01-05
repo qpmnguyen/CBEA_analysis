@@ -158,7 +158,6 @@ taxtab2A <- function(tax, agg_level, full=TRUE){
   } else {
     rownames(A) <- rownames(tax)
   }
-  
   return(A)
 }
 
