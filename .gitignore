@@ -16,3 +16,4 @@ archive/
 .idea/
 R/test.R
 external/
+.Rprofile

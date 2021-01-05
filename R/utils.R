@@ -32,7 +32,7 @@ calculate_statistic <- function(eval, pred, true=NULL){
 
 
 #' @title Generate scores using different models  
-generate_alt_scores <- function(X, A, method=c("plage", "zscore", "gsva", "prop"), preprocess = T, transform = NULL, pcount = NULL){
+generate_alt_scores <- function(X, A, method=c("plage", "zscore", "ssgsea", "gsva", "prop"), preprocess = T, transform = NULL, pcount = NULL){
   method <- match.arg(method)
   if (method %in% c("plage", "zscore") & preprocess == F){
     message("This requires pre-processing into centered log ratio transformation")
@@ -133,13 +133,19 @@ process <- function(X, pcount = 1, transform = NULL){
 
 
 #' This function converts a taxonomic table to an A matrix.  
-taxtab2A <- function(tax, agg_level){
+taxtab2A <- function(tax, agg_level, full=TRUE){
   id <- which(colnames(tax) == agg_level)
   tax <- as(tax, "matrix")[,1:id] %>% as.data.frame()
-  tax_names <- apply(tax,1,function(i){
-    paste(i, sep = ";_;", collapse = ';_;')
-  })
+  if (full == TRUE){
+    tax_names <- apply(tax,1,function(i){
+      paste(i, sep = ";_;", collapse = ';_;')
+    })
+  } else {
+    tax_names <- as.vector(tax[,id])
+  }
+  
   labels <- unique(tax_names)
+  labels <- na.omit(labels)
   labels <- labels[!stringr::str_ends(labels, "NA")] # remove NAs
   A <- matrix(0, ncol = length(labels), nrow = nrow(tax))
   for (i in seq(length(labels))){
@@ -147,7 +153,12 @@ taxtab2A <- function(tax, agg_level){
     A[idx,i] <- 1
   }
   colnames(A) <- labels
-  rownames(A) <- names(tax_names)
+  if (full == T){
+    rownames(A) <- names(tax_names)
+  } else {
+    rownames(A) <- rownames(tax)
+  }
+  
   return(A)
 }
 
@@ -254,4 +265,13 @@ merge_lists <- function(defaults, supplied){
     similar_idx <- which(names(defaults) %in% names(supplied))
     merged <- c(defaults[-similar_idx], supplied)
     return(merged)
+}
+
+#' Quickly convert phyloseq object to X and A formats 
+phylo2cilr <- function(physeq, agg_level){
+  X <- otu_table(physeq)
+  X <- as(t(X), "matrix")
+  A <- taxtab2A(tax = tax_table(physeq), agg_level = agg_level)
+  return(list(X = X, A = A))
+  
 }
