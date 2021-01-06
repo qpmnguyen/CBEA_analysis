@@ -18,3 +18,4 @@ R/test.R
 external/
 .Rprofile
 .drake/
+_targets/
