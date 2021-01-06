@@ -36,7 +36,7 @@ auc_cilr <- tar_map(unlist = FALSE, values = cilr_settings, {
         label_boot <- data$label[idx]
         data.frame(auc = enrichment_analysis(X = X_boot, A = data$A, method = models, label = label_boot, 
                                              distr = distr, adj = adj, output = output))
-    }, batches = 2, reps = 2)
+    }, batches = 2, reps = 1)
 })
 auc_other <- tar_map(unlist = FALSE, values = auc_models, {
     tar_rep(auc_models, {
@@ -45,7 +45,7 @@ auc_other <- tar_map(unlist = FALSE, values = auc_models, {
         X_boot <- X[idx, ]
         label_boot <- data$label[idx]
         data.frame(auc = enrichment_analysis(X = X_boot, A = data$A, method = models, label = label_boot))
-    }, batches = 2, reps = 2)
+    }, batches = 2, reps = 1)
 })
 
 combined <- tar_combine(auc, auc_other[[1]], auc_cilr[[1]], command = dplyr::bind_rows(!!!.x))
