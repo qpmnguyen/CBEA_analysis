@@ -31,18 +31,21 @@ enrichment_processing <- function(dat){
   return(list(X = X, A = A, label = label))
 }
 
-criterion <- function(scores, results){
+enrichment_auc <- function(scores, results){
   significance <- ifelse(results == "Supragingival Plaque", 1, 0)
   auc_score <- calculate_statistic(eval = "auc", pred = scores$Aerobic, true = significance)
   return(auc_score)
 }
 
-# generating bootstrapped CI
-bst_ci <- function(data, scores){
-  
-  
+enrichment_analysis <- function(X, A, method, label, ...){
+  if (method %in% c("ssgsea", "gsva")){
+    scores <- generate_alt_scores(X = X, A = A, method = method, preprocess = T, pcount = 1)
+  } else {
+    scores <- cilr(X = X, A = A, resample = T, ..., maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
+  }
+  auc <- enrichment_auc(scores = scores, results = label)
+  return(auc)
 }
-bootst
 
-# analysis function  
-analyze <- function(data)
+
+
