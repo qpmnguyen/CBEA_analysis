@@ -31,9 +31,9 @@ enrichment_processing <- function(dat){
   return(list(X = X, A = A, label = label))
 }
 
-enrichment_auc <- function(scores, results){
+enrichment_evaluate <- function(scores, results, metric){
   significance <- ifelse(results == "Supragingival Plaque", 1, 0)
-  auc_score <- calculate_statistic(eval = "auc", pred = scores$Aerobic, true = significance)
+  scores <- calculate_statistic(eval = metric, pred = scores$Aerobic, true = significance)
   return(auc_score)
 }
 

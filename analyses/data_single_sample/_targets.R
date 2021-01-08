@@ -4,6 +4,7 @@ library(here)
 library(tarchetypes)
 library(tidyverse)
 library(future)
+lib
 # library(future.batchtools)
 source(here("functions","utils.R"))
 source(here("functions", "cilr.R"))
@@ -39,8 +40,18 @@ auc_cilr <- tar_map(unlist = FALSE, values = cilr_settings, {
          auc <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
                                               distr = distr, adj = adj, output = output)
          data.frame(auc = auc, models = models, distr = distr, adj = adj, output = output)
-     }, batches = 1, reps = 1)
+     }, batches = 10, reps = 10)
  })
+
+pwr_cilr <- tar_map(unlist = FALSE, values = cilr_settings,{
+    tar_rep(pwr_cilr, {
+        X <- data_enrich$X
+        idx <- sample(1:nrow(X), size = nrow(X), replace = F)
+        X_boot <- X[idx,]
+        label_boot <- data_enrich$label[idx]
+    })
+})
+
 
 auc_other <- tar_map(unlist = FALSE, values = auc_models, {
     tar_rep(auc_models, {
@@ -50,9 +61,12 @@ auc_other <- tar_map(unlist = FALSE, values = auc_models, {
         label_boot <- data_enrich$label[idx]
         auc <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot)
         data.frame(auc = auc, models = models)
-    }, batches = 1, reps = 1)
+    }, batches = 10, reps = 10)
 })
 
 auc_combined <- tar_combine(auc, auc_cilr[[2]], auc_other[[2]], command = dplyr::bind_rows(!!!.x))
+
+save_auc <- tarchetypes::tar_rds(auc_save, saveRDS(auc, "output/auc_comparison.rds"))
+
 
 list(data, auc_cilr, auc_other, auc_combined)
