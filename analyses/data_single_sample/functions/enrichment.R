@@ -1,9 +1,9 @@
 library(phyloseq)
 library(here)
 library(tidyverse)
-here::i_am("analyses/single_sample_data/functions/enrichment.R")
-source(here("R", "utils.R"))
-source(here("R", "cilr.R"))
+here::i_am("functions/enrichment.R")
+source(here("functions", "utils.R"))
+source(here("functions", "cilr.R"))
 
 
 enrichment_processing <- function(dat){
@@ -37,14 +37,18 @@ enrichment_evaluate <- function(scores, results, metric){
   return(auc_score)
 }
 
-enrichment_analysis <- function(X, A, method, label, ...){
+enrichment_analysis <- function(X, A, method, label, type, ...){
   if (method %in% c("ssgsea", "gsva")){
     scores <- generate_alt_scores(X = X, A = A, method = method, preprocess = T, pcount = 1)
   } else {
     scores <- cilr(X = X, A = A, resample = T, ..., maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
   }
-  auc <- enrichment_auc(scores = scores, results = label)
-  return(auc)
+  if (type == "auc"){
+    output <- enrichment_evaluate(scores = scores, results = label)
+  } else if (type == "pwr"){
+    output <- enrichment_evaluate(scores = scores, results = label)
+  }
+  return(output)
 }
 
 
