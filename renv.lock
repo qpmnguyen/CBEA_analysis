@@ -1460,18 +1460,6 @@
       "Repository": "CRAN",
       "Hash": "bb5996d0bd962d214a11140d77589917"
     },
-    "rethinking": {
-      "Package": "rethinking",
-      "Version": "2.13",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "rethinking",
-      "RemoteUsername": "rmcelreath",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "3b48ec8dfda4840b9dce096d0cb9406589ef7923",
-      "Hash": "2970f35f213e75c9b482b4cf84808793"
-    },
     "rhdf5": {
       "Package": "rhdf5",
       "Version": "2.34.0",
@@ -1532,13 +1520,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "a05b5f1136fb3e22efe51e85369c041c"
-    },
-    "rstan": {
-      "Package": "rstan",
-      "Version": "2.21.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "52772d81aa532a6331fd535701882c12"
     },
     "rstudioapi": {
       "Package": "rstudioapi",
