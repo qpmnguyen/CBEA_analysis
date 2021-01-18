@@ -37,6 +37,6 @@
 cd $PBS_O_WORKDIR
 
 # Run run.R as a script to start the targets pipeline
-
+conda activate teailr
 Rscript run.R --ncores 20
 
