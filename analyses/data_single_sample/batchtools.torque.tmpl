@@ -15,11 +15,13 @@
 #PBS -m ae
 #PBS -M Quang.P.Nguyen.GR@dartmouth.edu
 
+#PBS -l walltime=1:00:00
+
 ## Resources needed:
 <% if (length(resources) > 0) {
   opts <- unlist(resources, use.names = TRUE)
   opts <- sprintf("%s=%s", names(opts), opts)
-  opts <- paste(opts, collapse = ",") %>
+  opts <- paste(opts, collapse = ";") %>
 #PBS -l <%= opts %>
 <% } %>
 

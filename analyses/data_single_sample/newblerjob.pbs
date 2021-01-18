@@ -2,7 +2,7 @@
 
 # declare the name for this job to be ColonMeth_batch1_RefFree_June2017
 
-#PBS -N NEWBLER_JOB
+#PBS -N SINGLE_SAMPLE_DATA
 
 
 # request the queue (enter the possible names, if omitted, default is the default)
@@ -36,7 +36,7 @@
 
 cd $PBS_O_WORKDIR
 
-# Run the newblerscript.sh bash script which should have all the options
+# Run run.R as a script to start the targets pipeline
 
-/isi/olga/qnguyen/newblerscript.sh
+Rscript run.R --ncores 20
 

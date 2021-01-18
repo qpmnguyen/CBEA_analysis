@@ -18,7 +18,11 @@ calculate_statistic <- function(eval, pred, true=NULL){
     true <- as.vector(true)
   }
   if(eval %in% c("fdr","pwr")){
-    stat <- sum(pred == 1)
+    if (missing(true)){
+      message("Cannot find true, assuming all values are 1")
+      true <- rep(1, length(pred))
+    }
+    stat <- sum(pred == 1 & true == 1)
     conf <- binom.confint(stat, length(pred), conf.level = 0.95, methods = "ac")
     stat <- conf %>% dplyr::select(c(mean, upper, lower)) %>% as.list()
   } else if (eval == "auc"){
@@ -105,6 +109,8 @@ wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F, transform=N
     })
   }
   R <- ifelse(R <= thresh, 1, 0)
+  rownames(R) <- rownames(X)
+  colnames(R) <- colnames(A)
   return(R)
 }
 
