@@ -1,6 +1,6 @@
 library(tidyverse)
 library(GSVA)
-library(ROCR)
+library(pROC)
 library(MASS)
 library(compositions)
 library(mixtools)
@@ -24,12 +24,14 @@ calculate_statistic <- function(eval, pred, true=NULL){
     }
     stat <- sum(pred == 1 & true == 1)
     conf <- binom.confint(stat, length(pred), conf.level = 0.95, methods = "ac")
-    stat <- conf %>% dplyr::select(c(mean, upper, lower)) %>% as.list()
+    stat <- conf %>% dplyr::select(c(mean, upper, lower)) %>% as.list() 
+    names(stat)[1] <- "estimate"
   } else if (eval == "auc"){
     if(missing(true)){
       stop("Need true values")
     }
-    stat <- performance(prediction(pred, true),'auc')@y.values[[1]]
+    stat <- pROC::ci.auc(response = true, predictor = pred, conf.level = 0.95)
+    stat <- list(estimate = stat[2], upper = stat[3], lower = stat[1])
   }
   return(stat)
 }

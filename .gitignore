@@ -17,3 +17,4 @@ archive/
 R/test.R
 external/
 .drake/
+simulation/
