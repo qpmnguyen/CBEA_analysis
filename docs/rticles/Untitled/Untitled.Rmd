@@ -3,24 +3,25 @@ title_full: Template for preparing a submission to Bioinformatics using RMarkdow
 title_short: Bioinformatics Rmd Template
 
 # one of `Original Paper`, `Discovery Note`, `Application Note`, `Review`, `Letter to the Editor`, `Conference Paper`    
-subject_section: Application Note
+subject_section: Original Paper
 
 access_date:
-  - day: DD
-    month: MM
-    year: YY
+  - day: 21
+    month: 01
+    year: 21
       
 author:
-  - name: Alice Anonymous
+  - name: Quang P. Nguyen
     affiliation: "1,2"
-  - name: Bob Security
-    affiliation: "1"
-      
+  - name: Anne G. Hoen
+    affiliation: "1,2"
+  - name: H. Robert Frost 
+    affiliation: "2"    
 address:
   - code: 1
-    address: Some Institute of Technology, Department, Street, City, State, Zip
+    address: Department of Epidemiology, Geisel School of Medicine at Dartmouth College
   - code: 2
-    address: Another University Department, Street, City, State, Zip
+    address: Department of Biomedical Data Science, Geisel School of Medicine at Dartmouth College
  
 # Full email address to be given, preferably an institution email address.  
 corresponding_author_text: "To whom correspondence should be addressed. E-mail: bob\\@email.com"

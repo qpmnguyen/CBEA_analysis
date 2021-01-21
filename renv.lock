@@ -1535,20 +1535,6 @@
       "Repository": "CRAN",
       "Hash": "ee4ed72d7a5047d9e73cf922ad66e9c9"
     },
-    "showtext": {
-      "Package": "showtext",
-      "Version": "0.9-2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e5dab22dca0b4626733ffca54b81fb6b"
-    },
-    "showtextdb": {
-      "Package": "showtextdb",
-      "Version": "3.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c12e756cf947e58b0f2c2a520521a5a8"
-    },
     "slam": {
       "Package": "slam",
       "Version": "0.1-48",
@@ -1618,13 +1604,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "b227d13e29222b4574486cfcbde077fa"
-    },
-    "sysfonts": {
-      "Package": "sysfonts",
-      "Version": "0.8.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "6a750650ae5e5ba11b45cb5012bd6167"
     },
     "tarchetypes": {
       "Package": "tarchetypes",
