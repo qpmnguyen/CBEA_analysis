@@ -42,61 +42,19 @@ supplementary_info: |
 output:
   rticles::bioinformatics_article:
     citation_package: natbib
+  keep_tex: true
     
 bibliography: bibliography.bib
+
 ---
 
 Introduction
 ============
 
-Cite others using bracket notation [@pepe2003statistical]. Can also cite with @zou2005regularization.
 
-<!-- naked refs don't work because of the \nolinkurl problems -->
-<!-- Or refer to specific people e.g. -@Yoo03 like so. -->
-
-Instructions for authors are available [online](http://www.oxfordjournals.org/our_journals/bioinformatics/for_authors/general.html).
-
-Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum.
-
-Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum.
-
-Approach
+Materials and Methods
 ============
 
-Here is how to include math equations in the document (bounded by `$$`):
-
-$$
-\begin{aligned}
-(x+y)^3&=(x+y)(x+y)^2\\
-       &=(x+y)(x^2+2xy+y^2) \label{eqn:example} \\
-       &=x^3+3x^2y+3xy^3+x^3. 
-\end{aligned}
-$$
-
-Describe the approach. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum.
-
-<!--
-problems with longtable and 2-column format. see pnas_template and https://github.com/jgm/pandoc/issues/1023
-
-  Species                    CBS     CV     G3
-  ----------------------- ------ ------ ------
-  1\. Acetaldehyde           0.0    0.0    0.0
-  2\. Vinyl alcohol          9.1    9.6   13.5
-  3\. Hydroxyethylidene     50.8   51.2   54.0
-
-  : Comparison of the fitted potential energy surfaces and ab initio
-  benchmark electronic energy calculations
--->
-
-Describe the approach. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum.
-
-Describe the approach. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum.
-
-Describe the approach. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum. Introduce your topic. Lorem ipsum ad nauseum.
-
-```{r figure, echo = FALSE, fig.width = 3.5, fig.cap = 'Figure from an Rmd chunk.'}
-plot(rnorm(10000))
-```
 
 Methods
 ============
