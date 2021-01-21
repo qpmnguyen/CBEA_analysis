@@ -10,8 +10,8 @@ source("../../R/utils.R")
 generate_grid <- function(eval){
     if (eval == "fdr"){
         grid <- list(
-            n_samp = 1000,
-            n_tax = 100,
+            n_samp = 10000,
+            n_tax = 2000,
             spar = c(0.2, 0.4, 0.6),
             s_rho = c(0, 0.2, 0.5),
             n_inflate = c(50,100,150),
@@ -55,32 +55,20 @@ generate_grid <- function(eval){
     }
     sim_settings <- cross_df(grid)
     sim_settings$id <- seq(1, nrow(sim_settings))
-    if (eval %in% c("fdr", "pwr")){
-        eval_settings <- cross_df(list(
-            model = "cilr",
-            distr = c("mnorm", "norm"),
-            adj = c(TRUE, FALSE),
-            id = sim_settings$id
-        ))
-        wlcx <- tibble(id = 1:100, model = "wilcox")
-        eval_settings <- full_join(eval_settings, wlcx, by = c("id", "model"))
-    } else if (eval == "auc"){
-        eval_settings <- cross_df(list(
-            method = "cilr",
-            distr = c("mnorm", "norm"),
-            adj = c(TRUE, FALSE),
-            output = c("zscore", "cdf"),
-            id = sim_settings$id
-        ))
-    }
-    #sim_settings <- left_join(sim_settings, eval_settings, by = "id")
-    return(list(sim = sim_settings, eval = eval_settings))
+    return(sim_settings)
 }
 
 
 # This function performs the analysis and evaluation 
-analysis <- function(sim, model=c("wilcox", "cilr"), distr, adj, eval, output = NULL, ...){
+#' @param sim The simulation object (a list)
+#' @param model a string for what model to use 
+#' @param distr Specify distribution for cilr 
+#' @param adj Specifify adjustments for cilr 
+#' @param eval The evaluation method
+#' @param output Specify what type of output for cilr  
+analysis <- function(sim, model=c("wilcox", "cilr", "ssgsea", "gsva"), distr, adj, eval=c("fdr","pwr","auc"), output = NULL, ...){
     match.arg(model)
+    match.arg(eval)
     if (eval == "auc" & is.null(output)){
         stop("Require output argument if evaluation is null")
     }
@@ -88,11 +76,15 @@ analysis <- function(sim, model=c("wilcox", "cilr"), distr, adj, eval, output = 
     A <- sim$A
     if (model == "wilcox"){
         scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1)
+    } else if (model %in% c("ssgsea", "gsva")){
+        if (eval != "auc"){
+            stop("Methods not available to evaluate for hypothesis testing")
+        } 
+        scores <- generate_alt_scores(X = X, A = A, method = model)
     } else {
         if (eval != "auc"){
             output <- "sig"
         }
-        print(distr)
         scores <- cilr(X = X, A = A, resample = T, output = output, adj = adj, distr = distr, ..., 
                        maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
     }
