@@ -39,15 +39,16 @@ data_enrich <- tar_rds(data_enrich, {
 
 # all cilr models under different evaluations  
 auc_cilr <- tar_map(unlist = FALSE, values = cilr_settings, {
-     tar_rep(auc_cilr, {
+     tar_target(auc_cilr, {
          X <- data_enrich$X
          idx <- sample(1:nrow(X), size = nrow(X), replace = F)
          X_boot <- X[idx,]
          label_boot <- data_enrich$label[idx]
          auc <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, metric = "auc", label = label_boot, 
                                               distr = distr, adj = adj, output = output)
-         data.frame(auc = auc, models = models, distr = distr, adj = adj, output = output)
-     }, batches = 10, reps = 5)
+         data.frame(est = auc$est, upper = auc$upper, lower = auc$lower, 
+                    models = models, distr = distr, adj = adj, output = output)
+     })
  })
 
 
@@ -60,7 +61,7 @@ fdr_cilr <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
         label_boot <- data_enrich$label[idx]
         fdr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
                                    distr = distr, adj = adj, output = "sig", metric = "fdr")
-        data.frame(fdr = fdr$mean, upper = fdr$upper, lower = fdr$lower, models = models, distr = distr, adj = adj, output = "sig")
+        data.frame(est = fdr$est, upper = fdr$upper, lower = fdr$lower, models = models, distr = distr, adj = adj, output = "sig")
     })
 })
 
@@ -72,20 +73,20 @@ pwr_cilr <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
         label_boot <- data_enrich$label[idx]
         pwr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
                                    distr = distr, adj = adj, output = "sig", metric = "pwr")
-        data.frame(pwr = pwr$mean, upper = pwr$upper, lower = pwr$lower, models = models, distr = distr, adj = adj, output = "sig")
+        data.frame(est = pwr$est, upper = pwr$upper, lower = pwr$lower, models = models, distr = distr, adj = adj, output = "sig")
     })
 })
 
 # Models for comparison  
 auc_other <- tar_map(unlist = FALSE, values = auc_models, {
-    tar_rep(auc_models, {
+    tar_target(auc_models, {
         X <- data_enrich$X
         idx <- sample(1:nrow(X), size = nrow(X), replace = F)
         X_boot <- X[idx, ]
         label_boot <- data_enrich$label[idx]
         auc <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, metric = "auc")
-        data.frame(auc = auc, models = models)
-    }, batches = 10, reps = 5)
+        data.frame(est = auc$est, upper = auc$upper, lower = auc$lower, models = models)
+    })
 })
 
 pwr_other <- tar_target(pwr_models, {
@@ -95,7 +96,7 @@ pwr_other <- tar_target(pwr_models, {
     label_boot <- data_enrich$label[idx]
     pwr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = "wilcoxon", 
                                label = label_boot, metric = "pwr")
-    data.frame(pwr = pwr$mean, upper = pwr$upper, lower = pwr$lower, models = "wilcox")
+    data.frame(est = pwr$est, upper = pwr$upper, lower = pwr$lower, models = "wilcox")
 }, error = "workspace")
 
 fdr_other <- tar_target(fdr_models, {
@@ -105,11 +106,11 @@ fdr_other <- tar_target(fdr_models, {
     label_boot <- data_enrich$label[idx]
     fdr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = "wilcoxon", 
                                label = label_boot, metric = "fdr")
-    data.frame(fdr = fdr$mean, upper = fdr$upper, lower = fdr$lower, models = "wilcox")
+    data.frame(est = fdr$est, upper = fdr$upper, lower = fdr$lower, models = "wilcox")
 }, error = "workspace")
 
 
-auc_combined <- tar_combine(auc, auc_cilr[[2]], auc_other[[2]], command = dplyr::bind_rows(!!!.x))
+auc_combined <- tar_combine(auc, auc_cilr, auc_other, command = dplyr::bind_rows(!!!.x))
 pwr_combined <- tar_combine(pwr, pwr_cilr, pwr_other, command = dplyr::bind_rows(!!!.x))
 fdr_combined <- tar_combine(fdr, fdr_cilr, fdr_other, command = dplyr::bind_rows(!!!.x))
 save_auc <- tarchetypes::tar_rds(auc_save, saveRDS(auc, "output/auc_comparison.rds"))
