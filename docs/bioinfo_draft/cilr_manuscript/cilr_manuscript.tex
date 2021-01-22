@@ -85,21 +85,30 @@ microbial sets using the isometric log-ratio transformation
 \begin{itemize}
 \tightlist
 \item
-  \(\mathbf{X}\): \(n\) by \(p\) matrix of positive counts for \(p\) taa
-  and \(n\) samples measured through either targeted sequencing \(p\)
-  matrix of positive counts for \(p\) taxa and \(n\) samples measured
-  through either targeted sequencing (such as 16S rRNA) or whole genome
-  shotgun sequencing. Usually \(\mathbf{X}\) is generated from standard
-  sequence processing pipelines such as DADA2 \citep{callahan2016} and
-  MetaPhlAn2 \citep{truong2015}
+  \(\mathbf{X}\): \(n\) by \(p\) matrix of positive counts for \(p\)
+  taxa and \(n\) samples measured through either targeted sequencing
+  \(p\) matrix of positive counts for \(p\) taxa and \(n\) samples
+  measured through either targeted sequencing (such as 16S rRNA) or
+  whole genome shotgun sequencing. Usually \(\mathbf{X}\) is generated
+  from standard sequence processing pipelines such as DADA2
+  \citep{callahan2016} and MetaPhlAn2 \citep{truong2015}.
+\item
+  \(\mathbf{A}\): \(p\) by \(m\) indicator matrix annotation the
+  membership of each taxa \(p\) to \(m\) sets of interest. These sets
+  can be Linnean taxonomic classifications annotated using databases
+  such as SILVA \citep{quast2013} or those based on more functionally
+  driven categories such as the functional tropism of microbes
+  (\(a_{i,j} = 1\) indicates that microbe \(i\) belongs to set \(j\)
 \end{itemize}
+
+The cILR method generates one output:
 
 \begin{itemize}
-    \item $\mathbf{X}$: $n$ by $p$ matrix of positive counts for $p$ taxa and $n$ samples measured through either targeted sequencing (such as 16S rRNA) or whole genome shotgun sequening. Usually $\mathbf{X}$ is generated from standard sequence processing pipelines such as DADA2 \cite{callahan2016} and MetaPhlAn2 \cite{truong2015}. 
-    \item $\mathbf{A}$: $p$ by $m$ indicator matrix annotating the membership of each taxa $p$ to $m$ sets of interest. These sets can be Linnean taxonomic classifications annotated using databases such as SILVA \cite{quast2013}, or those based on more functionally driven categories such as the tropism of each microbe ($a_{i,j} = 1$ indicates that microbe $i$ belongs to set $j$). 
+\tightlist
+\item
+  \(\mathbf{E}\): \(n\) by \(m\) matrix indicating the enrichment score
+  of \(m\) pre-defined sets identified in
 \end{itemize}
-
-The cILR method generates one output:\\
 
 \begin{itemize}
     \item $\mathbf{E}$: $n$ by $m$ matrix indicating the enrichment score of $m$ pre-defined sets identified in $\mathbf{A}$ across $n$ samples. 
