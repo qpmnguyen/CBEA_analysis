@@ -37,7 +37,8 @@ saveRDS(data, "data/hmp_stool_16S.rds")
 stool <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Stool" & VISITNO == 1) %>% as_phyloseq()
 tongue <- V35() %>% subset(select = HMP_BODY_SUBSITE == "Tongue Dorsum" & VISITNO == 1) %>% as_phyloseq()
 data <- merge_phyloseq(stool, tongue)
-data <- data %>% subset_samples(!duplicated(RSID)) %>% process_16S()
+data <- data %>% #subset_samples(!duplicated(RSID)) %>% 
+  process_16S()
 saveRDS(data, "data/hmp_stool_tongue_16S.rds")
 
 
@@ -73,7 +74,7 @@ oral <- oral[[1]]
 stool <- stool[[1]]
 oral <- oral %>% subset_samples(body_subsite == "tongue_dorsum")
 data <- merge_phyloseq(oral, stool)
-data <- data %>% subset_samples(!duplicated(subjectID)) %>% 
+data <- data %>% #subset_samples(!duplicated(subjectID)) %>% 
   subset_samples(disease = "healthy") %>% process_WGS()
 saveRDS(data, "data/hmp_stool_tongue_wgs.rds")
 
