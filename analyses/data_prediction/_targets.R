@@ -26,9 +26,6 @@ data <- tar_target(data, {
 }, pattern = map(files))
 
 
-
-
-
 data_ibd <- tar_rds(data_ibd, {
     readRDS(file = "../../data/nielsen_ibd_wgs.rds")
 })
@@ -87,6 +84,6 @@ other_agg <- tar_map(unlist = FALSE, values = add_methods,
 combine <- tar_combine(combine, other_agg[[2]], cilr_agg[[2]], 
                        command = dplyr::bind_rows(!!!.x))
 
-
-list(files, data, cilr_agg, other_agg, combine)
+save_file <- tar_rds(save_file, saveRDS(combine, "output/data_prediction.rds"))
+list(files, data, cilr_agg, other_agg, combine, save_file)
 

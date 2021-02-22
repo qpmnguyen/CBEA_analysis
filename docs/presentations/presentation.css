@@ -1,0 +1,25 @@
+.center-left {
+  position:          relative;
+  top:               50%;
+  transform:         translateY(50%);
+}
+.center-right {
+  position:          relative;
+  top:               50%;
+  transform:         translateY(10%);
+}
+
+.center2 {
+  margin: 0;
+  position: absolute;
+  top: 30%;
+  -ms-transform: translate(-50%, -50%);
+}
+
+.remark-slide-content{
+  font-size: 20px;
+}
+
+.huge {
+  font-size: 150% !important;
+}
