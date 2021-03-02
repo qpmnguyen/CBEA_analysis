@@ -4,18 +4,17 @@ library(tidyverse)
 source("functions/pred_functions.R")
 
 files <- tar_files(files, c("../../data/nielsen_ibd_wgs.rds", 
-                            "../../data/hmp_stool_tongue_16S.rds",
-                            "../../data/hmp_stool_tongue_wgs.rds"))
+                            "../../data/ackerman_ibd_16S.rds"))
 data <- tar_target(data, {
     dat <- readRDS(files)
     if (str_detect(files, "wgs")){
         if (str_detect(files, "ibd")){
-            dat <- process_pred(dat, lab_col = "disease", "IBD", "wgs") 
-        } else {
-            dat <- process_pred(dat, lab_col = "body_site", "stool", "wgs")
-        }
+            dat <- process_pred(dat, lab_col = "disease", case_label = "IBD", data_type = "wgs") 
+        } 
     } else if (str_detect(files,"16S")){
-        dat <- process_pred(dat, lab_col = "HMP_BODY_SITE", "Gastrointestinal Tract", "16S")
+        dat <- process_pred(dat, lab_col = "diagnosis", 
+                            case_label = "CD", 
+                            control_label = "no", data_type = "16S")
     }
     dset_names <- str_split(files, "/")[[1]] %>% 
         tail(n = 1) %>% 
@@ -26,13 +25,13 @@ data <- tar_target(data, {
 }, pattern = map(files))
 
 
-data_ibd <- tar_rds(data_ibd, {
-    readRDS(file = "../../data/nielsen_ibd_wgs.rds")
-})
-
-ibd_proc <- tar_target(ibd_proc, {
-    process_wgs(data_ibd, lab_col = "disease", "IBD")
-})
+# data_ibd <- tar_rds(data_ibd, {
+#     readRDS(file = "../../data/nielsen_ibd_wgs.rds")
+# })
+# 
+# ibd_proc <- tar_target(ibd_proc, {
+#     process_wgs(data_ibd, lab_col = "disease", "IBD")
+# })
 
 
 add_methods <- tibble(methods = c("gsva", "clr", "ssgsea"))
@@ -86,4 +85,3 @@ combine <- tar_combine(combine, other_agg[[2]], cilr_agg[[2]],
 
 save_file <- tar_rds(save_file, saveRDS(combine, "output/data_prediction.rds"))
 list(files, data, cilr_agg, other_agg, combine, save_file)
-

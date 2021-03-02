@@ -1,6 +1,7 @@
 library(tidymodels)
 library(tidyverse)
 library(phyloseq)
+library(biomformat)
 
 source("../../R/cilr.R")
 source("../../R/utils.R")
@@ -10,9 +11,16 @@ source("../../R/utils.R")
 # data frame contains the column label, which has the label of the possible prediction task 
 #' @param lab_col Name of the column detailing the label 
 #' @param case_label Name of the label that should be indicated as a case (i.e. equals 1) for a binary prediction problem
-process_pred <- function(physeq, lab_col, case_label, data_type = "wgs"){
+#' @param control_label Name of the label that stands for control  
+process_pred <- function(physeq, lab_col, case_label, data_type, control_label=NULL){
     label <- sample_data(physeq) %>% as("data.frame") %>% dplyr::select(!!lab_col)
-    label <- ifelse(label == case_label, 1, 0) %>% as.factor()
+    if(is.null(control_label)){
+        label <- ifelse(label == case_label, 1, 0) 
+    } else {
+        label <- dplyr::case_when(label == case_label  ~ 1, 
+                                  label == control_label ~ 0,
+                                  TRUE ~ NA_real_) 
+    }
     if (data_type == "wgs"){
         data <- otu_table(physeq) %>% as("matrix") %>% t() %>% 
             as.data.frame() %>% 
@@ -24,7 +32,12 @@ process_pred <- function(physeq, lab_col, case_label, data_type = "wgs"){
         data <- otu_table(physeq) %>% as("matrix") %>% t() %>% as.data.frame()
         table <- tax_table(physeq) %>% unclass() %>% as.data.frame()
     }
-    return(list(data = data, label = label, table = table))
+    na_idx <- which(is.na(label))
+    if (length(na_idx) != 0){
+        label <- label[-na_idx]
+        data <- data[-na_idx,]
+    }
+    return(list(data = data, label = label %>% as.factor(), table = table))
 }
 
 
@@ -88,6 +101,5 @@ fit_and_eval <- function(data, nfolds = 10, task = "classification"){
     metrics <- collect_metrics(eval)
     return(metrics)
 }
-
 
 
