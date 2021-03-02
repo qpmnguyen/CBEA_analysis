@@ -175,6 +175,9 @@ aggregate <- function(X, A){
   for (i in 1:ncol(A)){
     data[,i] <- rowSums(X[,A[,i] == 1])
   }
+  colnames(data) <- colnames(A)
+  rownames(data) <- rownames(X)
+  
   return(data)
 }
 
