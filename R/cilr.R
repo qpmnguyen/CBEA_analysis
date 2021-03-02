@@ -17,6 +17,7 @@ library(Rfast)
 #' @param init The initialization vector for estimating distribution
 #' @param adj  Boolean, indicating whether correlation adjustment will be performed 
 #' @param thresh Threshold if sig is returned to return significance 
+#' @param ... Additional parameters passed to fidistr or mixtools functions
 cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"), 
                  distr = c("mnorm", "norm"), nperm=5, init=NULL, adj=TRUE, thresh=0.05, 
                  preprocess=TRUE, pcount=1, transform = "prop", ...){
