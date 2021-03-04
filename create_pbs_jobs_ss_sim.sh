@@ -39,7 +39,7 @@ do
 	jobname="/scratch/$USER/job_$count_${RANDOM}"
 	
 	jobname=${jobname//\ /\_}
-	jobfilename="${jobname}_$i.pbs"
+	jobfilename="${jobname}.pbs"
 	
 	#echo "#PBS -j oe" >> ${jobfilename}
 	
