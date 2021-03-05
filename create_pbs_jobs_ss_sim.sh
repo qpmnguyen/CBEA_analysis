@@ -26,7 +26,7 @@ count=0
 # reads the last arguent passed on the command line -- must me '-x' if you want to submit jobs to the selecte queue, otherwise, it's just a test, no submission
 lastarg=${@: -1}
 
-declare -a dir=("analyses/simulations_single_sample_auc/" "analyses/simulations_single_sample_fdr/" "analyses/simulations_single_sample_pwr")
+declare -a dir=("analyses/simulations_single_sample_auc/" "analyses/simulations_single_sample_fdr/" "analyses/simulations_single_sample_pwr/")
 # == FOR LOOP
 for i in "${dir[@]}" 
 do
@@ -41,6 +41,8 @@ do
 	jobname=${jobname//\ /\_}
 	jobfilename="${jobname}.pbs"
 	
+	echo "#!/bin/bash -l" >> ${jobfilename}
+	echo "#PBS -q default" >> ${jobfilename}	
 	#echo "#PBS -j oe" >> ${jobfilename}
 	
 	# sets the requested number of nodes and cores
@@ -50,7 +52,7 @@ do
 	echo "#PBS -l walltime=${WALLTIME}" >> ${jobfilename}
 	
 	# run only on Intel nodes, only cellJ and other optional features
-    #echo "#PBS -l feature=intel,cellJ,etc..." >> ${jobfilename}
+    	#echo "#PBS -l feature=intel,cellJ,etc..." >> ${jobfilename}
 	
 	# sets which job events trigger e-mail to pre-defined e-mail address: (b)egin, (e)nd, (a)bort
 	echo "#PBS -m bea" >> ${jobfilename}
@@ -58,9 +60,10 @@ do
 	
 	# sets the work directory
 	echo "cd \$PBS_O_WORKDIR" >> ${jobfilename}
-    echo "conda activate teailr" >> ${jobfilename}
+	# echo "module load python/3-Anaconda" >> ${jobfilename}
+	echo "conda activate teailr" >> ${jobfilename}
 	# build the command to be added to PBS script
-	command="Rscript run.R --ncores 20 --dir $i"	
+	command="Rscript run.R --ncores 20 --dir $i --remove FALSE"	
 	
 	# displays the command and adds it to the PBS script
 	echo $command	
@@ -70,12 +73,12 @@ do
 	if [ -n "$lastarg" ] && [ ${lastarg} == "-x" ]
 	then
 		echo "inserting in queue"
-		qsub -N $jobname $jobfilename
+		mksub -N $jobname $jobfilename
 	fi
 	
 	# displays PBS script path and content							
-	#echo $jobname
-	#cat $jobfilename
+	echo $jobname
+	cat $jobfilename
 	
 	# deletes PBS script (cleanup)
 	rm -f $jobfilename
