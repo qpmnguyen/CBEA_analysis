@@ -179,7 +179,7 @@ sim_prediction <- function(type=c("regr", "classif"), snr = 2, sat=0.1, ...){
     def <- list(n_samp = 300, spar = 0.2, s_rho = 0.5, eff_size = 1,
                 b_rho = 0, n_tax = 2000, n_inflate = 50, n_sets = 40,
                 prop_set_inflate = 0.5, prop_inflate = 1, samp_prop = 0.5,
-                method = "normal", vary_params=TRUE, parameters=NULL)
+                method = "normal", vary_params=FALSE, parameters=NULL)
     if (missing(...)){
         args <- def
     } else {
@@ -195,31 +195,51 @@ sim_prediction <- function(type=c("regr", "classif"), snr = 2, sat=0.1, ...){
     baseline <- do.call(zinb_simulation, args)
     # index of samples that are related to the outcome based on model saturation
     set_names <- colnames(baseline$A)
+    #baseline$X <- baseline$X %>% as.matrix() %>% acomp() %>% unclass() %>% as.data.frame()
     if (sat > 0){
+        # First, let's sample from the sets the size of saturation 
         important_sets <- sample(seq(length(set_names)), size = length(set_names)*sat)
+        # Then let's generate a list of the sets that are determined to be important, and then 
+        # retrieve the taxa that are important  
+        n_pos <- round(length(important_sets)/2,0)
         index_list <- lapply(important_sets, function(x){
             as.vector(which(baseline$A[,x] == 1))
         })
-        y <- rep(0, nrow(baseline$X))
+        y_mean <- rep(0, nrow(baseline$X))
+        beta_0 <- 6/sqrt(10)
         while (sd(y_mean) == 0){ # remake y until the standard deviation is larger than 0
-            beta_0 <- 6/sqrt(10)
+            # beta are beta values per taxa
             beta <- rep(0, ncol(baseline$X))
-            beta_values <- rnorm(length(important_sets), sd = sd_beta) # generating random normal coefficients per set
+            # beta_sets are beta valutes per set 
+            beta_sets <- rep(0, length(important_sets))
+            beta_sets[1:n_pos] <- runif(n_pos, 1.5,2)
+            beta_sets[-c(1:n_pos)] <- runif(n_pos, -2,-1.5)
             for (i in seq(length(index_list))){
                 #mat <- .sparseDiagonal(length(index_list[[i]]), shape = "s")
                 #mat[mat == 0] <- beta_corr
-                beta[index_list[[i]]] <- beta_values[i]
+                beta[index_list[[i]]] <- beta_sets[i]
             }
             y_mean <- beta_0 + as.matrix(baseline$X) %*% beta
-            y <- y_mean + rnorm(nrow(baseline$X), mean = 0, sd = sd(y_mean)* (1/snr))
+            print(y_mean)
         }
+        y <- y_mean + rnorm(nrow(baseline$X), mean = 0, sd = sd(y_mean)* (1/snr))
         if (type == "classif"){
-            y <- plogis(y)
-            y <- as.factor(rbinom(length(y), size = 1, prob = y))
+            prob <- plogis(y) # logistic function
+            n_samp <- length(prob)
+            lower_bound <- round(0.4 * n_samp,0)
+            upper_bound <- round(0.6 * n_samp,0)
+            b_y <- rep(0, n_samp)
+            iter <- 0
+            while(iter < 2e4 & (sum(b_y == 1) < lower_bound | sum(b_y == 1) > upper_bound)){
+              iter <- iter + 1
+              b_y <- as.factor(rbinom(n_samp, size = 1, prob = prob)) 
+            }
+            y <- b_y
         }
     } else {
         y <- rnorm(nrow(baseline$X))
         beta <- rep(0, ncol(baseline$X))
     }
+    print("End generation")
     output <- list(outcome = y, predictors = list(X = baseline$X, A = baseline$A), beta = beta)
 }
