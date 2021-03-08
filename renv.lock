@@ -196,13 +196,6 @@
       "Source": "Bioconductor",
       "Hash": "08eaed67999405131d97ee543eb08e20"
     },
-    "PRROC": {
-      "Package": "PRROC",
-      "Version": "1.3.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "5506f0a5a0661ac39bfcfca702f1f282"
-    },
     "R6": {
       "Package": "R6",
       "Version": "2.5.0",
@@ -774,13 +767,6 @@
       "Repository": "CRAN",
       "Hash": "f25fad6bee82b7ab01f055e2d813b96f"
     },
-    "future.apply": {
-      "Package": "future.apply",
-      "Version": "1.7.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "7fb0dc1961807da107ab2078366052bd"
-    },
     "genefilter": {
       "Package": "genefilter",
       "Version": "1.72.0",
@@ -1050,13 +1036,6 @@
       "Repository": "CRAN",
       "Hash": "d908914ae53b04d4c0c0fd72ecc35370"
     },
-    "lgr": {
-      "Package": "lgr",
-      "Version": "0.4.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "bad9ff2e1effda68351caf123e1a6eac"
-    },
     "lhs": {
       "Package": "lhs",
       "Version": "1.1.1",
@@ -1161,41 +1140,6 @@
       "Repository": "CRAN",
       "Hash": "4999c07351f4c5e2f323c1d6e88652b9"
     },
-    "mlbench": {
-      "Package": "mlbench",
-      "Version": "2.1-1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "978aa169a072e2a0ed2aa5d8a8f3a07c"
-    },
-    "mlr3": {
-      "Package": "mlr3",
-      "Version": "0.9.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "7dce145aebb939b2203b52a8d991ee8c"
-    },
-    "mlr3learners": {
-      "Package": "mlr3learners",
-      "Version": "0.4.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "863f0ec14c987b49cd56ebaedd303b31"
-    },
-    "mlr3measures": {
-      "Package": "mlr3measures",
-      "Version": "0.3.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "668ab83e95837c0ab5f600ed233f6da8"
-    },
-    "mlr3misc": {
-      "Package": "mlr3misc",
-      "Version": "0.7.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "ce4902bd98d8b2e75d8e9a77b74f591e"
-    },
     "modeldata": {
       "Package": "modeldata",
       "Version": "0.1.0",
@@ -1285,13 +1229,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "e25078f6e770b81121672874474f69c0"
-    },
-    "paradox": {
-      "Package": "paradox",
-      "Version": "0.6.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "a91f07b0b9090803e9dc8b4b074d199a"
     },
     "parallelly": {
       "Package": "parallelly",
@@ -1731,15 +1668,15 @@
     },
     "targets": {
       "Package": "targets",
-      "Version": "0.0.0.9004",
+      "Version": "0.2.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
       "RemoteUsername": "wlandau",
       "RemoteRepo": "targets",
       "RemoteRef": "main",
-      "RemoteSha": "e9456facf89f56a90c894c379f203e2ac3a0683e",
-      "Hash": "eabadf2145ba927ba7d3f678d95104b8"
+      "RemoteSha": "d463d5e2ed80ee012303e782cb1f61fc0da904bd",
+      "RemoteHost": "api.github.com",
+      "Hash": "e2ff07f831d69f92cf1da87e7f8fd22b"
     },
     "tensorA": {
       "Package": "tensorA",
@@ -1831,13 +1768,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "4a5081acfb7b81a572e4384a7aaf2af1"
-    },
-    "uuid": {
-      "Package": "uuid",
-      "Version": "0.1-4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e4169eb989a5d03ccb6b628cad1b1b50"
     },
     "vctrs": {
       "Package": "vctrs",

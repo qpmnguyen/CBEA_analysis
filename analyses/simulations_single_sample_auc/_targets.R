@@ -9,7 +9,7 @@ set.seed(1020)
 tar_option_set(error = "workspace")
 
 sim_auc <- generate_grid(eval = "auc")
-
+saveRDS(sim_auc, file = "output/simulation_grid_auc.rds")
 
 auc_test_grid <- tar_target(auc_test_grid, {
     eval_settings <- cross_df(list(
@@ -30,13 +30,14 @@ auc_jobs <- tar_map(unlist = FALSE, values = sim_auc, names = c("id"),
                                         n_inflate = n_inflate, n_sets = n_sets, prop_set_inflate = prop_set_inflate, 
                                         method = "normal")}),
                     tar_target(result_auc, {
-                        auc_test_grid$eval <- "auc"
-                        auc_test_grid$sim <- list(simulation_auc)
                         print("Currently mapping")
-                        res <- analysis(sim = auc_test_grid$sim[[1]], 
-                                        model = auc_test_grid$model, distr = auc_test_grid$distr, 
-                                        eval = "auc", adj = auc_test_grid$adj, output = auc_test_grid$output)
-                        dplyr::bind_cols(sim_auc, auc_test_grid %>% dplyr::select(-c(eval,sim)), res %>% dplyr::select(-eval))
+                        res <- analysis(sim = simulation_auc, 
+                                        model = auc_test_grid$model, 
+                                        distr = auc_test_grid$distr, 
+                                        eval = "auc", 
+                                        adj = auc_test_grid$adj, 
+                                        output = auc_test_grid$output)
+                        dplyr::bind_cols(id = id, auc_test_grid, res)
                     }, pattern = map(auc_test_grid))
 )
 

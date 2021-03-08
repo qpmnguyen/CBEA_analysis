@@ -9,7 +9,7 @@ set.seed(1020)
 tar_option_set(error = "workspace")
 
 sim_pwr <- generate_grid(eval = "pwr")  
-
+saveRDS(sim_pwr, file = "output/simulation_grid_pwr.rds")
 hypo_test_grid <- tar_target(hypo_test_grid, {
     eval_settings <- cross_df(list(
         model = "cilr",
@@ -28,13 +28,13 @@ pwr_jobs <- tar_map(unlist = FALSE, values = sim_pwr, names = c("id"),
                                         n_inflate = n_inflate, n_sets = n_sets, prop_set_inflate = prop_set_inflate, 
                                         method = "normal")}),
                     tar_target(result_pwr, {
-                        hypo_test_grid$eval <- "pwr"
-                        hypo_test_grid$sim <- list(simulation_pwr)
                         print("Currently mapping")
-                        res <- analysis(sim = hypo_test_grid$sim[[1]], model = hypo_test_grid$model, 
+                        res <- analysis(sim = simulation_pwr, 
+                                        model = hypo_test_grid$model, 
                                         distr = hypo_test_grid$distr, 
-                                        eval = "pwr", adj = hypo_test_grid$adj)
-                        dplyr::bind_cols(sim_pwr, hypo_test_grid %>% dplyr::select(-c(eval,sim)), res %>% dplyr::select(-eval))
+                                        eval = "pwr", 
+                                        adj = hypo_test_grid$adj)
+                        dplyr::bind_cols(id = id, hypo_test_grid, res)
                     }, pattern = map(hypo_test_grid))
 )
 
