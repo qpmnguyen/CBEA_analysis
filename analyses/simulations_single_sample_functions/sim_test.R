@@ -66,7 +66,9 @@ generate_grid <- function(eval){
 #' @param adj Specifify adjustments for cilr 
 #' @param eval The evaluation method
 #' @param output Specify what type of output for cilr  
-analysis <- function(sim, model=c("wilcox", "cilr", "ssgsea", "gsva"), distr, adj, eval=c("fdr","pwr","auc"), output = NULL, ...){
+analysis <- function(sim, 
+                     model=c("wilcox", "cilr", "ssgsea", "gsva"), 
+                     distr, adj, eval=c("fdr","pwr","auc"), output = NULL, ...){
     match.arg(model)
     match.arg(eval)
     if (eval == "auc" & is.null(output)){
