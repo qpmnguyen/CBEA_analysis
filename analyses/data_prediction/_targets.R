@@ -12,8 +12,8 @@ data <- tar_target(data, {
             dat <- process_pred(dat, lab_col = "disease", case_label = "IBD", data_type = "wgs") 
         } 
     } else if (str_detect(files,"16S")){
-        dat <- process_pred(dat, lab_col = "diagnosis", 
-                            case_label = "CD", 
+        dat <- process_pred(dat, lab_col = "ibd_diag", 
+                            case_label = "IBD", 
                             control_label = "no", data_type = "16S")
     }
     dset_names <- str_split(files, "/")[[1]] %>% 

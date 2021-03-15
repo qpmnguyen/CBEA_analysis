@@ -64,7 +64,7 @@ regr_jobs <- tar_map(unlist = FALSE, values = sim_regr, names = c("id"),
                         print("Currently evaluating")
                         res <- fit_and_eval(agg_regr, nfolds = 10, task = "regression")
                         dplyr::bind_cols(id = id, sim_eval_grid, res)
-                    }, pattern = map(agg_regr))
+                    }, pattern = map(agg_regr, sim_eval_grid))
 )
 
 combine_regr <- tar_combine(combine_regr, regr_jobs[[3]], command = dplyr::bind_rows(!!!.x))

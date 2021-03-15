@@ -31,9 +31,6 @@ sim_classif <- cross_df(list(
 sim_classif$id <- seq(1, nrow(sim_classif))
 saveRDS(sim_classif, file = "output/simulation_grid_classif.rds")
 
-sim_classif <- sim_classif[1:3,]
-
-
 sim_eval_grid <- tar_target(sim_eval_grid, {
     eval_settings <- cross_df(list(
         model = "cilr",
@@ -67,7 +64,7 @@ classif_jobs <- tar_map(unlist = FALSE, values = sim_classif, names = c("id"),
                          print("Currently evaluating")
                          res <- fit_and_eval(agg_classif, nfolds = 10, task = "classification")
                          dplyr::bind_cols(id = id, sim_eval_grid, res)
-                     }, pattern = map(agg_classif))
+                     }, pattern = map(agg_classif, sim_eval_grid))
 )
 
 combine_classif <- tar_combine(combine_classif, classif_jobs[[3]], command = dplyr::bind_rows(!!!.x))
