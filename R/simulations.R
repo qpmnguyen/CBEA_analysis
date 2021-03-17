@@ -220,7 +220,6 @@ sim_prediction <- function(type=c("regr", "classif"), snr = 2, sat=0.1, ...){
                 beta[index_list[[i]]] <- beta_sets[i]
             }
             y_mean <- beta_0 + as.matrix(baseline$X) %*% beta
-            print(y_mean)
         }
         y <- y_mean + rnorm(nrow(baseline$X), mean = 0, sd = sd(y_mean)* (1/snr))
         if (type == "classif"){

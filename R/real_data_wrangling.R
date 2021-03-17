@@ -100,10 +100,13 @@ sample_data(biom) <- samp_dat
 
 biom <- biom %>% process_16S()
 colnames(tax_table(biom)) <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")
-map_df(tax_table(biom), ~str_remove(.x, "[a-z]__"))
+#map_df(tax_table(biom), ~str_remove(.x, "[a-z]__"))
 otu_id <- rownames(tax_table(biom))
 taxtab <- apply(tax_table(biom),2,str_remove, "[a-z]__")
 taxtab <- ifelse(taxtab == "", NA, taxtab)
+rownames(taxtab) <- otu_id
 tax_table(biom) <- taxtab
+
+sample_data(biom)$ibd_diag <- ifelse(sample_data(biom)$diagnosis != "no", "IBD", "no")
 
 saveRDS(biom, "data/ackerman_ibd_16S.rds")

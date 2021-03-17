@@ -38,7 +38,8 @@ calculate_statistic <- function(eval, pred, true=NULL){
 
 
 #' @title Generate scores using different models  
-generate_alt_scores <- function(X, A, method=c("plage", "zscore", "ssgsea", "gsva", "prop"), preprocess = T, transform = NULL, pcount = NULL){
+generate_alt_scores <- function(X, A, method=c("plage", "zscore", "ssgsea", "gsva", "prop"), 
+                                preprocess = T, transform = NULL, pcount = NULL, ...){
   method <- match.arg(method)
   if (method %in% c("plage", "zscore") & preprocess == F){
     message("This requires pre-processing into centered log ratio transformation")
