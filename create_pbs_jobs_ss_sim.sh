@@ -1,16 +1,16 @@
 #!/bin/bash
 
 # number of nodes per job (1 node = 16 cores = 64/128GB RAM)
-NODES=1
+NODES=2
 
 # number of cores per job (1 core = 4/8GB RAM)
-PPN=20
+PPN=10
 
 # email where to send job notifications ***MUST ESCAPE THE '@'*** e.g. fist.last\@dartmouth.edu
 EMAIL="Quang.P.Nguyen.GR\@dartmouth.edu"
 
 # desired wall time HH:MM:SS for each job
-WALLTIME=20:00:00
+WALLTIME=40:00:00
 
 # create user directory in scratch if it doesn't exist
 if test -d /dartfs-hpc/scratch/$USER

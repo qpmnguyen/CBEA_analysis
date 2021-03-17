@@ -2,6 +2,8 @@
 library(targets)
 library(tarchetypes)
 library(tidyverse)
+library(future)
+plan(multisession)
 source("../simulations_single_sample_functions/sim_test.R")
 
 set.seed(1020)  
@@ -46,3 +48,4 @@ save_auc <- tarchetypes::tar_rds(save_auc, saveRDS(combine_auc, file = "output/s
 
 
 list(auc_test_grid, auc_jobs, combine_auc, save_auc)
+
