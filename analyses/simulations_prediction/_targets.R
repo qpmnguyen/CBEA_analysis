@@ -7,7 +7,6 @@ set.seed(1020)
 
 tar_option_set(error = "workspace")
 
-sim_grid <- 
 
 sim_grid <- tar_target(auc_test_grid, {
     eval_settings <- cross_df(list(
