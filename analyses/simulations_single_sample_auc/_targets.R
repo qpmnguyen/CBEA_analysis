@@ -48,4 +48,4 @@ save_auc <- tarchetypes::tar_rds(save_auc, saveRDS(combine_auc, file = "output/s
 
 
 list(auc_test_grid, auc_jobs, combine_auc, save_auc)
-
+plan(sequential)
