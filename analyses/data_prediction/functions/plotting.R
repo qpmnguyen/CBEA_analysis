@@ -29,6 +29,6 @@ plt <- ggplot(data, aes(x = method, y = auc, col = distr, shape = adj, linetype 
     scale_linetype_manual(values = c("solid","longdash","dotted"), 
                           guide = guide_legend(override.aes = list(shape = c(NA,NA,NA)))) +
     ylim(c(0.7,1))
-plt
+
 saveRDS(plt, file = "output/data_prediction_plot.rds")
 ggsave(plt, filename = "output/data_prediction_plot.png", dpi = 300, width = 13, height = 8)
