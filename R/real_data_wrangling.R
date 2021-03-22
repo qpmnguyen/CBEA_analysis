@@ -80,6 +80,18 @@ data <- data %>% #subset_samples(!duplicated(subjectID)) %>%
   subset_samples(disease = "healthy") %>% process_WGS()
 saveRDS(data, "data/hmp_stool_tongue_wgs.rds")
 
+# wgs subgingival 
+## [12] "HMP_2012.metaphlan_bugs_list.subgingival_plaque"     
+## [13] "HMP_2012.metaphlan_bugs_list.supragingival_plaque"
+oral <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.oralcavity", dryrun = F, bugs.as.phyloseq = T)
+data <- wgs[[1]]
+data <- subset_samples(data, body_subsite %in% c("supragingival_plaque", "subgingival_plaque"))
+
+sample_data(data)$body_subsite
+sub_wgs <- curatedMetagenomicData(x = "HMP_2012.metaphlan_bugs_list.supragingival_plaque", 
+                                  dryrun = F, bugs.as.phyloseq = T)
+
+test <- HMP_2012.metaphlan_bugs_list.subgingival_plaque()
 
 
 # Prediction data sets  
