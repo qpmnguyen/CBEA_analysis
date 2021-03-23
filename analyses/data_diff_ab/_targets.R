@@ -3,6 +3,8 @@ library(tarchetypes)
 library(tidyverse)
 library(phyloseq)
 library(stringr)
+library(future)
+plan(multisession)
 source("functions/diff_ab_functions.R")
 set.seed(1020)
 
@@ -57,7 +59,7 @@ fdr_analysis <- tar_map(unlist = FALSE, values = fdr_files, names = "dset",
         eval_grid %>% mutate(eval = eval)
     }, batches = 500, reps = 20),
     tar_rds("save_file", {
-        saveRDS(fdr_rep, file = glue("{dset}_cilr.rds", dset = dset))
+        saveRDS(fdr_rep, file = glue("output/{dset}_fdr.rds", dset = dset))
     })
 )
 
@@ -86,4 +88,4 @@ pwr_analysis <- tar_target("pwr_analysis", {
 # saving files  
 pwr_save_file <- tar_rds("pwr_save_file", saveRDS(file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
 
-list(eval_grid, pwr_analysis)
+list(eval_grid, fdr_analysis, pwr_analysis, pwr_save_file)
