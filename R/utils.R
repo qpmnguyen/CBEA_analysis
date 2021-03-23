@@ -274,7 +274,12 @@ get_fit <- function(data, adj, distr=c("norm", "mnorm"), init=NULL, ...){
 #' This function handles the ability to merge supplied and defaults 
 merge_lists <- function(defaults, supplied){
     similar_idx <- which(names(defaults) %in% names(supplied))
-    merged <- c(defaults[-similar_idx], supplied)
+    if (length(similar_idx) == 0){
+      merged <- c(defaults, supplied)
+    }
+    else {
+      merged <- c(defaults[-similar_idx], supplied)
+    }
     return(merged)
 }
 
