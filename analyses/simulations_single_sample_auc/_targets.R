@@ -10,7 +10,7 @@ set.seed(1020)
 
 tar_option_set(error = "workspace")
 
-sim_auc <- generate_grid(eval = "auc")
+sim_auc <- generate_grid(eval = "auc")[1:10,]
 saveRDS(sim_auc, file = "output/simulation_grid_auc.rds")
 
 auc_test_grid <- tar_target(auc_test_grid, {

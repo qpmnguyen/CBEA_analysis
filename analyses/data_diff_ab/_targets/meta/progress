@@ -1,0 +1,9 @@
+name|type|parent|branches|progress
+fdr_rep_batch_stool_wgs|stem|fdr_rep_batch_stool_wgs|0|started
+fdr_rep_batch_stool_wgs|stem|fdr_rep_batch_stool_wgs|0|built
+eval_grid|stem|eval_grid|0|started
+eval_grid|stem|eval_grid|0|built
+fdr_rep_batch_stool_16S|stem|fdr_rep_batch_stool_16S|0|started
+fdr_rep_batch_stool_16S|stem|fdr_rep_batch_stool_16S|0|built
+pwr_analysis|pattern|pwr_analysis|11|started
+pwr_analysis_fe1aea2b|branch|pwr_analysis|0|started

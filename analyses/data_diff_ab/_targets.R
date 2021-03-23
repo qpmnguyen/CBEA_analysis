@@ -86,6 +86,6 @@ pwr_analysis <- tar_target("pwr_analysis", {
 }, pattern = map(eval_grid))
 
 # saving files  
-pwr_save_file <- tar_rds("pwr_save_file", saveRDS(file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
+pwr_save_file <- tar_rds("pwr_save_file", saveRDS(pwr_analysis, file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
 
 list(eval_grid, fdr_analysis, pwr_analysis, pwr_save_file)
