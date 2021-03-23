@@ -1,23 +1,23 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
-auc_cilr|object|bafcbcc5267bc487
+auc_cilr|object|00d7a1e007687c2e
 process|function|fceb5d1a6ed8c6f1
 pmnorm|function|48080281e209109b
-fdr_cilr|object|16fdbb6fd47457e5
+fdr_cilr|object|f90eb0affe30f264
 taxtab2A|function|8fcacdc70cfdd3e9
 get_mean|function|462a55e11b9619ab
 get_sd|function|787add497a17ce40
 .Random.seed|object|100a30f5e0561350
 dmnorm|function|c4966d38b4d5e5c2
 cilr_settings_sig|object|27084b6bc573a0d0
-auc_other|object|75d8dacd35ca1a04
+auc_other|object|acd3fd3a85703034
 estimate_distr|function|a77b1b269d803650
 merge_lists|function|e6596e5187baf101
 auc_models|object|6746e19e7c8993f9
 calculate_statistic|function|5966b7dc254bf6ea
-aggregate|function|163bf1d4a269a501
+aggregate|function|b5b3bc29850ebe81
 ss_eval|function|75eb6fb57434ab04
 get_score|function|342e612c355a8df4
-pwr_cilr|object|98858cffe5780db1
+pwr_cilr|object|8b2aefeb11f74508
 sim2phylo|function|a509b0054133d0a0
 cilr_settings|object|c9cd9a4d1a389d11
 wc_test|function|9c4ac72d99328b98
@@ -26,34 +26,34 @@ enrichment_processing|function|89b8e68d6024b1b3
 scale_scores|function|2392ccfe58738ff1
 get_adj_mnorm|function|f803bc21532f455c
 enrichment_evaluate|function|8aeb9a48a557151e
-generate_alt_scores|function|b6ae37bf8dafced5
+generate_alt_scores|function|e369f7228e60f778
 cilr|function|5086b0e7c26d6f6e
-enrichment_analysis|function|75ffbf0aa060836c
+enrichment_analysis|function|ca397add723763f0
 get_fit|function|16abc1da60586969
-data_enrich|stem|1b74e32bd384a80a|08191ec05add92a8|dfde44c2d1dd7455|-469645142|_targets/objects/data_enrich|44d88fe6d2918133|f08ae07eef9c6a35|1361826|rds|vector|||20.109||
-auc_cilr_cilr_mnorm_TRUE_zscore|stem|58f72d063d960fbe|8e5a5246574af1aa|81ad51576efffe2b|-1032050238|_targets/objects/auc_cilr_cilr_mnorm_TRUE_zscore|a049b6fd3337b689|666b1b9ea3b4e18f|221|rds|vector|||69.616||
-auc_cilr_cilr_mnorm_FALSE_zscore|stem|5799fb6581601c75|e7e31e15d11699be|81ad51576efffe2b|-832985927|_targets/objects/auc_cilr_cilr_mnorm_FALSE_zscore|6b4b94cb271734f0|666b1b9ea3b4e18f|221|rds|vector|||65.81||
-pwr_cilr_cilr_norm_FALSE|stem|9c284b1cba458259|f5c3dac79ddaba7f|81ad51576efffe2b|-1537853255|_targets/objects/pwr_cilr_cilr_norm_FALSE|8cfab6c2a5b0930b|d0241264a67342d3|216|rds|vector|||69.951|NaNs produced|
-auc_cilr_cilr_norm_FALSE_cdf|stem|28c4854c7896ad68|1b0166c8d20d877d|81ad51576efffe2b|-323470766|_targets/objects/auc_cilr_cilr_norm_FALSE_cdf|75453ae6e922a359|a3e228427256b2e7|215|rds|vector|||70.92|NaNs produced|
-auc_models_ssgsea|stem|c3e2740e029191e5|eca2fe3eeb8e18f1|81ad51576efffe2b|-1100898919|_targets/objects/auc_models_ssgsea|9f8fe535398768e6|8e54054a6db2a5c6|181|rds|vector|||34.28|34253 genes with constant expression values throuhgout the samples.|
-auc_cilr_cilr_mnorm_TRUE_cdf|stem|055b2e48dd86a02a|411a0b6bc789ac65|81ad51576efffe2b|1818510824|_targets/objects/auc_cilr_cilr_mnorm_TRUE_cdf|5e0c63fa3ea1fab2|37738bfaa3005902|217|rds|vector|||97.357||
-fdr_cilr_cilr_mnorm_FALSE|stem|34891e1940982ecf|c27fe7a304582a43|81ad51576efffe2b|499475446|_targets/objects/fdr_cilr_cilr_mnorm_FALSE|9fbc2b113d62fa61|d0241264a67342d3|216|rds|vector|||69.671||
-auc_cilr_cilr_mnorm_FALSE_cdf|stem|6bb5bf4521ab0ca3|5eb0b39a6c647cf4|81ad51576efffe2b|1379609131|_targets/objects/auc_cilr_cilr_mnorm_FALSE_cdf|37835d618027323a|d0241264a67342d3|216|rds|vector|||72.777||
-fdr_models|stem|c108ef490b72d489|b24cace2f6129781|81ad51576efffe2b|-1559172001|_targets/objects/fdr_models|e6634fcb27443928|8e54054a6db2a5c6|181|rds|vector|||96.173||
-auc_cilr_cilr_norm_FALSE_zscore|stem|53283bb5082dd01e|21ba244d96afdd47|81ad51576efffe2b|272688384|_targets/objects/auc_cilr_cilr_norm_FALSE_zscore|42379831f7796cd2|4f83393ac6a74a06|219|rds|vector|||71.284|NaNs produced|
-fdr_cilr_cilr_norm_FALSE|stem|b36b9560c79673e0|f503c5946392613e|81ad51576efffe2b|-293127248|_targets/objects/fdr_cilr_cilr_norm_FALSE|062f9450de9c5d96|d0241264a67342d3|216|rds|vector|||38.977|NaNs produced|
-auc_cilr_cilr_norm_TRUE_cdf|stem|0da2ffe402ffb902|1b6b5d9dd3bd7fc3|81ad51576efffe2b|-1521343971|_targets/objects/auc_cilr_cilr_norm_TRUE_cdf|805454fdc6fcab76|a3e228427256b2e7|215|rds|vector|||101.946|NaNs produced|
-pwr_cilr_cilr_mnorm_FALSE|stem|089560f3c97e4b63|d272abba8fa6d4b4|81ad51576efffe2b|1597697203|_targets/objects/pwr_cilr_cilr_mnorm_FALSE|5347bf6467e38e96|37738bfaa3005902|217|rds|vector|||42.531||
-auc_cilr_cilr_norm_TRUE_zscore|stem|76491684df7321bd|1b71207a85a7794e|81ad51576efffe2b|594062289|_targets/objects/auc_cilr_cilr_norm_TRUE_zscore|49b5a487d29e744f|4f83393ac6a74a06|219|rds|vector|||91.127|NaNs produced|
-fdr_cilr_cilr_norm_TRUE|stem|b708b6f2b3f155e0|a7599693af383ca5|81ad51576efffe2b|-1508714326|_targets/objects/fdr_cilr_cilr_norm_TRUE|3c21f22acbb3befa|d0241264a67342d3|216|rds|vector|||70.972|NaNs produced|
-pwr_cilr_cilr_mnorm_TRUE|stem|d59a2699d8947a7f|57c67e57a47015e6|81ad51576efffe2b|125750491|_targets/objects/pwr_cilr_cilr_mnorm_TRUE|afb8f881f46cc141|37738bfaa3005902|217|rds|vector|||66.989||
-fdr_cilr_cilr_mnorm_TRUE|stem|3785ec3f676a70ec|5d657bae756cb476|81ad51576efffe2b|741044652|_targets/objects/fdr_cilr_cilr_mnorm_TRUE|7d1a0b0b5c2b904e|37738bfaa3005902|217|rds|vector|||92.675||
-fdr|stem|ec4229e2cd7ffc1b|1ce39fb3935addc9|3745b52ccc0cb2dd|-2092848230|_targets/objects/fdr|ea5a31fe05329ec4|74732363c97e2fa2|356|rds|vector|||0.003||
-fdr_save|stem|45f182deaaa1b3d6|96a4808bae03f01c|2022c4f5af7a7488|1507171129|_targets/objects/fdr_save|f57aae407af0bc49|734b3d9083442ea3|49|rds|vector|||0.012||
-pwr_models|stem|9ea820a174345fe1|872b54f56d4b6497|81ad51576efffe2b|177391428|_targets/objects/pwr_models|9dfa255a735e2d7b|1d4c5610765f90ff|182|rds|vector|||70.191||
-pwr_cilr_cilr_norm_TRUE|stem|0b68aefe3dd24b9b|b6578f58fa79e6f4|81ad51576efffe2b|1804832102|_targets/objects/pwr_cilr_cilr_norm_TRUE|72ed0abec5569c1c|d0241264a67342d3|216|rds|vector|||81.073|NaNs produced|
-pwr|stem|aea58d57e94bfc9c|27aa58f3952e1d26|7772c0837e4187fa|-1625886601|_targets/objects/pwr|723b99b1eccdbac5|cf411870c9f4a057|353|rds|vector|||0.002||
-pwr_save|stem|45f182deaaa1b3d6|2f36b9b30b7a00b1|e22e0b769fbbfba0|222575612|_targets/objects/pwr_save|b6b9bb016ef05c82|734b3d9083442ea3|49|rds|vector|||0.009||
-auc_models_gsva|stem|b68fe7613a4e6e6f|8b594e145c6b06dd|81ad51576efffe2b|463649368|_targets/objects/auc_models_gsva|6d4d025f6f73035d|406e4a972f09425e|178|rds|vector|||179.465|Since argument methodssgsea, genes with constant expression values are discarded.|
-auc|stem|a66ae3918aec0299|21a9dfb733d83225|b22a7268155f3194|-273454304|_targets/objects/auc|9141a8d87004987a|e764a6672af72faa|371|rds|vector|||0.005||
-auc_save|stem|45f182deaaa1b3d6|f0b722de32ed14f2|344b610af4d57452|-9976399|_targets/objects/auc_save|27cc41dfeede6191|734b3d9083442ea3|49|rds|vector|||0.011||
+data_enrich|stem|1b74e32bd384a80a|08191ec05add92a8|dfde44c2d1dd7455|-469645142|_targets/objects/data_enrich|e05d7f36185efef2|f08ae07eef9c6a35|1361826|rds|vector|||20.952||
+auc_cilr_cilr_mnorm_TRUE_zscore|stem|58f72d063d960fbe|8e5a5246574af1aa|a9fd67f923894a8f|-1032050238|_targets/objects/auc_cilr_cilr_mnorm_TRUE_zscore|26f1d6245888856e|666b1b9ea3b4e18f|221|rds|vector|||70.437||
+auc_cilr_cilr_mnorm_FALSE_zscore|stem|5799fb6581601c75|e7e31e15d11699be|a9fd67f923894a8f|-832985927|_targets/objects/auc_cilr_cilr_mnorm_FALSE_zscore|acbb546e58499ac2|666b1b9ea3b4e18f|221|rds|vector|||71.085||
+auc_cilr_cilr_mnorm_TRUE_cdf|stem|055b2e48dd86a02a|411a0b6bc789ac65|a9fd67f923894a8f|1818510824|_targets/objects/auc_cilr_cilr_mnorm_TRUE_cdf|00531e3e2d3c900f|37738bfaa3005902|217|rds|vector|||103.255||
+pwr_cilr_cilr_norm_FALSE|stem|9c284b1cba458259|f5c3dac79ddaba7f|a9fd67f923894a8f|-1537853255|_targets/objects/pwr_cilr_cilr_norm_FALSE|eea004a0bcda79ce|d0241264a67342d3|216|rds|vector|||75.832|NaNs produced|
+auc_cilr_cilr_norm_FALSE_cdf|stem|28c4854c7896ad68|1b0166c8d20d877d|a9fd67f923894a8f|-323470766|_targets/objects/auc_cilr_cilr_norm_FALSE_cdf|961b6a9c553e3dff|a3e228427256b2e7|215|rds|vector|||77.543|NaNs produced|
+fdr_cilr_cilr_mnorm_FALSE|stem|34891e1940982ecf|c27fe7a304582a43|a9fd67f923894a8f|499475446|_targets/objects/fdr_cilr_cilr_mnorm_FALSE|232e87dbfe1c189e|d0241264a67342d3|216|rds|vector|||79.265||
+auc_cilr_cilr_mnorm_FALSE_cdf|stem|6bb5bf4521ab0ca3|5eb0b39a6c647cf4|a9fd67f923894a8f|1379609131|_targets/objects/auc_cilr_cilr_mnorm_FALSE_cdf|1a76383d72061975|d0241264a67342d3|216|rds|vector|||77.45||
+auc_models_ssgsea|stem|c3e2740e029191e5|eca2fe3eeb8e18f1|a9fd67f923894a8f|-1100898919|_targets/objects/auc_models_ssgsea|85bf57a4adb023d0|8e54054a6db2a5c6|181|rds|vector|||46.823|34253 genes with constant expression values throuhgout the samples.|
+auc_cilr_cilr_norm_FALSE_zscore|stem|53283bb5082dd01e|21ba244d96afdd47|a9fd67f923894a8f|272688384|_targets/objects/auc_cilr_cilr_norm_FALSE_zscore|e790b798e8d18f80|4f83393ac6a74a06|219|rds|vector|||74.436|NaNs produced|
+fdr_models|stem|c108ef490b72d489|b24cace2f6129781|a9fd67f923894a8f|-1559172001|_targets/objects/fdr_models|0333e3be6715de01|8e54054a6db2a5c6|181|rds|vector|||102.802||
+auc_cilr_cilr_norm_TRUE_cdf|stem|0da2ffe402ffb902|1b6b5d9dd3bd7fc3|a9fd67f923894a8f|-1521343971|_targets/objects/auc_cilr_cilr_norm_TRUE_cdf|9f2d4f718d974b92|a3e228427256b2e7|215|rds|vector|||106.959|NaNs produced|
+fdr_cilr_cilr_norm_FALSE|stem|b36b9560c79673e0|f503c5946392613e|a9fd67f923894a8f|-293127248|_targets/objects/fdr_cilr_cilr_norm_FALSE|60c16fdc5a0404aa|d0241264a67342d3|216|rds|vector|||71.191|NaNs produced|
+auc_cilr_cilr_norm_TRUE_zscore|stem|76491684df7321bd|1b71207a85a7794e|a9fd67f923894a8f|594062289|_targets/objects/auc_cilr_cilr_norm_TRUE_zscore|c4eeb1a5683b399c|4f83393ac6a74a06|219|rds|vector|||101.606|NaNs produced|
+pwr_cilr_cilr_mnorm_FALSE|stem|089560f3c97e4b63|d272abba8fa6d4b4|a9fd67f923894a8f|1597697203|_targets/objects/pwr_cilr_cilr_mnorm_FALSE|19b173ac3781f9f9|37738bfaa3005902|217|rds|vector|||71.812||
+fdr_cilr_cilr_mnorm_TRUE|stem|3785ec3f676a70ec|5d657bae756cb476|a9fd67f923894a8f|741044652|_targets/objects/fdr_cilr_cilr_mnorm_TRUE|7f2f29cef2c5b0c4|37738bfaa3005902|217|rds|vector|||102.895||
+fdr_cilr_cilr_norm_TRUE|stem|b708b6f2b3f155e0|a7599693af383ca5|a9fd67f923894a8f|-1508714326|_targets/objects/fdr_cilr_cilr_norm_TRUE|730fbf867b4e6949|d0241264a67342d3|216|rds|vector|||100.389|NaNs produced|
+fdr|stem|ec4229e2cd7ffc1b|1ce39fb3935addc9|3745b52ccc0cb2dd|-2092848230|_targets/objects/fdr|9bda7322a67edffd|74732363c97e2fa2|356|rds|vector|||0.004||
+fdr_save|stem|45f182deaaa1b3d6|96a4808bae03f01c|2022c4f5af7a7488|1507171129|_targets/objects/fdr_save|4617846b836b0794|734b3d9083442ea3|49|rds|vector|||0.089||
+pwr_cilr_cilr_mnorm_TRUE|stem|d59a2699d8947a7f|57c67e57a47015e6|a9fd67f923894a8f|125750491|_targets/objects/pwr_cilr_cilr_mnorm_TRUE|44f66e8a863d389e|37738bfaa3005902|217|rds|vector|||96.697||
+pwr_cilr_cilr_norm_TRUE|stem|0b68aefe3dd24b9b|b6578f58fa79e6f4|a9fd67f923894a8f|1804832102|_targets/objects/pwr_cilr_cilr_norm_TRUE|b78c341edb123048|d0241264a67342d3|216|rds|vector|||90.544|NaNs produced|
+pwr_models|stem|9ea820a174345fe1|872b54f56d4b6497|a9fd67f923894a8f|177391428|_targets/objects/pwr_models|1f623a43ed70ce55|1d4c5610765f90ff|182|rds|vector|||88.332||
+pwr|stem|aea58d57e94bfc9c|27aa58f3952e1d26|7772c0837e4187fa|-1625886601|_targets/objects/pwr|4c74169f28da75df|cf411870c9f4a057|353|rds|vector|||0.004||
+pwr_save|stem|45f182deaaa1b3d6|2f36b9b30b7a00b1|e22e0b769fbbfba0|222575612|_targets/objects/pwr_save|6c829da8e23003c9|734b3d9083442ea3|49|rds|vector|||0.049||
+auc_models_gsva|stem|b68fe7613a4e6e6f|8b594e145c6b06dd|a9fd67f923894a8f|463649368|_targets/objects/auc_models_gsva|cfeea983f99f7f32|406e4a972f09425e|178|rds|vector|||193.849|Since argument methodssgsea, genes with constant expression values are discarded.|
+auc|stem|a66ae3918aec0299|21a9dfb733d83225|b22a7268155f3194|-273454304|_targets/objects/auc|a3780f6bd62e6a38|e764a6672af72faa|371|rds|vector|||0.005||
+auc_save|stem|45f182deaaa1b3d6|f0b722de32ed14f2|344b610af4d57452|-9976399|_targets/objects/auc_save|0e6b01122ded69c4|734b3d9083442ea3|49|rds|vector|||0.087||
