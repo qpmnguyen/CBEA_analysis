@@ -8,6 +8,8 @@ plan(multisession)
 source("functions/diff_ab_functions.R")
 set.seed(1020)
 
+tar_option_set(error = "workspace")
+
 # First, define the file paths and the file list 
 fdr_files <- tibble(
     path = c("../../data/hmp_stool_16S.rds",
@@ -77,8 +79,10 @@ pwr_analysis <- tar_target("pwr_analysis", {
     result <- diff_ab(physeq, agg_level = "GENUS", data_type = "16S", return = "sig", 
                       method = eval_grid$methods, distr = eval_grid$distr, output = eval_grid$output, 
                       adj = eval_grid$adj)
+    print(result)
     # restrict annotation to Aerobic or Anaerobic only and consider all of them as labelled 
     annotation <- annotation %>% filter(Meth %in% c("Aerobic", "Anaerobic"))
+    
     result_df <- tibble(Genera = names(result), values = result)
     annotated_result <- inner_join(annotation, result_df, by = "Genera")
     eval <- eval_function(annotated_result$values)
@@ -86,6 +90,7 @@ pwr_analysis <- tar_target("pwr_analysis", {
 }, pattern = map(eval_grid))
 
 # saving files  
-pwr_save_file <- tar_rds("pwr_save_file", saveRDS(pwr_analysis, file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
+pwr_save_file <- tar_rds("pwr_save_file", 
+                         saveRDS(pwr_analysis, file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
 
 list(eval_grid, fdr_analysis, pwr_analysis, pwr_save_file)
