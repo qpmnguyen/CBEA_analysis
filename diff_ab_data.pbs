@@ -2,7 +2,7 @@
 
 # declare the name for this job to be ColonMeth_batch1_RefFree_June2017
 
-#PBS -N SINGLE_SAMPLE_DATA
+#PBS -N DIFF_AB_DATA
 
 
 # request the queue (enter the possible names, if omitted, default is the default)
@@ -38,5 +38,5 @@ cd $PBS_O_WORKDIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate teailr
-Rscript run.R --ncores 20 --dir "analyses/data_single_sample/" --remove TRUE
+Rscript run.R --ncores 15 --dir "analyses/data_diff_ab/" --remove TRUE
 
