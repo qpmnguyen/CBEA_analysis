@@ -18,7 +18,7 @@ source("../../R/cilr.R")
 #' @param output What type of output "pvalue" or "significance" 
 #' @param ... Additional arguments passed to the differential abundance functions
 diff_ab <- function(physeq, 
-                    method = c("gsva_wilcox", "cilr_wilcox", "corncob", "deseq2"),
+                    method = c("cilr_welch", "cilr_wilcox", "corncob", "deseq2"),
                     agg_level,
                     data_type,
                     thresh = 0.05, 
@@ -58,7 +58,7 @@ diff_ab <- function(physeq,
 #' @param agg_level Level to aggregate variables too 
 #' @param ... Additional arguments to assed to differentialTest, DESeq and cilr
 #' REMEMBER, GROUP IS THE DISCERNING VARIABLE  
-model_interface <- function(physeq, method = c("gsva_wilcox", "cilr_wilcox",
+model_interface <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
                                        "corncob", "deseq2"), agg_level, ...){
     method <- match.arg(method)
     message(glue("Running {model}", model = method))
