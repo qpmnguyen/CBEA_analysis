@@ -69,24 +69,29 @@ fdr_analysis <- tar_map(unlist = FALSE, values = fdr_files, names = "dset",
 pwr_analysis <- tar_target("pwr_analysis", {
     print(eval_grid)
     # load_files 
+    print("Load files")
     data <- readRDS(pwr_files$path)
     physeq <- data$physeq
     annotation <- data$annotation
     # define group 
+    print("Define Group")
     group <- ifelse(sample_data(physeq)$HMP_BODY_SUBSITE == "Supragingival Plaque", 1, 0)
     sample_data(physeq)$group <- group %>% as.factor()
     # perform analysis 
+    print("Perform Analysis")
     result <- diff_ab(physeq, agg_level = "GENUS", data_type = "16S", return = "sig", 
                       method = eval_grid$methods, distr = eval_grid$distr, output = eval_grid$output, 
                       adj = eval_grid$adj)
-    print(result)
     # restrict annotation to Aerobic or Anaerobic only and consider all of them as labelled 
+    print("Retrieving annotations")
     annotation <- annotation %>% filter(Meth %in% c("Aerobic", "Anaerobic"))
-    
-    result_df <- tibble(Genera = names(result), values = result)
+    print("Length of result object...")
+    print(length(result))
+    result_df <- tibble(Genera = names(result), values = unname(result))
     annotated_result <- inner_join(annotation, result_df, by = "Genera")
     eval <- eval_function(annotated_result$values)
-    bind_cols(eval_grid, eval = eval)
+    print("Finializing evaluation by binding evaluation with grid")
+    tibble(eval_grid, eval = eval)
 }, pattern = map(eval_grid))
 
 # saving files  
