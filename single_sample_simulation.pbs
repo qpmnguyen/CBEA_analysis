@@ -38,4 +38,4 @@ cd $PBS_O_WORKDIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate teailr
-Rscript run.R --ncores 40 --dir "analyses/simulations_single_sample_auc/" --remove FALSE
+Rscript run.R --ncores 35 --dir "analyses/simulations_single_sample_auc/" --remove FALSE
