@@ -8,7 +8,7 @@ source("../simulations_single_sample_functions/sim_test.R")
 
 set.seed(1020)  
 
-tar_option_set(error = "workspace")
+tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
 
 sim_auc <- generate_grid(eval = "auc")
 saveRDS(sim_auc, file = "output/simulation_grid_auc.rds")

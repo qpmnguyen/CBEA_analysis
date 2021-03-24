@@ -30,11 +30,11 @@ pwr_files <- tibble(
 # Define evaluation grid which includes all the cILR variants  
 eval_grid <- tar_target(eval_grid,{ 
     df <- cross_df(list(
-        methods = c("cilr_wilcox"),
+        methods = c("cilr_wilcox", "cilr_welch"),
         distr = c("norm", "mnorm"),
         output = c("cdf", "zscore"),
         adj = c(TRUE, FALSE)))
-    add_methods <- tibble(methods = c("gsva_wilcox", "deseq2", "corncob"))
+    add_methods <- tibble(methods = c("deseq2", "corncob"))
     df <- dplyr::bind_rows(df, add_methods)
     df
 })

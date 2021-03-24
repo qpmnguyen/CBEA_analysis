@@ -155,6 +155,8 @@ model_interface <- function(physeq, method = c("gsva_wilcox", "cilr_wilcox",
                 t.test(scores[-idx, .x], scores[idx, .x])$p.value
             })
         }
+        #TODO: GSVA AUTOMATICALLY DROPS SETS WITH SIZE == 1. THIS MEANS THAT THE LENGTH OF SIG
+        # WILL NOT BE EQUIVALENT TO 
         names(sig) <- colnames(A)
     }
     return(sig)
