@@ -1,0 +1,1431 @@
+------------------------- Prologue ----------------------------
+         Started: Wed Mar 24 15:56:45 EDT 2021
+          Job ID: 153227.pearl.hpcc.dartmouth.edu
+         User ID: f00345k
+        Group ID: rc-users
+        Job Name: DIFF_AB_DATA
+ Resources Req'd: nodes=1:ppn=20,walltime=20:00:00,neednodes=1:ppn=20
+      Queue Name: default
+    Account Name: 
+------------------------- Prologue ----------------------------
+
+Currently in directory analyses/data_diff_ab/
+-- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+v ggplot2 3.3.3     v purrr   0.3.4
+v tibble  3.0.4     v dplyr   1.0.2
+v tidyr   1.1.2     v stringr 1.4.0
+v readr   1.4.0     v forcats 0.5.0
+-- Conflicts ------------------------------------------ tidyverse_conflicts() --
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()
+Loading required package: S4Vectors
+Loading required package: stats4
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: 'BiocGenerics'
+
+The following objects are masked from 'package:parallel':
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from 'package:dplyr':
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from 'package:stats':
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from 'package:base':
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which.max, which.min
+
+
+Attaching package: 'S4Vectors'
+
+The following object is masked from 'package:future':
+
+    values
+
+The following objects are masked from 'package:dplyr':
+
+    first, rename
+
+The following object is masked from 'package:tidyr':
+
+    expand
+
+The following object is masked from 'package:base':
+
+    expand.grid
+
+Loading required package: IRanges
+
+Attaching package: 'IRanges'
+
+The following object is masked from 'package:phyloseq':
+
+    distance
+
+The following objects are masked from 'package:dplyr':
+
+    collapse, desc, slice
+
+The following object is masked from 'package:purrr':
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: 'matrixStats'
+
+The following object is masked from 'package:dplyr':
+
+    count
+
+
+Attaching package: 'MatrixGenerics'
+
+The following objects are masked from 'package:matrixStats':
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: 'Biobase'
+
+The following object is masked from 'package:MatrixGenerics':
+
+    rowMedians
+
+The following objects are masked from 'package:matrixStats':
+
+    anyMissing, rowMedians
+
+The following object is masked from 'package:phyloseq':
+
+    sampleNames
+
+
+Attaching package: 'corncob'
+
+The following object is masked from 'package:GenomicRanges':
+
+    score
+
+The following object is masked from 'package:BiocGenerics':
+
+    score
+
+
+Attaching package: 'glue'
+
+The following object is masked from 'package:SummarizedExperiment':
+
+    trim
+
+The following object is masked from 'package:GenomicRanges':
+
+    trim
+
+The following objects are masked from 'package:IRanges':
+
+    collapse, trim
+
+The following object is masked from 'package:dplyr':
+
+    collapse
+
+Type 'citation("pROC")' for a citation.
+
+Attaching package: 'pROC'
+
+The following objects are masked from 'package:IRanges':
+
+    cov, var
+
+The following objects are masked from 'package:S4Vectors':
+
+    cov, var
+
+The following object is masked from 'package:BiocGenerics':
+
+    var
+
+The following objects are masked from 'package:stats':
+
+    cov, smooth, var
+
+
+Attaching package: 'MASS'
+
+The following object is masked from 'package:dplyr':
+
+    select
+
+Welcome to compositions, a package for compositional data analysis.
+Find an intro with "? compositions"
+
+
+Attaching package: 'compositions'
+
+The following objects are masked from 'package:pROC':
+
+    cov, var
+
+The following objects are masked from 'package:IRanges':
+
+    cor, cov, var
+
+The following objects are masked from 'package:S4Vectors':
+
+    cor, cov, var
+
+The following objects are masked from 'package:BiocGenerics':
+
+    normalize, var
+
+The following objects are masked from 'package:stats':
+
+    cor, cov, dist, var
+
+The following objects are masked from 'package:base':
+
+    %*%, norm, scale, scale.default
+
+mixtools package, version 1.2.0, Released 2020-02-05
+This package is based upon work supported by the National Science Foundation under Grant No. SES-0518772.
+
+Loading required package: survival
+
+Attaching package: 'survival'
+
+The following object is masked from 'package:future':
+
+    cluster
+
+
+Attaching package: 'rlist'
+
+The following object is masked from 'package:S4Vectors':
+
+    List
+
+Loading required package: Rcpp
+
+Attaching package: 'Rcpp'
+
+The following object is masked from 'package:rsample':
+
+    populate
+
+Loading required package: RcppZiggurat
+
+Attaching package: 'Rfast'
+
+The following objects are masked from 'package:mixtools':
+
+    dmvnorm, rmvnorm
+
+The following object is masked from 'package:pROC':
+
+    auc
+
+The following object is masked from 'package:Biobase':
+
+    rowMedians
+
+The following objects are masked from 'package:MatrixGenerics':
+
+    colMads, colMaxs, colMedians, colMins, colRanks, colVars, rowMads,
+    rowMaxs, rowMedians, rowMins, rowRanks, rowVars
+
+The following objects are masked from 'package:matrixStats':
+
+    colMads, colMaxs, colMedians, colMins, colRanks, colVars, rowMads,
+    rowMaxs, rowMedians, rowMins, rowRanks, rowVars
+
+The following object is masked from 'package:dplyr':
+
+    nth
+
+The following objects are masked from 'package:purrr':
+
+    is_integer, transpose
+
+v skip target fdr_rep_batch_stool_wgs
+v skip target eval_grid
+v skip target fdr_rep_batch_stool_16S
+* run branch pwr_analysis_dc1e696e
+* run branch pwr_analysis_d4203c87
+* run branch pwr_analysis_ca1b96ec
+* run branch pwr_analysis_10d90dad
+* run branch pwr_analysis_8ef351b5
+* run branch pwr_analysis_1f79ffa0
+* run branch pwr_analysis_84f3b6bf
+* run branch pwr_analysis_fb939536
+* run branch pwr_analysis_8d531e1c
+* run branch pwr_analysis_7c11acc1
+* run branch pwr_analysis_b0e07472
+* run branch pwr_analysis_aee6103c
+* run branch pwr_analysis_ff7e7769
+* run branch pwr_analysis_a6ce85a2
+* run branch pwr_analysis_c18852bd
+# A tibble: 1 x 4
+  methods    distr output adj  
+  <chr>      <chr> <chr>  <lgl>
+1 cilr_welch mnorm cdf    TRUE 
+[1] "Load files"
+[1] "Define Group"
+[1] "Perform Analysis"
+Output is cdf
+number of iterations= 652 
+number of iterations= 100 
+Total sd is 0.808745023007952 and estimated sd is 0.808745026276291
+[1] "2 components!"
+number of iterations= 375 
+number of iterations= 41 
+Total sd is 0.57847486670002 and estimated sd is 0.578474868108751
+[1] "2 components!"
+number of iterations= 207 
+number of iterations= 35 
+Total sd is 1.06893262587173 and estimated sd is 1.06893263300114
+[1] "2 components!"
+number of iterations= 256 
+number of iterations= 52 
+Total sd is 0.993252863957598 and estimated sd is 0.993252861650866
+[1] "2 components!"
+number of iterations= 115 
+number of iterations= 40 
+Total sd is 0.492499910268766 and estimated sd is 0.492499910702506
+[1] "2 components!"
+number of iterations= 331 
+number of iterations= 51 
+Total sd is 0.720665393043552 and estimated sd is 0.720665393503084
+[1] "2 components!"
+number of iterations= 249 
+number of iterations= 42 
+Total sd is 0.34016379258512 and estimated sd is 0.34016379251002
+[1] "2 components!"
+number of iterations= 20 
+number of iterations= 41 
+Total sd is 0.106680036632964 and estimated sd is 0.106680035184874
+[1] "2 components!"
+number of iterations= 18 
+number of iterations= 42 
+Total sd is 0.118062219195456 and estimated sd is 0.118062217969194
+[1] "2 components!"
+number of iterations= 20 
+number of iterations= 47 
+Total sd is 0.159534451405701 and estimated sd is 0.159534448551796
+[1] "2 components!"
+number of iterations= 77 
+number of iterations= 31 
+Total sd is 0.113030220486959 and estimated sd is 0.113030216019584
+[1] "2 components!"
+number of iterations= 21 
+number of iterations= 41 
+Total sd is 0.106677699015039 and estimated sd is 0.106677700684451
+[1] "2 components!"
+number of iterations= 18 
+number of iterations= 45 
+Total sd is 0.0754329161086329 and estimated sd is 0.075432911086775
+[1] "2 coRunning cilr_welch
+Coercing A to a numeric vector
+Default initialization
+Resampling to get null distribution
+Adjusting for correlation...
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+Fitting the mnorm distribution
+There were errors with the fitting procedure, adjusting the fitting parameters might help
+mponents!"
+number of iterations= 19 
+number of iterations= 35 
+Total sd is 0.173546349325198 and estimated sd is 0.173546348957511
+[1] "2 components!"
+number of iterations= 16 
+number of iterations= 34 
+Total sd is 0.0754329866427041 and estimated sd is 0.0754329906818835
+[1] "2 components!"
+number of iterations= 14 
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the varianx error branch pwr_analysis_10d90dad
+ces is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting v* record workspace pwr_analysis_10d90dad
+alues.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+One of the variances is going to zero;  trying new starting values.
+Error : Too many tries!
+In addition: There were 50 or more warnings (use warnings() to see the first 50)
+
+------------------------- Epilogue ----------------------------
+        Finished: Wed Mar 24 17:50:16 EDT 2021
+          Job ID: 153227.pearl.hpcc.dartmouth.edu
+         User ID: f00345k
+        Group ID: rc-users
+        Job Name: DIFF_AB_DATA
+      Session ID: 7010
+ Resources Req'd: nodes=1:ppn=20,walltime=20:00:00,neednodes=1:ppn=20
+  Resources Used: cput=25:33:59,vmem=7052504kb,walltime=01:53:33,mem=89157820kb,energy_used=0
+      Queue Name: default
+    Account Name: 
+------------------------- Epilogue ----------------------------
+

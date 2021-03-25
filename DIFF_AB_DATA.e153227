@@ -15,6 +15,6 @@ The following object is masked from 'package:dplyr':
 
     collapse
 
-Error: callr subprocess failed: Failed to retrieve the value of MultisessionFuture (result_auc_11_ed9c9250) from cluster RichSOCKnode #18 (PID 8654 on localhost 'localhost'). The reason reported was 'error reading from connection'. Post-mortem diagnostic: A process with this PID exists, which suggests that the localhost worker is still alive.
+Error: callr subprocess failed: Too many tries!
 Visit https://books.ropensci.org/targets/debugging.html for debugging advice.
 Execution halted
