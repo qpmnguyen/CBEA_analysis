@@ -8,7 +8,7 @@ fdr <- readRDS(file = "analyses/simulations_single_sample_fdr/output/sim_ss_fdr.
 fdr_grid <- readRDS(file = "analyses/simulations_single_sample_fdr/output/simulation_grid_fdr.rds") 
 
 
-fdr_grid <- fdr_grid %>% select(spar, s_rho, n_inflate, id)
+fdr_grid <- fdr_grid %>% dplyr::select(spar, s_rho, n_inflate, id)
 fdr_df <- inner_join(fdr, fdr_grid, by = "id") %>% 
     mutate(adj = replace_na(adj, "Not Applicable"), distr = replace_na(distr, "Not Applicable")) %>% 
     mutate(distr = recode(distr, mnorm = "Mixture Normal", norm = "Normal"), 
@@ -48,7 +48,8 @@ pwr_plt <- ggplot(pwr_df, aes(x = spar, y = est, col = model, linetype = adj, sh
          linetype = "Correlation Adjusted") + 
     facet_grid(`Correlation`~`Effect Size`, scales = "free", labeller = label_both)
 
-hypo_plt <- fdr_plt + pwr_plt + plot_layout(guide = "collect") & 
+hypo_plt <- fdr_plt + pwr_plt + plot_annotation(tag_levels = "A") + 
+    plot_layout(guide = "collect") & 
     theme(legend.position = "bottom")
 
 ggsave(hypo_plt, filename = "figures/sim_ss_hypo.png", dpi = 300, width = 12, height = 8)

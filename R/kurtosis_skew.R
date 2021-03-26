@@ -6,7 +6,8 @@ library(ggsci)
 library(parameters)
 library(mixtools)
 library(goftest)
-
+library(fitdistrplus)
+library(patchwork)
 source("R/cilr.R")
 source("R/simulations.R")
 source("R/utils.R")
@@ -32,13 +33,7 @@ parameters$scores <- map(parameters$data, .f = ~ {
 })
 
 
-map(parameters$scores, .f = ~{
-  kur <- vector(length = 100)
-  skew <- vector(length = 100)
-  for (i in seq_len(100)){
-    samp <- sample(.x, size = length(.x))
-  }
-})
+
 # Compute kurtosis and skewness with bootstrapped resampling
 parameters$shape <- map(parameters$scores, .f = ~{
   kur <- vector(length = 100)
@@ -53,7 +48,7 @@ parameters$shape <- map(parameters$scores, .f = ~{
          label = c("obs",rep("boot",100)))
 })
 
-
+# Generating plots  
 shape_plot <- parameters %>% unnest(c(param, shape)) %>% 
   rename("Set Size" = n_inflate, "Sparsity" = spar, "Correlation" = s_rho)
 shpp_plot<- ggplot(shape_plot %>% arrange(label), 
@@ -68,7 +63,42 @@ shpp_plot<- ggplot(shape_plot %>% arrange(label),
   labs(x = "Skewness", y = "Kurtosis") + 
   theme(legend.position = "bottom", legend.margin = margin())
 
+# Applying function to normal data sets  
+normal_data <- readRDS(file = "data/hmp_stool_16S.rds")
+X <- otu_table(normal_data) %>% t()
+A <- taxtab2A(tax_table(normal_data), "GENUS", full = FALSE)
+scores <- cilr(X = X, A = A, resample = F)
+
+distr_norm <- estimate_distr(scores[,1], distr = "norm", init = NULL)
+distr_mnorm <- estimate_distr(scores[,1], distr = "mnorm", init = NULL)
+
+norm <- rnorm(1e4, mean = distr_norm$mean, sd = distr_norm$sd)
+mnorm <- mixtools::rnormmix(n = 1e4, lambda = distr_mnorm$lambda, sigma = distr_mnorm$sigma, mu = distr_mnorm$mu)
+df <- bind_rows(tibble(Distribution = rep("Raw", nrow(scores)), value = scores[,1]), 
+                tibble(Distribution = rep("Normal", 1e4), value = norm), 
+                tibble(Distribution = rep("Mixture Normal", 1e4), value = mnorm))
+distr_plot <- ggplot(df, aes(x = value, fill = Distribution, col = Distribution)) + geom_density(alpha = 0.3, size = 1.25) + 
+  scale_fill_d3() + scale_color_d3() + labs(x = "Value", y = "Density") + theme_bw() 
+
+test <- goftest::ad.test(x = scores[,1], null = "pnorm", estimated = T, distr_norm$mean, distr_norm$sd)
 
 
+ks_results <- map_dfr(scores, ~{
+  dist_norm <- estimate_distr(.x, distr = "norm", init = NULL)
+  distr_mnorm <- estimate_distr(.x, distr = "mnorm", init = NULL)
+  norm <- rnorm(1e5, mean = distr_norm$mean, sd = distr_norm$sd)
+  mnorm <- mixtools::rnormmix(n = 1e5, lambda = distr_mnorm$lambda, sigma = distr_mnorm$sigma, mu = distr_mnorm$mu)
+  ks_norm <- ks.test(.x, norm)$statistic
+  ks_mnorm <- ks.test(.x, mnorm)$statistic
+  tibble(Distribution = c("Normal", "Mixture Normal"), KS = c(ks_norm, ks_mnorm))
+})
 
-#ggsave(shpp_plot, filename = "docs/manuscript/figures/kurtosis_skewness_sim.png", dpi = 300, width = 8, height = 5)
+gof_plot <- ggplot(ks_results, aes(x = Distribution, y = KS, fill = Distribution)) + geom_boxplot() + theme_bw() + 
+  labs(y = "Kolmogrov D Statistic") + scale_fill_d3()
+
+
+combined_plt <- shpp_plot + (distr_plot/gof_plot) + plot_annotation(tag_levels = "A")
+
+ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.png", dpi = 300, width = 8, height = 5)
+file.copy("figures/kurtosis_skewness_gof.png", 
+          "../teailr_manuscript/manuscript/figures/kurtosis_skewness_gof.png", overwrite = TRUE)
