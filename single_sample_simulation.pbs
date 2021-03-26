@@ -14,7 +14,7 @@
 # ensure you reserve enough cores for the projected memory usage
 # figuring 4G/core
 
-#PBS -l nodes=2:ppn=20
+#PBS -l nodes=1:ppn=20
 
 # request 99 hours of wall time
 
@@ -38,4 +38,4 @@ cd $PBS_O_WORKDIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate teailr
-Rscript run.R --ncores 35 --dir "analyses/simulations_single_sample_auc/" --remove FALSE
+Rscript run.R --ncores 15 --dir "analyses/simulations_single_sample_auc/" --remove FALSE
