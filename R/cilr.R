@@ -1,3 +1,4 @@
+# Main script implementing cILR 
 library(fitdistrplus)
 library(mixtools)
 library(compositions)
