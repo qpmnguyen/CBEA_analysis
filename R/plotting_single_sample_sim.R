@@ -50,7 +50,52 @@ pwr_plt <- ggplot(pwr_df, aes(x = spar, y = est, col = model, linetype = adj, sh
 
 hypo_plt <- fdr_plt + pwr_plt + plot_annotation(tag_levels = "A") + 
     plot_layout(guide = "collect") & 
-    theme(legend.position = "bottom")
+    theme(legend.position = "bottom", legend.margin = margin())
 
 ggsave(hypo_plt, filename = "figures/sim_ss_hypo.png", dpi = 300, width = 12, height = 8)
 file.copy(from = "figures/sim_ss_hypo.png", to = "../teailr_manuscript/manuscript/figures/sim_ss_hypo.png", overwrite = T)
+
+auc <- readRDS(file = "analyses/simulations_single_sample_auc/output/sim_ss_auc.rds")
+auc_grid <- readRDS(file = "analyses/simulations_single_sample_auc/output/simulation_grid_auc.rds")
+
+
+
+auc_df <- inner_join(auc, auc_grid, by = "id") %>% 
+    mutate(adj = replace_na(adj, "Not Applicable"), distr = replace_na(distr, "Not Applicable")) %>% 
+    mutate(distr = recode(distr, mnorm = "Mixture Normal", norm = "Normal"), 
+           model = recode(model, cilr = "cILR", ssgsea = "ssGSEA", gsva = "GSVA"), 
+           adj = recode(adj, "FALSE" = "No", "TRUE" = "Yes"),
+           output = replace_na(output, "Not Applicable"),
+           output = recode(output, zscore = "z-score", "cdf" = "CDF")) %>% 
+    rename("Correlation" = "s_rho", "Effect Size" = "eff_size")
+
+auc_plt <- ggplot(auc_df, aes(x = spar, y = est, col = model, linetype = adj, shape = distr)) + 
+    geom_linerange(aes(ymax = upper, ymin = lower)) + 
+    geom_point() + 
+    geom_line() + 
+    geom_hline(yintercept = 0.8, col = "red") + 
+    scale_color_d3() +
+    theme_bw() + 
+    labs(x = "Sparsity", y = "AUC", col = "Model type", shape = "Distribution", 
+         linetype = "Correlation Adjusted") + 
+    facet_grid(`Correlation`~`Effect Size`, scales = "fixed", labeller = label_both)
+
+
+ggsave(auc_plt, filename = "figures/sim_ss_auc.png", dpi = 300, width = 6, height = 6)
+file.copy("figures/sim_ss_auc.png", 
+          "../teailr_manuscript/manuscript/figures/sim_ss_auc.png", 
+          overwrite = T)
+
+layout <- "
+AAAA
+AAAA
+#CC#
+#CC#
+"
+
+
+comb_plot <- hypo_plt/auc_plt + plot_layout(design = layout) + plot_annotation(tag_levels = "A")
+ggsave(comb_plot, filename = "figures/sim_ss_auc_hypo.png", dpi = 300, width = 12, height = 10)
+file.copy("figures/sim_ss_auc_hypo.png",
+          "../teailr_manuscript/manuscript/figures/sim_ss_auc_hypo.png", 
+          overwrite = T)

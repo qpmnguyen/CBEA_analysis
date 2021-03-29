@@ -33,8 +33,10 @@ diff_ab <- function(physeq,
             rownames_to_column(var = "tax") %>%  
             filter(str_starts(tax, "s_")) %>% column_to_rownames(var = "tax")
         otu_table(physeq) <- otu_table(tax_counts, taxa_are_rows = T)
-    } 
+    }
     
+    # filtering out singletons 
+    physeq <- taxtab_prune(physeq, agg_level = agg_level)
     if (method %in% c("corncob", "deseq2")){
         # aggregating  
         physeq <- tax_glom(physeq, taxrank = agg_level)

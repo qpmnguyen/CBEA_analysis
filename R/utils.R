@@ -140,6 +140,40 @@ process <- function(X, pcount = 1, transform = NULL){
   return(X)
 }
 
+taxtab_prune <- function(physeq, agg_level){
+  # first, grab both otu table and tax tab
+  tax <- tax_table(physeq) %>% as("matrix")
+  otu <- otu_table(physeq) %>% as("matrix")
+  # Generate A matrix as per usual
+  A <- taxtab2A(tax, agg_level = agg_level, full = TRUE)
+  # Get size of sets  
+  set_size <- colsums(A)
+  # Separate out index of singletons
+  singletons <- which(set_size <= 1)
+  
+  # Extracting full names from tax table similar to taxtab2A
+  id <- which(colnames(tax) == agg_level)
+  tax <- tax[,1:id] %>% as.data.frame()
+  tax_names <- apply(tax, 1, function(i){
+    paste(i, sep = ";_;", collapse = ";_;")
+  })
+  
+  # Match complete full names  
+  exclude_ids <- which(tax_names %in% colnames(A)[singletons])
+  tax <- tax[-exclude_ids, ]
+  
+  # Reassign 
+  if (taxa_are_rows(physeq)){
+    otu <- otu[-exclude_ids,]
+  } else {
+    otu <- otu[,-exclude_ids]
+  }
+  
+  otu_table(physeq) <- otu_table(otu, taxa_are_rows = taxa_are_rows(physeq))
+  tax_table(physeq) <- tax %>% as.matrix()
+  return(physeq)
+}
+
 
 
 #' This function converts a taxonomic table to an A matrix.  
