@@ -28,8 +28,6 @@ sim_grid <- cross_df(list(
 sim_grid$id <- seq(1, nrow(sim_grid))
 saveRDS(sim_grid, file = "output/sim_diff_ab_grid.rds")
 
-sim_grid <- sim_grid[1:3,]
-
 sim_eval_grid <- tar_target(sim_eval_grid, {
   eval_settings <- cross_df(list(
     model = c("cilr_wilcox", "cilr_welch"),
