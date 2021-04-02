@@ -17,9 +17,9 @@ sim_regr <- cross_df(list(
     s_rho = c(0,0.2,0.5), 
     eff_size = 1,
     b_rho = 0, 
-    n_tax = 2000, 
+    n_tax = 5000, 
     n_inflate = 100, 
-    n_sets = 20,
+    n_sets = 50,
     prop_set_inflate = 0.5, 
     prop_inflate = 1, 
     samp_prop = 0.5,
@@ -39,7 +39,7 @@ sim_eval_grid <- tar_target(sim_eval_grid, {
         output = c("zscore", "cdf")
     ))
     other <- tibble(model = c("ssgsea", "gsva"))
-    eval_settings <- full_join(eval_settings, other, by = "model")
+    eval_settings <- dplyr::rbind(other, eval_settings)
     eval_settings
 })
 
