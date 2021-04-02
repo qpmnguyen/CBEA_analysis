@@ -1,0 +1,86 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
+simulation_1|stem|ade78348f8410618|bcc602734aafa136|2be7b6a0ded265c3|1880414297|_targets/objects/simulation_1|854bc539c7f7fe9a|dcbd37b1f084730d|8882036|rds|vector|||279.25||
+simulation_2|stem|0895ea0f6859e348|bcc602734aafa136|2be7b6a0ded265c3|98239451|_targets/objects/simulation_2|6d6767b5c0f61300|a8d35c565c2b3990|8879842|rds|vector|||285.91||
+simulation_3|stem|102eae2072c4716a|bcc602734aafa136|2be7b6a0ded265c3|340238516|_targets/objects/simulation_3|2d8dc7e909191b39|e0e92bce94657330|8881765|rds|vector|||242.87||
+transform_1|stem|c5984fb6b6589bb6|5acf2bafc5f60c33|f0c698a9cbe13d63|1218246539|_targets/objects/transform_1|fcc12d41dc596736|e55072b6328b1488|8885382|rds|vector|||0.14||
+transform_2|stem|76e7e658a4f76049|235bf392589e5992|43ffdaf9506cbf1f|-1012077135|_targets/objects/transform_2|0bb5e6e8ef7ac39e|9abb194a0de801e8|8883743|rds|vector|||0.09||
+transform_3|stem|a84b0822a7d35b09|177b181e5fe02a19|f7310fd9b07c024a|1293484163|_targets/objects/transform_3|0dbd294ee215d7d5|5cf17d50532dc9ac|8885737|rds|vector|||0.09||
+analysis_1_27d657c4|branch||c3a7a6d0ed61f111|9dc6bcae961bc643|423806968||||0|rds|vector|analysis_1||0.01||arg should be one of cilr_welch, cilr_wilcox, corncob, deseq2
+taxtab2A|function|8fcacdc70cfdd3e9||||||||||||||
+estimate_distr|function|a77b1b269d803650||||||||||||||
+sim_grid|object|e5c7e2c057f58706||||||||||||||
+merge_lists|function|5858e4c3e1befc35||||||||||||||
+aggregate|function|b5b3bc29850ebe81||||||||||||||
+process|function|fceb5d1a6ed8c6f1||||||||||||||
+dmnorm|function|c4966d38b4d5e5c2||||||||||||||
+create_parameters|function|b062e17bdfb9c1aa||||||||||||||
+zinb_simulation|function|b1c67089ae767210||||||||||||||
+get_score|function|342e612c355a8df4||||||||||||||
+get_mean|function|462a55e11b9619ab||||||||||||||
+get_sd|function|787add497a17ce40||||||||||||||
+analysis|object|1bda38b23990c082||||||||||||||
+calculate_statistic|function|5966b7dc254bf6ea||||||||||||||
+ss_eval|function|75eb6fb57434ab04||||||||||||||
+eval_function|function|ce41cef6b8889623||||||||||||||
+.Random.seed|object|c1a8e1a11ad6b9b6||||||||||||||
+sim2phylo|function|a509b0054133d0a0||||||||||||||
+pmnorm|function|48080281e209109b||||||||||||||
+phylo2cilr|function|326534ae2bb25431||||||||||||||
+taxtab_prune|function|ca3a382753343c57||||||||||||||
+generate_alt_scores|function|e369f7228e60f778||||||||||||||
+wc_test|function|9c4ac72d99328b98||||||||||||||
+sim_prediction|function|319ffc5643b2817c||||||||||||||
+get_adj_mnorm|function|f803bc21532f455c||||||||||||||
+scale_scores|function|2392ccfe58738ff1||||||||||||||
+cilr|function|5086b0e7c26d6f6e||||||||||||||
+get_fit|function|16abc1da60586969||||||||||||||
+model_interface|function|72576d2e99b926df||||||||||||||
+diff_ab|function|57899fda036d4e7f||||||||||||||
+sim_eval_grid|stem|6a9e7b66c4adfa0d|b825547978a98b5d|58693f4e96adabb2|-1437671317|_targets/objects/sim_eval_grid|aa5705713284c931|69d95eccf9153a2a|250|rds|vector||sim_eval_grid_bd695c70*sim_eval_grid_a6cbfb5e*sim_eval_grid_aa813528*sim_eval_grid_4badd16c*sim_eval_grid_135ba7dd*sim_eval_grid_1400f8d2*sim_eval_grid_b999915a*sim_eval_grid_761238c0*sim_eval_grid_3c4498d0*sim_eval_grid_7a8024c7*sim_eval_grid_b12ee975*sim_eval_grid_566ff527*sim_eval_grid_aed163dc*sim_eval_grid_b667dbdf*sim_eval_grid_98f7c8c0*sim_eval_grid_69d64c09*sim_eval_grid_ffaf422f*sim_eval_grid_a918209a|0.02||
+analysis_1_dfad429c|branch||c3a7a6d0ed61f111|b76d4f358299c26a|-1069416705||||0|rds|vector|analysis_1||0.11||object sim_eavl_grid not found
+taxtab2A|function|8fcacdc70cfdd3e9
+estimate_distr|function|a77b1b269d803650
+sim_grid|object|e5c7e2c057f58706
+merge_lists|function|5858e4c3e1befc35
+aggregate|function|b5b3bc29850ebe81
+process|function|fceb5d1a6ed8c6f1
+dmnorm|function|c4966d38b4d5e5c2
+create_parameters|function|b062e17bdfb9c1aa
+zinb_simulation|function|b1c67089ae767210
+get_score|function|342e612c355a8df4
+get_mean|function|462a55e11b9619ab
+get_sd|function|787add497a17ce40
+analysis|object|106381ed08552a52
+calculate_statistic|function|5966b7dc254bf6ea
+ss_eval|function|75eb6fb57434ab04
+eval_function|function|ce41cef6b8889623
+.Random.seed|object|c1a8e1a11ad6b9b6
+sim2phylo|function|a509b0054133d0a0
+pmnorm|function|48080281e209109b
+phylo2cilr|function|326534ae2bb25431
+taxtab_prune|function|ca3a382753343c57
+generate_alt_scores|function|e369f7228e60f778
+wc_test|function|9c4ac72d99328b98
+sim_prediction|function|319ffc5643b2817c
+get_adj_mnorm|function|f803bc21532f455c
+scale_scores|function|2392ccfe58738ff1
+cilr|function|5086b0e7c26d6f6e
+get_fit|function|16abc1da60586969
+model_interface|function|72576d2e99b926df
+diff_ab|function|57899fda036d4e7f
+sim_eval_grid|stem|6a9e7b66c4adfa0d|b825547978a98b5d|58693f4e96adabb2|-1437671317|_targets/objects/sim_eval_grid|aa5705713284c931|69d95eccf9153a2a|250|rds|vector||sim_eval_grid_bd695c70*sim_eval_grid_a6cbfb5e*sim_eval_grid_aa813528*sim_eval_grid_4badd16c*sim_eval_grid_135ba7dd*sim_eval_grid_1400f8d2*sim_eval_grid_b999915a*sim_eval_grid_761238c0*sim_eval_grid_3c4498d0*sim_eval_grid_7a8024c7*sim_eval_grid_b12ee975*sim_eval_grid_566ff527*sim_eval_grid_aed163dc*sim_eval_grid_b667dbdf*sim_eval_grid_98f7c8c0*sim_eval_grid_69d64c09*sim_eval_grid_ffaf422f*sim_eval_grid_a918209a|0.02||
+analysis_1_dfad429c|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|30e425ece63c166e|-1069416705|_targets/objects/analysis_1_dfad429c|0cc3f9c8f38a0145|366e89b6c3e7cb42|638|rds|vector|analysis_1||2694.14||
+analysis_1_4b4e870f|branch|a6ae4a22c56762f5|e33ce8d99fbb23ea|c341500d314832c8|249713424|_targets/objects/analysis_1_4b4e870f|a2db17558bed47b2|f86b12756687ffae|644|rds|vector|analysis_1||2876.95||
+analysis_1_82362284|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|0ce8cda93922a469|1033106997|_targets/objects/analysis_1_82362284|a7b7be50cd0efc48|366e89b6c3e7cb42|638|rds|vector|analysis_1||582.59|NaNs produced|
+analysis_1_e897687b|branch|a005e71009b7d81e|e33ce8d99fbb23ea|8df14ce6005c07c3|-230026123|_targets/objects/analysis_1_e897687b|9c2d621ff503b484|3b9d34ec8da9bca9|646|rds|vector|analysis_1||573.74|NaNs produced|
+analysis_1_a9038a53|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|8ff2aa769d463046|-959807354|_targets/objects/analysis_1_a9038a53|69ed232a3358a814|366e89b6c3e7cb42|638|rds|vector|analysis_1||1542.72||
+analysis_1_18d0b367|branch|de6d11ed9de40f09|e33ce8d99fbb23ea|3f078d639366a0f2|-963050979|_targets/objects/analysis_1_18d0b367|507b2e3c91211f59|7f8ad310b14e60d2|645|rds|vector|analysis_1||1757.08||
+analysis_1_4d16f763|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|0841842e4b351665|-106047721|_targets/objects/analysis_1_4d16f763|fd882b47805a5594|366e89b6c3e7cb42|638|rds|vector|analysis_1||329.64|NaNs produced|
+analysis_1_36b6c9fa|branch|4bc08cc2e8897e61|e33ce8d99fbb23ea|1eeeb246364ed4f8|-1464621561|_targets/objects/analysis_1_36b6c9fa|bf45c305e7624a34|03f015ceb034494d|643|rds|vector|analysis_1||318.8|NaNs produced|
+analysis_1_22956909|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|3ecb5f8f5f50ac22|440624687|_targets/objects/analysis_1_22956909|358b648a23b53963|366e89b6c3e7cb42|638|rds|vector|analysis_1||2789.27||
+analysis_1_61e536b3|branch|0ddb8c8c1727d048|e33ce8d99fbb23ea|f0181edaeed86724|1626163166|_targets/objects/analysis_1_61e536b3|464e7ec2ec313b19|366e89b6c3e7cb42|638|rds|vector|analysis_1||2671.07||
+analysis_1_0f749f3a|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|98f78bf31b864eea|966320459|_targets/objects/analysis_1_0f749f3a|d5be49c46d0fef78|366e89b6c3e7cb42|638|rds|vector|analysis_1||573.23|NaNs produced|
+analysis_1_afbe5b55|branch|78ef5f12b37fd9c8|e33ce8d99fbb23ea|21f18e0f93a92aec|671687639|_targets/objects/analysis_1_afbe5b55|a75919108029a242|a7c6c3ba8318f0f6|640|rds|vector|analysis_1||578.54|NaNs produced|
+analysis_1_a67a9098|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|544aa706d9f215d7|148114851|_targets/objects/analysis_1_a67a9098|936c6d650346b8df|366e89b6c3e7cb42|638|rds|vector|analysis_1||1556.66||
+analysis_1_4f124887|branch|82edc58638d8954d|e33ce8d99fbb23ea|c8b294b3af68e4f4|-2059372672|_targets/objects/analysis_1_4f124887|7e53828ec9df90e4|f86b12756687ffae|644|rds|vector|analysis_1||1380.28||
+analysis_1_8b500c28|branch|3d8f1b113b2efa2d|e33ce8d99fbb23ea|73d0a20152cdf24f|-1163815926|_targets/objects/analysis_1_8b500c28|b395e9466fae43f7|366e89b6c3e7cb42|638|rds|vector|analysis_1||402.08|NaNs produced|

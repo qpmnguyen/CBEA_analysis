@@ -23,7 +23,7 @@ diff_ab <- function(physeq,
                     data_type,
                     thresh = 0.05, 
                     padj = FALSE, 
-                    return = c("pvalue", "sig"), 
+                    return = c("pvalue", "sig"), prune = TRUE, 
                     ...){
     method <- match.arg(method)
     return <- match.arg(return)
@@ -36,7 +36,10 @@ diff_ab <- function(physeq,
     }
     
     # filtering out singletons 
-    physeq <- taxtab_prune(physeq, agg_level = agg_level)
+    if (prune == TRUE){
+        physeq <- taxtab_prune(physeq, agg_level = agg_level)
+    }
+    
     if (method %in% c("corncob", "deseq2")){
         # aggregating  
         physeq <- tax_glom(physeq, taxrank = agg_level)
