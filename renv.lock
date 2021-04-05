@@ -266,13 +266,6 @@
       "Repository": "CRAN",
       "Hash": "1a885965adade4b8629c478a3b3c2cf7"
     },
-    "RcppEigen": {
-      "Package": "RcppEigen",
-      "Version": "0.3.3.9.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "ddfa72a87fdf4c80466a20818be91d00"
-    },
     "RcppGSL": {
       "Package": "RcppGSL",
       "Version": "0.3.8",
@@ -484,13 +477,6 @@
       "Repository": "CRAN",
       "Hash": "f61dbaec772ccd2e17705c1e872e9e7c"
     },
-    "checkmate": {
-      "Package": "checkmate",
-      "Version": "2.0.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "a667800d5f0350371bedeb8b8b950289"
-    },
     "class": {
       "Package": "class",
       "Version": "7.3-18",
@@ -518,13 +504,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "db63a44aab5aadcb6bf2f129751d129a"
-    },
-    "coda": {
-      "Package": "coda",
-      "Version": "0.19-4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "24b6d006b8b2343876cf230687546932"
     },
     "codetools": {
       "Package": "codetools",
@@ -841,13 +820,6 @@
       "Source": "Bioconductor",
       "Hash": "38322867731e9e137d21b13778a96b5f"
     },
-    "gridExtra": {
-      "Package": "gridExtra",
-      "Version": "2.3",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "7d7f283939f563670a697165b2cf5560"
-    },
     "gtable": {
       "Package": "gtable",
       "Version": "0.3.0",
@@ -924,13 +896,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "b53abe478cd07312b8e09543f07c95f6"
-    },
-    "inline": {
-      "Package": "inline",
-      "Version": "0.3.17",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c34d7560557eb0b2e1040fc690534049"
     },
     "insight": {
       "Package": "insight",
@@ -1070,13 +1035,6 @@
       "Repository": "CRAN",
       "Hash": "760b5b542e8435237d1b3c253bfe18e7"
     },
-    "loo": {
-      "Package": "loo",
-      "Version": "2.4.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "cb08bd08c899e7d68661714d699c42e4"
-    },
     "lpSolveAPI": {
       "Package": "lpSolveAPI",
       "Version": "5.5.2.0-17.7",
@@ -1166,13 +1124,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "6dfe8bf774944bd5595785e3229d8771"
-    },
-    "mvtnorm": {
-      "Package": "mvtnorm",
-      "Version": "1.1-1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "69fa7331e7410c2a2cb3f9868513904f"
     },
     "nlme": {
       "Package": "nlme",
@@ -1354,13 +1305,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "14dc9f7a3c91ebb14ec5bb9208a07061"
-    },
-    "progressr": {
-      "Package": "progressr",
-      "Version": "0.7.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "679b0700adc3be59606d703ccbdab1a8"
     },
     "promises": {
       "Package": "promises",
@@ -1570,13 +1514,6 @@
       "Repository": "CRAN",
       "Hash": "ae30c5f683fde4c1225d417d0f468d75"
     },
-    "shape": {
-      "Package": "shape",
-      "Version": "1.4.5",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "58510f25472de6fd363d76698d29709e"
-    },
     "shiny": {
       "Package": "shiny",
       "Version": "1.5.0",
@@ -1698,13 +1635,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "71dffd8544691c520dd8e41ed2d7e070"
-    },
-    "tictoc": {
-      "Package": "tictoc",
-      "Version": "1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "f8cc5adf4671b013434bbe127f35b28c"
     },
     "tidymodels": {
       "Package": "tidymodels",
