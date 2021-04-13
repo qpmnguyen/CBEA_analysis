@@ -1,6 +1,8 @@
 library(targets)
 library(tarchetypes)
+library(future)
 
+plan(multisession)
 source("../simulations_prediction_functions/pred_functions.R")
 
 set.seed(1020)
@@ -29,8 +31,6 @@ sim_regr <- cross_df(list(
 sim_regr$id <- seq(1, nrow(sim_regr))
 saveRDS(sim_regr, file = "output/simulation_grid_regr.rds")
 
-sim_regr <- sim_regr[1:10,]
-
 
 sim_eval_grid <- tar_target(sim_eval_grid, {
     eval_settings <- cross_df(list(
@@ -56,7 +56,7 @@ regr_jobs <- tar_map(unlist = FALSE, values = sim_regr, names = c("id"),
                     tar_target(agg_regr, {
                         print("Currently running")
                         generate_aggregation(proc_object = simulation_regr, 
-                                                model = sim_eval_grid$model, 
+                                                method = sim_eval_grid$model, 
                                                 distr = sim_eval_grid$distr, 
                                                 adj = sim_eval_grid$adj, 
                                                 output = sim_eval_grid$output)
