@@ -1,0 +1,355 @@
+------------------------- Prologue ----------------------------
+         Started: Tue Apr  6 15:09:11 EDT 2021
+          Job ID: 175116.pearl.hpcc.dartmouth.edu
+         User ID: f00345k
+        Group ID: rc-users
+        Job Name: DIFF_AB_SIMULATION
+ Resources Req'd: nodes=1:ppn=20,walltime=30:00:00,neednodes=1:ppn=20
+      Queue Name: default
+    Account Name: 
+------------------------- Prologue ----------------------------
+
+Currently in directory analyses/simulations_diff_ab/
+-- Attaching packages --------------------------------------- tidyverse 1.3.0 --
+v ggplot2 3.3.3     v purrr   0.3.4
+v tibble  3.0.4     v dplyr   1.0.2
+v tidyr   1.1.2     v stringr 1.4.0
+v readr   1.4.0     v forcats 0.5.0
+-- Conflicts ------------------------------------------ tidyverse_conflicts() --
+x dplyr::filter() masks stats::filter()
+x dplyr::lag()    masks stats::lag()
+Loading required package: S4Vectors
+Loading required package: stats4
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: 'BiocGenerics'
+
+The following objects are masked from 'package:parallel':
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from 'package:dplyr':
+
+    combine, intersect, setdiff, union
+
+The following objects are masked from 'package:stats':
+
+    IQR, mad, sd, var, xtabs
+
+The following objects are masked from 'package:base':
+
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
+    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
+    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unsplit, which.max, which.min
+
+
+Attaching package: 'S4Vectors'
+
+The following objects are masked from 'package:dplyr':
+
+    first, rename
+
+The following object is masked from 'package:tidyr':
+
+    expand
+
+The following object is masked from 'package:base':
+
+    expand.grid
+
+Loading required package: IRanges
+
+Attaching package: 'IRanges'
+
+The following object is masked from 'package:phyloseq':
+
+    distance
+
+The following objects are masked from 'package:dplyr':
+
+    collapse, desc, slice
+
+The following object is masked from 'package:purrr':
+
+    reduce
+
+Loading required package: GenomicRanges
+Loading required package: GenomeInfoDb
+Loading required package: SummarizedExperiment
+Loading required package: MatrixGenerics
+Loading required package: matrixStats
+
+Attaching package: 'matrixStats'
+
+The following object is masked from 'package:dplyr':
+
+    count
+
+
+Attaching package: 'MatrixGenerics'
+
+The following objects are masked from 'package:matrixStats':
+
+    colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,
+    colCounts, colCummaxs, colCummins, colCumprods, colCumsums,
+    colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,
+    colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,
+    colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,
+    colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,
+    colWeightedMeans, colWeightedMedians, colWeightedSds,
+    colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,
+    rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,
+    rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,
+    rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,
+    rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,
+    rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,
+    rowWeightedMads, rowWeightedMeans, rowWeightedMedians,
+    rowWeightedSds, rowWeightedVars
+
+Loading required package: Biobase
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+
+Attaching package: 'Biobase'
+
+The following object is masked from 'package:MatrixGenerics':
+
+    rowMedians
+
+The following objects are masked from 'package:matrixStats':
+
+    anyMissing, rowMedians
+
+The following object is masked from 'package:phyloseq':
+
+    sampleNames
+
+
+Attaching package: 'corncob'
+
+The following object is masked from 'package:GenomicRanges':
+
+    score
+
+The following object is masked from 'package:BiocGenerics':
+
+    score
+
+
+Attaching package: 'glue'
+
+The following object is masked from 'package:SummarizedExperiment':
+
+    trim
+
+The following object is masked from 'package:GenomicRanges':
+
+    trim
+
+The following objects are masked from 'package:IRanges':
+
+    collapse, trim
+
+The following object is masked from 'package:dplyr':
+
+    collapse
+
+Type 'citation("pROC")' for a citation.
+
+Attaching package: 'pROC'
+
+The following objects are masked from 'package:IRanges':
+
+    cov, var
+
+The following objects are masked from 'package:S4Vectors':
+
+    cov, var
+
+The following object is masked from 'package:BiocGenerics':
+
+    var
+
+The following objects are masked from 'package:stats':
+
+    cov, smooth, var
+
+
+Attaching package: 'MASS'
+
+The following object is masked from 'package:dplyr':
+
+    select
+
+Welcome to compositions, a package for compositional data analysis.
+Find an intro with "? compositions"
+
+
+Attaching package: 'compositions'
+
+The following objects are masked from 'package:pROC':
+
+    cov, var
+
+The following objects are masked from 'package:IRanges':
+
+    cor, cov, var
+
+The following objects are masked from 'package:S4Vectors':
+
+    cor, cov, var
+
+The following objects are masked from 'package:BiocGenerics':
+
+    normalize, var
+
+The following objects are masked from 'package:stats':
+
+    cor, cov, dist, var
+
+The following objects are masked from 'package:base':
+
+    %*%, norm, scale, scale.default
+
+mixtools package, version 1.2.0, Released 2020-02-05
+This package is based upon work supported by the National Science Foundation under Grant No. SES-0518772.
+
+Loading required package: survival
+
+Attaching package: 'rlist'
+
+The following object is masked from 'package:S4Vectors':
+
+    List
+
+Loading required package: Rcpp
+
+Attaching package: 'Rcpp'
+
+The following object is masked from 'package:rsample':
+
+    populate
+
+Loading required package: RcppZiggurat
+
+Attaching package: 'Rfast'
+
+The following objects are masked from 'package:mixtools':
+
+    dmvnorm, rmvnorm
+
+The following object is masked from 'package:pROC':
+
+    auc
+
+The following object is masked from 'package:Biobase':
+
+    rowMedians
+
+The following objects are masked from 'package:MatrixGenerics':
+
+    colMads, colMaxs, colMedians, colMins, colRanks, colVars, rowMads,
+    rowMaxs, rowMedians, rowMins, rowRanks, rowVars
+
+The following objects are masked from 'package:matrixStats':
+
+    colMads, colMaxs, colMedians, colMins, colRanks, colVars, rowMads,
+    rowMaxs, rowMedians, rowMins, rowRanks, rowVars
+
+The following object is masked from 'package:dplyr':
+
+    nth
+
+The following objects are masked from 'package:purrr':
+
+    is_integer, transpose
+
+Loading required package: splines
+
+Attaching package: 'VGAM'
+
+The following object is masked from 'package:Rfast':
+
+    Rank
+
+The following object is masked from 'package:compositions':
+
+    clo
+
+The following objects are masked from 'package:corncob':
+
+    logit, lrtest
+
+The following object is masked from 'package:DESeq2':
+
+    rlog
+
+The following object is masked from 'package:tidyr':
+
+    fill
+
+Loading required package: future
+
+Attaching package: 'future'
+
+The following object is masked from 'package:survival':
+
+    cluster
+
+The following object is masked from 'package:SummarizedExperiment':
+
+    values
+
+The following object is masked from 'package:GenomicRanges':
+
+    values
+
+The following object is masked from 'package:IRanges':
+
+    values
+
+The following object is masked from 'package:S4Vectors':
+
+    values
+
+
+Attaching package: 'Matrix'
+
+The following object is masked from 'package:S4Vectors':
+
+    expand
+
+The following objects are masked from 'package:tidyr':
+
+    expand, pack, unpack
+
+* run target sim_eval_grid
+x error target sim_eval_grid
+* record workspace sim_eval_grid
+Error : 'rbind' is not an exported object from 'namespace:dplyr'
+In addition: Warning message:
+Targets and globals must have unique names. Ignoring global objects that conflict with target names: sim_eval_grid, save_file. Suppress this warning with Sys.setenv(TAR_WARN = "false") in _targets.R. 
+
+------------------------- Epilogue ----------------------------
+        Finished: Tue Apr  6 15:13:52 EDT 2021
+          Job ID: 175116.pearl.hpcc.dartmouth.edu
+         User ID: f00345k
+        Group ID: rc-users
+        Job Name: DIFF_AB_SIMULATION
+      Session ID: 15141
+ Resources Req'd: nodes=1:ppn=20,walltime=30:00:00,neednodes=1:ppn=20
+  Resources Used: cput=00:02:59,vmem=7354780kb,walltime=00:04:43,mem=1350076kb,energy_used=0
+      Queue Name: default
+    Account Name: 
+------------------------- Epilogue ----------------------------
+
