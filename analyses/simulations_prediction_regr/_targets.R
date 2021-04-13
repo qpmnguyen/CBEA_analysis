@@ -29,6 +29,7 @@ sim_regr <- cross_df(list(
 sim_regr$id <- seq(1, nrow(sim_regr))
 saveRDS(sim_regr, file = "output/simulation_grid_regr.rds")
 
+sim_regr <- sim_regr[1:10,]
 
 
 sim_eval_grid <- tar_target(sim_eval_grid, {
@@ -39,7 +40,7 @@ sim_eval_grid <- tar_target(sim_eval_grid, {
         output = c("zscore", "cdf")
     ))
     other <- tibble(model = c("ssgsea", "gsva"))
-    eval_settings <- dplyr::rbind(other, eval_settings)
+    eval_settings <- dplyr::bind_rows(other, eval_settings)
     eval_settings
 })
 
@@ -54,7 +55,7 @@ regr_jobs <- tar_map(unlist = FALSE, values = sim_regr, names = c("id"),
                                         method = "normal")}),
                     tar_target(agg_regr, {
                         print("Currently running")
-                        generate_aggregation(sim = simulation_regr, 
+                        generate_aggregation(proc_object = simulation_regr, 
                                                 model = sim_eval_grid$model, 
                                                 distr = sim_eval_grid$distr, 
                                                 adj = sim_eval_grid$adj, 

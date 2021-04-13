@@ -2,9 +2,11 @@
 
 library(targets)
 library(tarchetypes)
+library(future)
+
+plan(multisession)
 
 source("../simulations_prediction_functions/pred_functions.R")
-
 set.seed(1020)
 
 tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
@@ -39,7 +41,7 @@ sim_eval_grid <- tar_target(sim_eval_grid, {
         output = c("zscore", "cdf")
     ))
     other <- tibble(model = c("ssgsea", "gsva"))
-    eval_settings <- dplyr::rbind(other, eval_settings)
+    eval_settings <- dplyr::bind_rows(other, eval_settings)
     eval_settings
 })
 
