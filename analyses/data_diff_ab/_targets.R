@@ -67,7 +67,6 @@ fdr_analysis <- tar_map(unlist = FALSE, values = fdr_files, names = "dset",
 
 # Power analysis maps across eval_grid but there is only one data set and no repetition is required 
 pwr_analysis <- tar_target("pwr_analysis", {
-    print(eval_grid)
     # load_files 
     print("Load files")
     data <- readRDS(pwr_files$path)
@@ -79,8 +78,15 @@ pwr_analysis <- tar_target("pwr_analysis", {
     sample_data(physeq)$group <- group %>% as.factor()
     # perform analysis 
     print("Perform Analysis")
+    print(paste0("Method: ", eval_grid$methods))
+    print(paste0("Distribution: ", eval_grid$distr))
+    print(paste0("Adjustment: ", eval_grid$adj))
+    print(paste0("Output: ", eval_grid$output))
+    
     result <- diff_ab(physeq, agg_level = "GENUS", data_type = "16S", return = "sig", 
-                      method = eval_grid$methods, distr = eval_grid$distr, output = eval_grid$output, 
+                      method = eval_grid$methods, 
+                      distr = eval_grid$distr, 
+                      output = eval_grid$output, 
                       adj = eval_grid$adj)
     # restrict annotation to Aerobic or Anaerobic only and consider all of them as labelled 
     print("Retrieving annotations")
@@ -98,4 +104,4 @@ pwr_analysis <- tar_target("pwr_analysis", {
 pwr_save_file <- tar_rds("pwr_save_file", 
                          saveRDS(pwr_analysis, file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
 
-list(eval_grid, fdr_analysis, pwr_analysis, pwr_save_file)
+list(eval_grid, pwr_analysis, pwr_save_file)

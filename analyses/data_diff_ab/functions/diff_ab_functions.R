@@ -27,7 +27,6 @@ diff_ab <- function(physeq,
                     ...){
     method <- match.arg(method)
     return <- match.arg(return)
-    
     if (data_type == "wgs"){
         tax_counts <- otu_table(physeq) %>% as("matrix") %>% as.data.frame() %>% 
             rownames_to_column(var = "tax") %>%  

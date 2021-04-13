@@ -198,11 +198,15 @@ sim_prediction <- function(type=c("regr", "classif"), snr = 2, sat=0.1, ...){
     set_names <- colnames(baseline$A)
     #baseline$X <- baseline$X %>% as.matrix() %>% acomp() %>% unclass() %>% as.data.frame()
     if (sat > 0){
-        # First, let's sample from the sets the size of saturation 
-        important_sets <- sample(seq(length(set_names)), size = length(set_names)*sat)
+        # First, let's sample from the sets the size of saturation
+        n_core_sets <- round(length(set_names) * sat,0)
+        if (n_core_sets %% 2 != 0){
+          n_core_sets <- n_core_sets + 1
+        }
+        important_sets <- sample(seq(length(set_names)), size = n_core_sets)
         # Then let's generate a list of the sets that are determined to be important, and then 
         # retrieve the taxa that are important  
-        n_pos <- round(length(important_sets)/2,0)
+        n_pos <- n_core_sets/2
         index_list <- lapply(important_sets, function(x){
             as.vector(which(baseline$A[,x] == 1))
         })
@@ -212,7 +216,7 @@ sim_prediction <- function(type=c("regr", "classif"), snr = 2, sat=0.1, ...){
             # beta are beta values per taxa
             beta <- rep(0, ncol(baseline$X))
             # beta_sets are beta valutes per set 
-            beta_sets <- rep(0, length(important_sets))
+            beta_sets <- rep(0, n_core_sets)
             beta_sets[1:n_pos] <- runif(n_pos, 1.5,2)
             beta_sets[-c(1:n_pos)] <- runif(n_pos, -2,-1.5)
             for (i in seq(length(index_list))){
@@ -233,6 +237,9 @@ sim_prediction <- function(type=c("regr", "classif"), snr = 2, sat=0.1, ...){
             while(iter < 2e4 & (sum(b_y == 1) < lower_bound | sum(b_y == 1) > upper_bound)){
               iter <- iter + 1
               b_y <- as.factor(rbinom(n_samp, size = 1, prob = prob)) 
+            }
+            if (iter >= 2e4){
+              message("Did not converge on even classes")
             }
             y <- b_y
         }

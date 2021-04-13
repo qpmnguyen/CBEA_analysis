@@ -36,7 +36,7 @@ sim_eval_grid <- tar_target(sim_eval_grid, {
     output = c("zscore", "cdf")
   ))
   other <- tibble(model = c("deseq2", "corncob"))
-  eval_settings <- dplyr::rbind(other, eval_settings)
+  eval_settings <- dplyr::bind_rows(other, eval_settings)
   eval_settings
 })
 

@@ -1,36 +1,4 @@
 name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
-taxtab2A|function|8fcacdc70cfdd3e9
-estimate_distr|function|a77b1b269d803650
-generate_wkflow|function|0f6d1d753bce6bf6
-regr_jobs|object|405d84239a08d13b
-aggregate|function|b5b3bc29850ebe81
-process|function|fceb5d1a6ed8c6f1
-dmnorm|function|c4966d38b4d5e5c2
-create_parameters|function|b062e17bdfb9c1aa
-zinb_simulation|function|b1c67089ae767210
-process_pred|function|811f8c79752fa2af
-merge_lists|function|5858e4c3e1befc35
-get_score|function|342e612c355a8df4
-get_mean|function|462a55e11b9619ab
-get_sd|function|787add497a17ce40
-calculate_statistic|function|5966b7dc254bf6ea
-ss_eval|function|75eb6fb57434ab04
-sim_regr|object|e59365f97044bb08
-.Random.seed|object|c595b4c2a16856a2
-sim2phylo|function|a509b0054133d0a0
-pmnorm|function|48080281e209109b
-phylo2cilr|function|326534ae2bb25431
-taxtab_prune|function|ca3a382753343c57
-fit_and_eval|function|43b4547af135f23a
-generate_alt_scores|function|e369f7228e60f778
-wc_test|function|9c4ac72d99328b98
-sim_prediction|function|319ffc5643b2817c
-get_adj_mnorm|function|f803bc21532f455c
-scale_scores|function|2392ccfe58738ff1
-cilr|function|5086b0e7c26d6f6e
-get_fit|function|16abc1da60586969
-generate_aggregation|function|c822fd385e0b6b12
-sim_eval_grid|stem|a5e9f4ad2db622ee|158f47e011bd1d36|58693f4e96adabb2|-1437671317|_targets/objects/sim_eval_grid|55c81a6e17d2dae4|746e1ce14f25a912|225|rds|vector||sim_eval_grid_bc1a63a1*sim_eval_grid_8643b456*sim_eval_grid_c0a8e68e*sim_eval_grid_fd944b83*sim_eval_grid_7adcc684*sim_eval_grid_400b9827*sim_eval_grid_87855407*sim_eval_grid_5fb7f01f*sim_eval_grid_39fb0cf8*sim_eval_grid_b64312bf|0.013||
 simulation_regr_30|stem|f7a923575b1d8498|a4ca1ce7cdc15f16|e7dd523a56b55b13|1612013575|_targets/objects/simulation_regr_30|438f7660cb9b6ff4|e2a8e2385f560568|1656745|rds|vector|||7.522||
 simulation_regr_31|stem|3332f736be898d5d|1b3218281ec88e62|e7dd523a56b55b13|1369948968|_targets/objects/simulation_regr_31|7e74f7ab29635803|5d95b92557ebd568|1408751|rds|vector|||4.636||
 simulation_regr_32|stem|cdbed3bb28b6b4a2|0afad74096611d1d|e7dd523a56b55b13|1676568501|_targets/objects/simulation_regr_32|2f7a261b9c026074|de9de766355b9393|1408703|rds|vector|||4.503||
@@ -49,7 +17,6 @@ simulation_regr_40|stem|31d31ab777119d85|f62f08148275b4cc|e7dd523a56b55b13|11730
 simulation_regr_54|stem|9b2f2c23cff6dc1f|35159bad6820cec5|e7dd523a56b55b13|180465293|_targets/objects/simulation_regr_54|61310a28e4a1ca02|a4d87eabf0f96bda|1409455|rds|vector|||4.272||
 simulation_regr_41|stem|237a90f334844130|bdc909eb25324e3e|e7dd523a56b55b13|185972497|_targets/objects/simulation_regr_41|2f724c9341dc232b|412b8e2e411aae5e|1804283|rds|vector|||4.336||
 simulation_regr_42|stem|59c53e1ae5a3cb0b|9795a289ae94abc9|e7dd523a56b55b13|423777130|_targets/objects/simulation_regr_42|8bcefbb05b1bbb69|d491d00df466c480|1802781|rds|vector|||3.588||
-simulation_regr_10|stem|5b91cd4b025d96fc|1b0452fe49237af0|e7dd523a56b55b13|-771013979|_targets/objects/simulation_regr_10|2fc5a3cb865c1895|58c1e2cedc198cd9|1657046|rds|vector|||3.583||
 simulation_regr_11|stem|5ccbc85d9a9d9ab6|d162ab5670505aa1|e7dd523a56b55b13|-498212050|_targets/objects/simulation_regr_11|2f4d4b10e47fa1d5|ba002d9aa0b9842d|1656380|rds|vector|||3.609||
 simulation_regr_43|stem|c99fa73eb4b7d710|a7c1a5effe7b3490|e7dd523a56b55b13|-516463787|_targets/objects/simulation_regr_43|b8d10d7103e0b35f|97523ae51a6179e1|1655874|rds|vector|||4.183||
 simulation_regr_12|stem|fcbe4d648efbe366|ac28f13482fd8157|e7dd523a56b55b13|-586229584|_targets/objects/simulation_regr_12|f5855617d78da149|d8921fdb8470f3e7|1657082|rds|vector|||3.618||
@@ -76,13 +43,80 @@ simulation_regr_26|stem|3b86b541ca505b36|2c1d4d37332c7e78|e7dd523a56b55b13|63454
 simulation_regr_27|stem|ed049c977b627be3|6a2fde1389d66898|e7dd523a56b55b13|-304645295|_targets/objects/simulation_regr_27|503ada5263e3e441|8c3e217a910ce29e|1658266|rds|vector|||3.682||
 simulation_regr_28|stem|d352dcffc1d4a4da|6485cb064f40b23f|e7dd523a56b55b13|-546054518|_targets/objects/simulation_regr_28|9f1eac05968a9352|83735eebd502d872|1656683|rds|vector|||3.567||
 simulation_regr_29|stem|8a73dfe030b3c3bb|58cf9157435cb9c6|e7dd523a56b55b13|-834257873|_targets/objects/simulation_regr_29|76938342b4e75e0b|075507e4d62e71ab|1657853|rds|vector|||3.596||
-simulation_regr_1|stem|fef86004356eff38|bf7c0a1565558116|e7dd523a56b55b13|2018285218|_targets/objects/simulation_regr_1|78c2c21799db8af9|f6dc01e98cec7450|1803361|rds|vector|||3.581||
-simulation_regr_2|stem|effa5f69b743e2c7|75aa6190d1bbddd0|e7dd523a56b55b13|-2045234631|_targets/objects/simulation_regr_2|53e9dfa7f0e4b0cb|346f83fe9d24d684|1804485|rds|vector|||4.418||
-simulation_regr_3|stem|ee180f1ef45496ac|69c2c736d4841955|e7dd523a56b55b13|-626074771|_targets/objects/simulation_regr_3|b1b51f00a97a9dff|e7c6fb7271e9be28|1803228|rds|vector|||3.584||
-simulation_regr_4|stem|51ef9f1d473e91a8|46c97d6e45ddd4ba|e7dd523a56b55b13|-396233005|_targets/objects/simulation_regr_4|0e9719535b14ea0b|92452396912e1e34|1802142|rds|vector|||3.686||
-simulation_regr_5|stem|15166de8c2227ebf|d990c6f903b5445c|e7dd523a56b55b13|489480296|_targets/objects/simulation_regr_5|cbb50cc6b2dae2e5|0d183cabde6f2066|1803321|rds|vector|||3.611||
-simulation_regr_6|stem|462981a29b9ed6fb|6d7281a6fb528fbc|e7dd523a56b55b13|-881705740|_targets/objects/simulation_regr_6|c0959361d6b47853|e74a2fab4c0ad2ba|1804006|rds|vector|||3.577||
-simulation_regr_7|stem|1d4a01fff0ceb594|9deec518088719a6|e7dd523a56b55b13|-12082018|_targets/objects/simulation_regr_7|3f86949e7f207b24|d7fe456502dd154c|1655968|rds|vector|||4.567||
-simulation_regr_8|stem|4b9fc5882a3f4364|48b51b90a0359622|e7dd523a56b55b13|226836761|_targets/objects/simulation_regr_8|69303b2735bbc8dd|21cf25cf4347053c|1655924|rds|vector|||3.553||
-simulation_regr_9|stem|b6b737eb82d61218|a55929f6f184ee38|e7dd523a56b55b13|1674833333|_targets/objects/simulation_regr_9|956989da73b62995|38dc77827212af63|1656803|rds|vector|||3.637||
 agg_regr_30_3ef64a05|branch||dc6384222e7d9fdb|7e3a6a87c47c1a6d|-2128899388||||0|rds|vector|agg_regr_30||0.035||argument proc_object is missing, with no default
+taxtab2A|function|8fcacdc70cfdd3e9||||||||||||||
+estimate_distr|function|a77b1b269d803650||||||||||||||
+generate_wkflow|function|0f6d1d753bce6bf6||||||||||||||
+regr_jobs|object|df08d47616f7b082||||||||||||||
+aggregate|function|b5b3bc29850ebe81||||||||||||||
+process|function|fceb5d1a6ed8c6f1||||||||||||||
+dmnorm|function|c4966d38b4d5e5c2||||||||||||||
+create_parameters|function|b062e17bdfb9c1aa||||||||||||||
+zinb_simulation|function|b1c67089ae767210||||||||||||||
+process_pred|function|811f8c79752fa2af||||||||||||||
+merge_lists|function|5858e4c3e1befc35||||||||||||||
+get_score|function|342e612c355a8df4||||||||||||||
+get_mean|function|462a55e11b9619ab||||||||||||||
+get_sd|function|787add497a17ce40||||||||||||||
+calculate_statistic|function|5966b7dc254bf6ea||||||||||||||
+ss_eval|function|75eb6fb57434ab04||||||||||||||
+sim_regr|object|b770876a64c1c401||||||||||||||
+.Random.seed|object|c1a8e1a11ad6b9b6||||||||||||||
+sim2phylo|function|a509b0054133d0a0||||||||||||||
+pmnorm|function|48080281e209109b||||||||||||||
+phylo2cilr|function|326534ae2bb25431||||||||||||||
+taxtab_prune|function|ca3a382753343c57||||||||||||||
+fit_and_eval|function|43b4547af135f23a||||||||||||||
+generate_alt_scores|function|e369f7228e60f778||||||||||||||
+wc_test|function|9c4ac72d99328b98||||||||||||||
+sim_prediction|function|319ffc5643b2817c||||||||||||||
+get_adj_mnorm|function|f803bc21532f455c||||||||||||||
+scale_scores|function|2392ccfe58738ff1||||||||||||||
+cilr|function|5086b0e7c26d6f6e||||||||||||||
+get_fit|function|16abc1da60586969||||||||||||||
+generate_aggregation|function|c822fd385e0b6b12||||||||||||||
+sim_eval_grid|stem|48a6c3cab6ce7014|4435c84e849e7bad|535219eafe2dd0d6|-1437671317|_targets/objects/sim_eval_grid|7891f89fb9ffe25b|229171ff431f9dba|224|rds|vector||sim_eval_grid_0d8cfc98*sim_eval_grid_1453926d*sim_eval_grid_29702c0d*sim_eval_grid_0b954f1d*sim_eval_grid_86a66c09*sim_eval_grid_94d478d6*sim_eval_grid_8127fbc9*sim_eval_grid_0a161f4d*sim_eval_grid_1a6c36a4*sim_eval_grid_9577f98d|0.01||
+simulation_regr_1|stem|859eacd07eace2e4|b47a912280281b67|e7dd523a56b55b13|2018285218|_targets/objects/simulation_regr_1|b4898d0956515f9d|fa6a3721da9dccca|4479660|rds|vector|||224.34|number of items to replace is not a multiple of replacement length|
+simulation_regr_2|stem|0e87c032b038a204|f0d99480d4ef7f91|e7dd523a56b55b13|-2045234631|_targets/objects/simulation_regr_2|d92bef2ae20bb744|42ba7a4ce149ecb7|4480930|rds|vector|||219.96|number of items to replace is not a multiple of replacement length|
+simulation_regr_3|stem|812c70c066482e9d|b3bfbf64161fc5d5|e7dd523a56b55b13|-626074771|_targets/objects/simulation_regr_3|8e1317d7e80fa051|c5dfe6b588635106|4479630|rds|vector|||219.47|number of items to replace is not a multiple of replacement length|
+simulation_regr_4|stem|329cab9342225c47|d056e6bd1f61c45a|e7dd523a56b55b13|-396233005|_targets/objects/simulation_regr_4|d6c619349d2e84db|0f5b309a983ce143|4480548|rds|vector|||218.7|number of items to replace is not a multiple of replacement length|
+simulation_regr_5|stem|297369e7d4ef87a9|d7b0ce9676f8512d|e7dd523a56b55b13|489480296|_targets/objects/simulation_regr_5|cbdbda83c7616ac8|0c63113f32651a7e|4480090|rds|vector|||220.89|number of items to replace is not a multiple of replacement length|
+simulation_regr_6|stem|0c5dec23cba31b80|f9aebd1d82b4f60a|e7dd523a56b55b13|-881705740|_targets/objects/simulation_regr_6|318724370daf9aa5|f72503b159ac564c|4480353|rds|vector|||223.59|number of items to replace is not a multiple of replacement length|
+simulation_regr_7|stem|327feb5e2061d306|71c5e999c229c385|e7dd523a56b55b13|-12082018|_targets/objects/simulation_regr_7|cf4632de65d3b7fa|5e51667fb941d64e|4113296|rds|vector|||236.68|number of items to replace is not a multiple of replacement length|
+simulation_regr_8|stem|dcdfc99598eabafd|9844939a610605b0|e7dd523a56b55b13|226836761|_targets/objects/simulation_regr_8|ff12bdf125304954|96669054a4de57e9|4114506|rds|vector|||229.07|number of items to replace is not a multiple of replacement length|
+simulation_regr_9|stem|4067e1fd535b228c|fe3a34430d8ed512|e7dd523a56b55b13|1674833333|_targets/objects/simulation_regr_9|4ed03cac7c6fb38d|d5c632dec0225ebe|4114924|rds|vector|||222.53|number of items to replace is not a multiple of replacement length|
+simulation_regr_10|stem|a139e1b4d8755f63|db69e2f61cc6fc5f|e7dd523a56b55b13|-771013979|_targets/objects/simulation_regr_10|495113f1fb6f0fec|2249ca4415657030|4114041|rds|vector|||221.28|number of items to replace is not a multiple of replacement length|
+agg_regr_1_776b0148|branch||b57a15d682327902|2586dc76aef632fa|1462944927||||0|rds|vector|agg_regr_1||0.03||argument proc_object is missing, with no default
+taxtab2A|function|8fcacdc70cfdd3e9
+estimate_distr|function|a77b1b269d803650
+generate_wkflow|function|0f6d1d753bce6bf6
+regr_jobs|object|53ce6e0a9c8cab95
+aggregate|function|b5b3bc29850ebe81
+process|function|fceb5d1a6ed8c6f1
+dmnorm|function|c4966d38b4d5e5c2
+create_parameters|function|b062e17bdfb9c1aa
+zinb_simulation|function|b1c67089ae767210
+process_pred|function|811f8c79752fa2af
+merge_lists|function|5858e4c3e1befc35
+get_score|function|342e612c355a8df4
+get_mean|function|462a55e11b9619ab
+get_sd|function|787add497a17ce40
+calculate_statistic|function|5966b7dc254bf6ea
+ss_eval|function|75eb6fb57434ab04
+sim_regr|object|b770876a64c1c401
+.Random.seed|object|c1a8e1a11ad6b9b6
+sim2phylo|function|a509b0054133d0a0
+pmnorm|function|48080281e209109b
+phylo2cilr|function|326534ae2bb25431
+taxtab_prune|function|ca3a382753343c57
+fit_and_eval|function|43b4547af135f23a
+generate_alt_scores|function|e369f7228e60f778
+wc_test|function|9c4ac72d99328b98
+sim_prediction|function|319ffc5643b2817c
+get_adj_mnorm|function|f803bc21532f455c
+scale_scores|function|2392ccfe58738ff1
+cilr|function|5086b0e7c26d6f6e
+get_fit|function|16abc1da60586969
+generate_aggregation|function|c822fd385e0b6b12
+sim_eval_grid|stem|48a6c3cab6ce7014|4435c84e849e7bad|535219eafe2dd0d6|-1437671317|_targets/objects/sim_eval_grid|7891f89fb9ffe25b|229171ff431f9dba|224|rds|vector||sim_eval_grid_0d8cfc98*sim_eval_grid_1453926d*sim_eval_grid_29702c0d*sim_eval_grid_0b954f1d*sim_eval_grid_86a66c09*sim_eval_grid_94d478d6*sim_eval_grid_8127fbc9*sim_eval_grid_0a161f4d*sim_eval_grid_1a6c36a4*sim_eval_grid_9577f98d|0.01||
+agg_regr_1_776b0148|branch||ce899cae1bd467df|2586dc76aef632fa|1462944927||||0|rds|vector|agg_regr_1||0.09|the condition has length  1 and only the first element will be used|arg should be one of cdf, zscore, pval, sig
