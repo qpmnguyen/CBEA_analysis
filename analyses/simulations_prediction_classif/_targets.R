@@ -40,7 +40,7 @@ sim_eval_grid <- tar_target(sim_eval_grid, {
         adj = c(TRUE, FALSE),
         output = c("zscore", "cdf")
     ))
-    other <- tibble(model = c("ssgsea", "gsva"))
+    other <- tibble(model = c("ssgsea", "gsva", "clr"))
     eval_settings <- dplyr::bind_rows(other, eval_settings)
     eval_settings
 })

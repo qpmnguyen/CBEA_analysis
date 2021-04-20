@@ -79,6 +79,7 @@ cilr <- function(X, A, resample, output = c("cdf","zscore", "pval", "sig"),
 	  message("Not adjusting for correlation...")
 	}
 	for (i in seq(ncol(A))){
+	    message(glue("Currently at set {a}", a = colnames(A)[i]))
 		score <- get_score(X, A[,i])
 		if (resample == T){
 			sc_perm <- get_score(perm, A[,i])
@@ -147,7 +148,6 @@ estimate_distr <- function(data, distr = c("mnorm", "norm"), init, ...){
 				init <- list(lambda = NULL, mu = NULL, sigma = NULL)
 			}
 		}
-		message(glue("Fitting the {d} distribution", d = distr))
 		if (distr %in% c("norm")){
 			fit <- fitdistrplus::fitdist(data, distr = distr, method = "mle", start = init)
 			list(mean = fit$estimate[['mean']], sd = fit$estimate[['sd']])
@@ -181,6 +181,13 @@ scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), para
   	if(method %in% c("cdf", "sig","pval")){
   		param <- rlist::list.append(q = as.vector(scores), param)
   		scale <- do.call(f, param)
+  		if (sum(is.na(scale)) >= 1){
+  		    cat("There are NA values here")
+  		    if (file.exists("output") == FALSE){
+  		        dir.create("output")
+  		    } 
+  		    saveRDS(param, file = "output/null_values.rds")
+  		}
   		if (method == "pval"){
               scale <- 1 - scale
   		} else if (method == "sig"){
@@ -202,16 +209,17 @@ scale_scores <- function(scores, method = c("cdf","zscore", "pval", "sig"), para
 
 # function to get the adjusted mixed normal using BFGS optimization 
 get_adj_mnorm <- function(perm, unperm){
+    # get the overall mean first 
 	perm_mean <- get_mean(mu = perm$mu, lambda = perm$lambda)
 	unperm_mean <- get_mean(mu = unperm$mu, lambda = unperm$lambda)
+	
+	# get the overall standard deviation 
 	unperm_sd <- get_sd(sigma = unperm$sigma, mu = unperm$mu, 
 						mean = unperm_mean, lambda = unperm$lambda)
 	perm_sd <- get_sd(sigma = perm$sigma, mu = perm$mu, mean = perm_mean,
 						lambda = perm$lambda)
-	perm_skew <- Rfast::skew(rnormmix(n=1e4, lambda = perm$lambda, 
-							sigma = perm$sigma, mu = perm$mu))
 	# define objective function 
-	obj_function <- function(sigma, mu, lambda, mean, sd, skew){
+	obj_function <- function(sigma, mu, lambda, mean, sd){
 		s1 <- sigma[1]
 		s2 <- sigma[2]
 		m1 <- mu[1]
@@ -219,19 +227,19 @@ get_adj_mnorm <- function(perm, unperm){
 		l1 <- lambda[1]
 		l2 <- lambda[2]
 		estimate_sd <- sqrt((s1 + m1 - mean)*l1 + (s2 + m2 - mean)*l2)
-		#estimate_skew <- Rfast::skew(rnormmix(n = 1e5, lambda = c(l1,l2), 
-		#									sigma = c(s1,s2), mu = c(m1,m2)))
-		#obj <- sqrt(sum((c(estimate_sd, estimate_skew) - c(sd, skew))^2))
+		
+		# estimate the objective funciton which is an l2 norm
 		obj <- sqrt(sum((estimate_sd - sd)^2))
 		return(obj)
 	}
-
-	opt <- optim(par = c(0.1,0.1), obj_function, mu = perm$mu, lambda = perm$lambda, 
-					mean = perm_mean, sd = unperm_sd, skew = perm_skew)
+	opt <- optim(par = c(0.01,0.01), 
+	             obj_function, 
+	             method = "L-BFGS-B", 
+	             lower = c(1e-5,1e-5),
+	             upper = c(Inf, Inf),
+	             mu = perm$mu, lambda = perm$lambda, mean = perm_mean, sd = unperm_sd)
 	estim_sd <- get_sd(sigma = opt$par, lambda = perm$lambda, mu = perm$mu, mean = perm_mean)
-	#estim_skew <- Rfast::skew(rnormmix(n=1e5, lambda = perm$lambda, mu = perm$mu, sigma = opt$par))
 	print(glue("Total sd is {x} and estimated sd is {y}", x = unperm_sd, y = estim_sd))
-	#print(glue("Total skew is {x} and estimated skew is {y}", x = perm_skew, y = estim_skew))
 	param <- list(mu = perm$mu, sigma = opt$par, lambda = perm$lambda)
 	return(param)
 }
@@ -242,10 +250,13 @@ get_adj_mnorm <- function(perm, unperm){
 #' @param sigma A vector of sigma values equals to the number of components
 #' @param lambda A vector of lambda values equals to the number of components 
 #' @param log A boolean indicating whether returning probabilities are in log format 
-pmnorm <- function(q, mu, sigma, lambda, log = FALSE){
+pmnorm <- function(q, mu, sigma, lambda, log = FALSE, verbose = FALSE){
 	q <- as.vector(q)
 	n_components <- length(sigma)
-	print(paste(n_components, "components!"))
+	if (verbose == TRUE){
+	    cat(paste(n_components, "components!", "\n"))
+	}
+	
 	comp <- vector(mode = "list", length = n_components)
 	for (i in 1:n_components){
 		comp[[i]] <- lambda[i] * pnorm(q, mu[i], sigma[i], log.p = log)
@@ -254,10 +265,12 @@ pmnorm <- function(q, mu, sigma, lambda, log = FALSE){
 }
 
 
-dmnorm <- function(x, mu, sigma, lambda, log=FALSE){
+dmnorm <- function(x, mu, sigma, lambda, log=FALSE, verbose = FALSE){
   x <- as.vector(x)
   n_components <- length(sigma)
-  print(paste(n_components, "components!"))
+  if (verbose == TRUE){
+      cat(paste(n_components, "components!", "\n"))
+  }
   comp <- vector(mode = "list", length = n_components)
   for (i in 1:n_components){
     comp[[i]] <- lambda[i] * dnorm(x, mu[i], sigma[i], log = log)

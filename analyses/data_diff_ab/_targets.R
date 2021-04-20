@@ -76,6 +76,7 @@ pwr_analysis <- tar_target("pwr_analysis", {
     print("Define Group")
     group <- ifelse(sample_data(physeq)$HMP_BODY_SUBSITE == "Supragingival Plaque", 1, 0)
     sample_data(physeq)$group <- group %>% as.factor()
+    
     # perform analysis 
     print("Perform Analysis")
     print(paste0("Method: ", eval_grid$methods))
