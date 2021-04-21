@@ -92,7 +92,10 @@ generate_alt_scores <- function(X, A, method=c("plage", "zscore", "ssgsea", "gsv
 
 #' @title Perform wilcoxon rank sum test per sample 
 #' @param ... Pass to the wilcox.test argument 
-wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F, transform=NULL, pcount=NULL, ...){
+wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F,
+                    output = c("sig", "scores"),
+                    transform=NULL, pcount=NULL, ...){
+  output <- match.arg(output)
   if(preprocess == T){
     if (missing(transform)){
       message("Not performing any transformations and leaving it as raw counts")
@@ -109,7 +112,12 @@ wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F, transform=N
   R <- matrix(nrow = nrow(X), ncol = ncol(A))
   for (i in seq(ncol(A))){
     R[,i] <- apply(X, 1, function(x){
-      wilcox.test(x = x[which(A[,i] == 1)], y = x[which(A[,i] != 1)], alternative = alt, ...)$p.value
+      test <- wilcox.test(x = x[which(A[,i] == 1)], y = x[which(A[,i] != 1)], alternative = alt, ...)
+      if (output == "scores"){
+        return(test$p.value)
+      } else {
+        return(test$statistic %>% unname())
+      }
     })
   }
   R <- ifelse(R <= thresh, 1, 0)

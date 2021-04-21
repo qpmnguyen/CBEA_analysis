@@ -29,7 +29,7 @@ cilr_settings_sig <- cross_df(list(
 
 # these are different single sample enrichment models  
 auc_models <- tibble(
-    models = c("gsva", "ssgsea")
+    models = c("gsva", "ssgsea", "wilcoxon")
 )
 
 # data enrichment 

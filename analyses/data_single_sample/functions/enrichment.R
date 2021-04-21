@@ -42,7 +42,12 @@ enrichment_analysis <- function(X, A, method, label, metric, ...){
   if (method %in% c("ssgsea", "gsva")){
     scores <- generate_alt_scores(X = X, A = A, method = method, preprocess = T, pcount = 1)
   } else if (method %in% c("wilcoxon")){
-    scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1)
+    if (metric == "auc"){
+      output <- "scores"
+    } else {
+      output <- "sig"
+    }
+    scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1, output = output)
   } else {
     scores <- cilr(X = X, A = A, resample = T, ..., maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
   }
