@@ -105,4 +105,4 @@ pwr_analysis <- tar_target("pwr_analysis", {
 pwr_save_file <- tar_rds("pwr_save_file", 
                          saveRDS(pwr_analysis, file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
 
-list(eval_grid, pwr_analysis, pwr_save_file)
+list(eval_grid, fdr_analysis, pwr_analysis, pwr_save_file)

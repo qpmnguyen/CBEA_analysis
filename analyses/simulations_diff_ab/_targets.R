@@ -1,7 +1,9 @@
 library(targets)
 library(tarchetypes)
 library(tidyverse)
+library(future)
 
+plan(multisession)
 set.seed(1020)
 
 tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
