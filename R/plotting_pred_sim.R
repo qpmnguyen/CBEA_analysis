@@ -38,7 +38,7 @@ plot_func <- function(metrics, sat_value, df_main){
 
 process_outputs <- function(grid, results){
     df <- left_join(grid, results, by = "id") %>% 
-        select(snr, sat, spar, s_rho, model, distr, adj, output, .metric, mean, std_err) %>% 
+        dplyr::select(snr, sat, spar, s_rho, model, distr, adj, output, .metric, mean, std_err) %>% 
         unite(model, c(model, distr), sep = "_") %>%
         mutate(model = str_replace(model, "_NA", ""), 
                adj = replace_na(adj, "Not applicable"), 
@@ -51,7 +51,8 @@ process_outputs <- function(grid, results){
             model == "cilr_mnorm" ~ "cILR Mixture Normal",
             model == "cilr_norm" ~ "cILR Normal",
             model == "gsva" ~ "GSVA", 
-            model == "ssgsea" ~ "ssGSEA"
+            model == "ssgsea" ~ "ssGSEA",
+            model == "clr" ~ "CLR"
         )) %>%
         mutate(lower = mean - std_err, upper = mean + std_err) %>% 
         rename(c("Sparsity" = "spar",  "Correlation" = "s_rho"))

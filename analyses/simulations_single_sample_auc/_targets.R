@@ -20,8 +20,8 @@ auc_test_grid <- tar_target(auc_test_grid, {
         adj = c(TRUE, FALSE),
         output = c("zscore", "cdf")
     ))
-    other <- tibble(model = c("ssgsea", "gsva"))
-    eval_settings <- full_join(eval_settings, other, by = "model")
+    other <- tibble(model = c("ssgsea", "gsva", "wilcox"))
+    eval_settings <- dplyr::bind_rows(eval_settings, other)
     eval_settings
 })
 

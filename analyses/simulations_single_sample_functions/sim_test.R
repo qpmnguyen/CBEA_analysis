@@ -77,7 +77,12 @@ analysis <- function(sim,
     X <- sim$X 
     A <- sim$A
     if (model == "wilcox"){
-        scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1)
+        if (eval == "auc"){
+            output <- "scores"
+        } else {
+            output <- "sig"
+        }
+        scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1, output = output)
     } else if (model %in% c("ssgsea", "gsva")){
         if (eval != "auc"){
             stop("Methods not available to evaluate for hypothesis testing")
