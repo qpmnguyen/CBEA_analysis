@@ -2,13 +2,13 @@ library(targets)
 library(tarchetypes)
 library(tidyverse)
 library(future)
-
-plan(multisession)
-set.seed(1020)
-
-tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
+library(glue)
+library(MASS)
 source("../data_diff_ab/functions/diff_ab_functions.R")
 source("../../R/simulations.R")
+tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
+set.seed(1020)
+plan(multisession)
 # first, define simulation grid 
 sim_grid <- cross_df(list(
     rep = seq(1,50),
