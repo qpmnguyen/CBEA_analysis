@@ -18,7 +18,7 @@
 
 # request 99 hours of wall time
 
-#PBS -l walltime=20:00:00
+#PBS -l walltime=40:00:00
 
 # mail is sent to you when the job begins and when it exits or aborts
 # you can use all or some or none. If you don't want email leave this
