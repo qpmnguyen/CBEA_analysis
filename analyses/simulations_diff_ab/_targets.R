@@ -8,7 +8,9 @@ source("../data_diff_ab/functions/diff_ab_functions.R")
 source("../../R/simulations.R")
 tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
 set.seed(1020)
+
 plan(multisession)
+
 # first, define simulation grid 
 sim_grid <- cross_df(list(
     rep = seq(1,50),
@@ -55,10 +57,11 @@ analysis <- tar_map(values = sim_grid, unlist = TRUE, names = c("id"),
                             method = method, samp_prop = samp_prop, vary_params = vary_params, n_tax = n_tax, 
                             prop_inflate = prop_inflate)
         }),
-        tar_target(transform, {
+        tar_target(transform_dat, {
             sim2phylo(simulation)
         }),
         tar_target(analysis,{
+            print(sim_eval_grid)
             diff_ab(transform, method = sim_eval_grid$model, 
                     agg_level = "GENUS", data_type = "16S", prune = FALSE, 
                     adj = sim_eval_grid$adj, distr = sim_eval_grid$distr, 

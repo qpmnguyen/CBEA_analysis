@@ -49,26 +49,28 @@ load_and_process <- function(type = c("fdr", "pwr")){
     sim_plots <- ggplot(full_data, aes(x = spar, y = est, col = model, shape = adj)) + 
         geom_line() + 
         geom_point() + 
-        geom_linerange(aes(ymax = upper, ymin = lower), show.legend = FALSE) + 
+        geom_errorbar(aes(ymax = upper, ymin = lower), show.legend = FALSE, width = 0.04) + 
         theme_bw() + scale_color_d3() + 
         guides(linetype = guide_legend(override.aes = list(shape = NA)))
     
     if (type == "fdr"){
-        sim_plots <- sim_plots + facet_grid(`Correlation` ~ `Set Size`, labeller = label_both, scales = "free") + 
+        sim_plots <- sim_plots + facet_grid(`Correlation` ~ `Set Size`, labeller = label_both) + 
             labs(x = "Sparsity", y = "Type I error", col = "Models", shape = "Correlation adjusted") +
-            geom_hline(yintercept = 0.05, col = "red") + ylim(c(0,0.8))
+            geom_hline(yintercept = 0.05, col = "red") 
     } else if (type == "pwr"){
         sim_plots <- sim_plots + facet_grid(`Correlation` ~ `Effect Size`, labeller = label_both) + 
             labs(x = "Sparsity", y = "Power", col = "Models", shape = "Correlation adjusted") + 
-            geom_hline(yintercept = 0.8, col = "red") + ylim(c(0,1))
+            geom_hline(yintercept = 0.8, col = "red") 
     }
     
     data_plot <- ggplot(real_data, aes(x = model, y = est, col = model, shape = adj)) + 
         geom_line() + 
         geom_point(position = position_dodge(width = 0.5)) + 
-        geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5), show.legend = FALSE) + 
+        geom_errorbar(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5), 
+                      show.legend = FALSE,
+                      width = 0.5) + 
         scale_color_d3() +
-        guides(linetype = guide_legend(override.aes = list(shape = NA))) + theme_bw() + ylim(c(0,1))
+        guides(linetype = guide_legend(override.aes = list(shape = NA))) + theme_bw()
     
     if (type == "fdr"){
         data_plot <- data_plot + 
@@ -99,7 +101,7 @@ comb_plot <- fdr$sim_plot + pwr$sim_plot + fdr$data_plot + pwr$data_plot +
     plot_annotation(tag_levels = "A") &
     theme(legend.position = "bottom", legend.box = "vertical", legend.margin = margin())
 
-ggsave(comb_plot, filename = "figures/sim_data_ss_hypo.png", width = 10, height = 9)
+ggsave(comb_plot, filename = "figures/sim_data_ss_hypo.png", dpi = 300, width = 10, height = 9)
 file.copy("figures/sim_data_ss_hypo.png", "../teailr_manuscript/manuscript/figures/sim_data_ss_hypo.png", 
           overwrite = TRUE)
 
@@ -166,6 +168,6 @@ comb_plot <- sim_plot + data_plot + plot_layout(guides = "collect", design = lay
     plot_annotation(tag_levels = "A") &
     theme(legend.position = "bottom", legend.box = "vertical", legend.margin = margin())
 comb_plot
-ggsave(comb_plot, filename = "figures/sim_data_ss_auc.png", dpi = 300, width = 10, height = 6)
+ggsave(comb_plot, filename = "figures/sim_data_ss_auc.png", dpi = 800, width = 10, height = 6)
 file.copy("figures/sim_data_ss_auc.png", "../teailr_manuscript/manuscript/figures/sim_data_ss_auc.png", 
           overwrite = TRUE)

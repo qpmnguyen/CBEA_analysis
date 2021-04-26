@@ -52,7 +52,7 @@ hypo_plt <- fdr_plt + pwr_plt + plot_annotation(tag_levels = "A") +
     plot_layout(guide = "collect") & 
     theme(legend.position = "bottom", legend.margin = margin())
 
-ggsave(hypo_plt, filename = "figures/sim_ss_hypo.png", dpi = 300, width = 12, height = 8)
+ggsave(hypo_plt, filename = "figures/sim_ss_hypo.png", dpi = 800, width = 12, height = 8)
 file.copy(from = "figures/sim_ss_hypo.png", to = "../teailr_manuscript/manuscript/figures/sim_ss_hypo.png", overwrite = T)
 
 auc <- readRDS(file = "analyses/simulations_single_sample_auc/output/sim_ss_auc.rds")
@@ -81,7 +81,7 @@ auc_plt <- ggplot(auc_df, aes(x = spar, y = est, col = model, linetype = adj, sh
     facet_grid(`Correlation`~`Effect Size`, scales = "fixed", labeller = label_both)
 
 
-ggsave(auc_plt, filename = "figures/sim_ss_auc.png", dpi = 300, width = 6, height = 6)
+ggsave(auc_plt, filename = "figures/sim_ss_auc.png", dpi = 800, width = 6, height = 6)
 file.copy("figures/sim_ss_auc.png", 
           "../teailr_manuscript/manuscript/figures/sim_ss_auc.png", 
           overwrite = T)
@@ -95,7 +95,7 @@ AAAA
 
 
 comb_plot <- hypo_plt/auc_plt + plot_layout(design = layout) + plot_annotation(tag_levels = "A")
-ggsave(comb_plot, filename = "figures/sim_ss_auc_hypo.png", dpi = 300, width = 12, height = 10)
+ggsave(comb_plot, filename = "figures/sim_ss_auc_hypo.png", dpi = 800, width = 12, height = 10)
 file.copy("figures/sim_ss_auc_hypo.png",
           "../teailr_manuscript/manuscript/figures/sim_ss_auc_hypo.png", 
           overwrite = T)
