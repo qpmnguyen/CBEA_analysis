@@ -1,0 +1,11 @@
+------------------------- Prologue ----------------------------
+         Started: Wed Apr 28 20:04:37 EDT 2021
+          Job ID: 217544.pearl.hpcc.dartmouth.edu
+         User ID: f00345k
+        Group ID: rc-users
+        Job Name: DIFF_AB_DATA
+ Resources Req'd: nodes=1:ppn=20,walltime=40:00:00,neednodes=1:ppn=20
+      Queue Name: default
+    Account Name: 
+------------------------- Prologue ----------------------------
+
