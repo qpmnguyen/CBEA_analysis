@@ -49,7 +49,7 @@ load_and_process <- function(type = c("fdr", "pwr")){
     sim_plots <- ggplot(full_data, aes(x = spar, y = est, col = model, shape = adj)) + 
         geom_line() + 
         geom_point() + 
-        geom_errorbar(aes(ymax = upper, ymin = lower), show.legend = FALSE, width = 0.04) + 
+        geom_linerange(aes(ymax = upper, ymin = lower), show.legend = FALSE) + 
         theme_bw() + scale_color_d3() + 
         guides(linetype = guide_legend(override.aes = list(shape = NA)))
     
@@ -66,9 +66,8 @@ load_and_process <- function(type = c("fdr", "pwr")){
     data_plot <- ggplot(real_data, aes(x = model, y = est, col = model, shape = adj)) + 
         geom_line() + 
         geom_point(position = position_dodge(width = 0.5)) + 
-        geom_errorbar(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5), 
-                      show.legend = FALSE,
-                      width = 0.5) + 
+        geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5), 
+                      show.legend = FALSE) + 
         scale_color_d3() +
         guides(linetype = guide_legend(override.aes = list(shape = NA))) + theme_bw()
     
@@ -116,7 +115,7 @@ full_data <- full_data %>% unite(model, c("model", "distr")) %>%
         model == "cilr_norm" ~ "cILR Normal", 
         model == "gsva_NA" ~ "GSVA", 
         model == "ssgsea_NA" ~ "ssGSEA",
-        model == "wilcoxon_NA" ~ "Wilcoxon U Statistic"
+        model == "wilcox_NA" ~ "Wilcoxon U Statistic"
     )) %>% 
     mutate(output = case_when(
         output == "cdf" ~ "CDF",
@@ -152,7 +151,8 @@ sim_plot <- ggplot(full_data, aes(x = spar, y = est, col = model, shape = output
 data_plot <- ggplot(auc_data, aes(x = model, y = est, col = model, linetype = adj, shape = output)) + 
     geom_line() + 
     geom_point(position = position_dodge(width = 0.5)) + 
-    geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5), show.legend = FALSE) + 
+    geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5), 
+                  show.legend = FALSE) + 
     labs(x = "Models", y = "AUC", color = "Models", 
          shape = "Output type", linetype = "Correlation adjusted") +
     scale_color_d3() +

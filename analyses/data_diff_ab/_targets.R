@@ -59,7 +59,7 @@ fdr_analysis <- tar_map(unlist = FALSE, values = fdr_files, names = "dset",
             eval[i] <- eval_function(result)
         }
         eval_grid %>% mutate(eval = eval)
-    }, batches = 500, reps = 20),
+    }, batches = 50, reps = 10),
     tar_rds("save_file", {
         saveRDS(fdr_rep, file = glue("output/{dset}_fdr.rds", dset = dset))
     })

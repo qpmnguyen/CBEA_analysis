@@ -4,16 +4,17 @@ library(tidyverse)
 library(future)
 library(glue)
 library(MASS)
+
 source("../data_diff_ab/functions/diff_ab_functions.R")
 source("../../R/simulations.R")
 tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
 set.seed(1020)
 
-plan(multisession)
+plan(multicore)
 
 # first, define simulation grid 
 sim_grid <- cross_df(list(
-    rep = seq(1,50),
+    rep = seq(1,10),
     n_samp = 2000, 
     spar = c(0.2,0.4,0.6), 
     s_rho = c(0,0.2,0.5), 
