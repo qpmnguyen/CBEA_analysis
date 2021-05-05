@@ -1,3 +1,5 @@
+*.e*
+*.o*
 *.synctex.gz
 *.aux
 *.Rproj
