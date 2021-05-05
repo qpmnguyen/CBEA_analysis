@@ -4,12 +4,9 @@ library(tidyverse)
 library(phyloseq)
 library(stringr)
 library(future)
-
-
+plan(multisession)
 source("functions/diff_ab_functions.R")
 set.seed(1020)
-plan(multisession)
-
 
 tar_option_set(error = "workspace")
 

@@ -15,9 +15,7 @@ option_list <- list(
                 help = "Directory to move to",
                 metavar="DIR"),
     make_option(c("-r", "--remove"), type = "logical", default=TRUE,
-                help = "Restart pipeline from scratch"),
-    make_option(c("-p", "--parallel"), type = "logical", default=TRUE,
-                help = "Run pipeline in parallel using future")
+                help = "Restart pipeline from scratch")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
@@ -32,11 +30,6 @@ if (opt$remove == TRUE){
 }
 
 
-if (opt$parallel == TRUE){
-    targets::tar_make_future(workers = opt$ncores)
-} else {
-    targets::tar_make()
-}
 # targets::tar_make() # debug locally
 # targets::tar_visnetwork() # visualize network to debug locally
 targets::tar_make_future(workers = opt$ncores) # run using futures on a cluster 
