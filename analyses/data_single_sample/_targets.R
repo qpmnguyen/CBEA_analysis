@@ -3,6 +3,7 @@ library(targets)
 library(tarchetypes)
 library(tidyverse)
 library(future)
+library(phyloseq)
 # library(future.batchtools)
 source("functions/enrichment.R")
 tar_option_set(error = "workspace")
@@ -10,7 +11,7 @@ tar_option_set(error = "workspace")
 plan(multisession)
 #plan(batchtools_torque, template = "batchtools.torque.tmpl")
 
-set.seed(2105)
+set.seed(1020)
 # define some settings to map across 
 # these are different settings for cilr method  
 cilr_settings <- cross_df(list(
@@ -33,12 +34,12 @@ auc_models <- tibble(
 )
 
 # data enrichment 
-data_enrich <- tar_rds(data_enrich, {
+data_auc <- tar_rds(data_enrich, {
     readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing()
 })
 
 # all cilr models under different evaluations  
-auc_cilr <- tar_map(unlist = FALSE, values = cilr_settings, {
+auc_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings, {
      tar_target(auc_cilr, {
          X <- data_enrich$X
          idx <- sample(1:nrow(X), size = nrow(X), replace = F)
@@ -53,7 +54,7 @@ auc_cilr <- tar_map(unlist = FALSE, values = cilr_settings, {
 
 
 
-fdr_cilr <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
+fdr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
     tar_target(fdr_cilr, {
         X <- data_enrich$X
         idx <- sample(1:nrow(X), size = nrow(X), replace = F)
@@ -65,7 +66,7 @@ fdr_cilr <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
     })
 })
 
-pwr_cilr <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
+pwr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
     tar_target(pwr_cilr, {
         X <- data_enrich$X
         idx <- sample(1:nrow(X), size = nrow(X), replace = F)
@@ -78,7 +79,7 @@ pwr_cilr <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
 })
 
 # Models for comparison  
-auc_other <- tar_map(unlist = FALSE, values = auc_models, {
+auc_other_job <- tar_map(unlist = FALSE, values = auc_models, {
     tar_target(auc_models, {
         X <- data_enrich$X
         idx <- sample(1:nrow(X), size = nrow(X), replace = F)
@@ -89,7 +90,7 @@ auc_other <- tar_map(unlist = FALSE, values = auc_models, {
     })
 })
 
-pwr_other <- tar_target(pwr_models, {
+pwr_other_job <- tar_target(pwr_models, {
     X <- data_enrich$X
     idx <- sample(1:nrow(X), size = nrow(X), replace = F)
     X_boot <- X[idx,]
@@ -99,7 +100,7 @@ pwr_other <- tar_target(pwr_models, {
     data.frame(est = pwr$est, upper = pwr$upper, lower = pwr$lower, models = "wilcox")
 }, error = "workspace")
 
-fdr_other <- tar_target(fdr_models, {
+fdr_other_job <- tar_target(fdr_models, {
     X <- data_enrich$X
     idx <- sample(1:nrow(X), size = nrow(X), replace = F)
     X_boot <- X[idx,]
@@ -110,9 +111,9 @@ fdr_other <- tar_target(fdr_models, {
 }, error = "workspace")
 
 
-auc_combined <- tar_combine(auc, auc_cilr, auc_other, command = dplyr::bind_rows(!!!.x))
-pwr_combined <- tar_combine(pwr, pwr_cilr, pwr_other, command = dplyr::bind_rows(!!!.x))
-fdr_combined <- tar_combine(fdr, fdr_cilr, fdr_other, command = dplyr::bind_rows(!!!.x))
+auc_combined <- tar_combine(auc, auc_cilr_job, auc_other_job, command = dplyr::bind_rows(!!!.x))
+pwr_combined <- tar_combine(pwr, pwr_cilr_job, pwr_other_job, command = dplyr::bind_rows(!!!.x))
+fdr_combined <- tar_combine(fdr, fdr_cilr_job, fdr_other_job, command = dplyr::bind_rows(!!!.x))
 save_auc <- tarchetypes::tar_rds(auc_save, saveRDS(auc, "output/auc_comparison.rds"))
 save_fdr <- tarchetypes::tar_rds(fdr_save, saveRDS(fdr, "output/fdr_comparison.rds"))
 save_pwr <- tarchetypes::tar_rds(pwr_save, saveRDS(pwr, "output/pwr_comparison.rds"))
@@ -120,6 +121,9 @@ save_pwr <- tarchetypes::tar_rds(pwr_save, saveRDS(pwr, "output/pwr_comparison.r
 #list(data_enrich, auc_cilr, auc_other, auc_combined)
 #list(data_enrich, fdr_cilr, fdr_other, fdr_combined)
 #list(data_enrich, pwr_cilr, pwr_other, pwr_combined)
-list(data_enrich, auc_cilr, auc_other, auc_combined, pwr_cilr, pwr_other, pwr_combined, fdr_cilr, fdr_other, fdr_combined,
+list(data_auc, 
+     auc_cilr_job, auc_other_job, auc_combined, 
+     pwr_cilr_job, pwr_other_job, pwr_combined, 
+     fdr_cilr_job, fdr_other_job, fdr_combined,
      save_auc, save_fdr, save_pwr)
 

@@ -69,6 +69,40 @@ shpp_plot<- ggplot(shape_plot %>% arrange(label),
 
 # GoF with regards to the simulations  
 
+generate_values <- function(distr, n=1e3){
+  if (length(distr) == 2){
+    values <- rnorm(n = n, mean = distr$mean, sd = distr$sd)
+  } else {
+    values <- rnormmix(n = n, lambda = distr$lambda, sigma = distr$sigma, mu = distr$mu)
+  }
+  return(values)
+}
+
+
+values <- parameters
+
+values <- values %>% unnest(param) %>% filter(spar %in% c(0.2,0.6), s_rho %in% c(0.2, 0.6)) 
+values$norm_param <- map(values$scores, ~estimate_distr(.x[,1], distr = "norm", init = NULL))
+values$mnorm_param <- map(values$scores, ~estimate_distr(.x[,1], distr = "mnorm", init = NULL, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5))
+values$norm <- map(values$norm_param, generate_values) 
+values$mnorm <- map(values$mnorm_param, generate_values)
+values <- values %>% mutate(raw = map(scores, ~.x[,1])) %>% unnest(c(norm, mnorm, raw)) %>% 
+  pivot_longer(c(norm, mnorm, raw), names_to = "distr", values_to = "val") %>% 
+  rename("Correlation" = "s_rho", "Sparsity" = "spar") %>% 
+  mutate(distr = case_when(
+    distr == "mnorm" ~ "Mixture Normal", 
+    distr == "norm" ~ "Normal", 
+    TRUE ~ "Raw cILR"
+  ))
+
+dens_plot <- ggplot(values, aes(x = val, fill = distr)) + 
+  geom_density(alpha = 0.4, aes(col = distr), show.legend = FALSE) + theme_bw() + 
+  scale_fill_d3() + 
+  scale_color_d3() + 
+  facet_grid(Correlation ~ Sparsity, scales = "free_y", labeller = label_both) + 
+  labs(x = "Values", y = "Density", fill = "Distribution") 
+
+# KS statistic 
 parameters <- parameters %>% unnest(param)
 
 parameters$KS <- map(parameters$scores, ~{
@@ -94,41 +128,41 @@ gof_plot_sim <- ggplot(parameters %>% rename("Correlation" = "s_rho"),
 
 
 # Applying function to normal data sets  
-normal_data <- readRDS(file = "data/hmp_stool_16S.rds")
-X <- otu_table(normal_data) %>% t()
-A <- taxtab2A(tax_table(normal_data), "GENUS", full = FALSE)
-scores <- cilr(X = X, A = A, resample = F)
-
-distr_norm <- estimate_distr(scores[,1], distr = "norm", init = NULL)
-distr_mnorm <- estimate_distr(scores[,1], distr = "mnorm", init = NULL)
-
-norm <- rnorm(1e4, mean = distr_norm$mean, sd = distr_norm$sd)
-mnorm <- mixtools::rnormmix(n = 1e4, lambda = distr_mnorm$lambda, sigma = distr_mnorm$sigma, mu = distr_mnorm$mu)
-df <- bind_rows(tibble(Distribution = rep("Raw", nrow(scores)), value = scores[,1]), 
-                tibble(Distribution = rep("Normal", 1e4), value = norm), 
-                tibble(Distribution = rep("Mixture Normal", 1e4), value = mnorm))
-distr_plot <- ggplot(df, aes(x = value, fill = Distribution, col = Distribution)) + geom_density(alpha = 0.3, size = 1.25) + 
-  scale_fill_d3() + scale_color_d3() + labs(x = "Value", y = "Density") + theme_bw() 
-
-test <- goftest::ad.test(x = scores[,1], null = "pnorm", estimated = T, distr_norm$mean, distr_norm$sd)
-
-ks_results <- map_dfr(scores, ~{
-  dist_norm <- estimate_distr(.x, distr = "norm", init = NULL)
-  distr_mnorm <- estimate_distr(.x, distr = "mnorm", init = NULL)
-  norm <- rnorm(1e5, mean = distr_norm$mean, sd = distr_norm$sd)
-  mnorm <- mixtools::rnormmix(n = 1e5, lambda = distr_mnorm$lambda, sigma = distr_mnorm$sigma, mu = distr_mnorm$mu)
-  ks_norm <- ks.test(.x, norm)$statistic
-  ks_mnorm <- ks.test(.x, mnorm)$statistic
-  tibble(Distribution = c("Normal", "Mixture Normal"), KS = c(ks_norm, ks_mnorm))
-})
-
-gof_plot <- ggplot(ks_results, aes(x = Distribution, y = KS, fill = Distribution)) + geom_boxplot() + theme_bw() + 
-  labs(y = "Kolmogrov D Statistic") + scale_fill_d3()
-
-
+# normal_data <- readRDS(file = "data/hmp_stool_16S.rds")
+# X <- otu_table(normal_data) %>% t()
+# A <- taxtab2A(tax_table(normal_data), "GENUS", full = FALSE)
+# scores <- cilr(X = X, A = A, resample = F)
+# 
+# distr_norm <- estimate_distr(scores[,1], distr = "norm", init = NULL)
+# distr_mnorm <- estimate_distr(scores[,1], distr = "mnorm", init = NULL)
+# 
+# norm <- rnorm(1e4, mean = distr_norm$mean, sd = distr_norm$sd)
+# mnorm <- mixtools::rnormmix(n = 1e4, lambda = distr_mnorm$lambda, sigma = distr_mnorm$sigma, mu = distr_mnorm$mu)
+# df <- bind_rows(tibble(Distribution = rep("Raw", nrow(scores)), value = scores[,1]), 
+#                 tibble(Distribution = rep("Normal", 1e4), value = norm), 
+#                 tibble(Distribution = rep("Mixture Normal", 1e4), value = mnorm))
+# distr_plot <- ggplot(df, aes(x = value, fill = Distribution, col = Distribution)) + geom_density(alpha = 0.3, size = 1.25) + 
+#   scale_fill_d3() + scale_color_d3() + labs(x = "Value", y = "Density") + theme_bw() 
+# 
+# test <- goftest::ad.test(x = scores[,1], null = "pnorm", estimated = T, distr_norm$mean, distr_norm$sd)
+# 
+# ks_results <- map_dfr(scores, ~{
+#   dist_norm <- estimate_distr(.x, distr = "norm", init = NULL)
+#   distr_mnorm <- estimate_distr(.x, distr = "mnorm", init = NULL)
+#   norm <- rnorm(1e5, mean = distr_norm$mean, sd = distr_norm$sd)
+#   mnorm <- mixtools::rnormmix(n = 1e5, lambda = distr_mnorm$lambda, sigma = distr_mnorm$sigma, mu = distr_mnorm$mu)
+#   ks_norm <- ks.test(.x, norm)$statistic
+#   ks_mnorm <- ks.test(.x, mnorm)$statistic
+#   tibble(Distribution = c("Normal", "Mixture Normal"), KS = c(ks_norm, ks_mnorm))
+# })
+# 
+# gof_plot <- ggplot(ks_results, aes(x = Distribution, y = KS, fill = Distribution)) + geom_boxplot() + theme_bw() + 
+#   labs(y = "Kolmogrov D Statistic") + scale_fill_d3()
 #combined_plt <- shpp_plot + (distr_plot/gof_plot) + plot_annotation(tag_levels = "A")
-combined_plt <- gof_plot_sim + shpp_plot + plot_annotation(tag_levels = "A") 
 
+combined_plt <- (gof_plot_sim + shpp_plot)/dens_plot + plot_annotation(tag_levels = "A") 
+
+combined_plt
 
 ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.png", dpi = 300, width = 8, height = 5)
 file.copy("figures/kurtosis_skewness_gof.png", 

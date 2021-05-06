@@ -115,7 +115,7 @@ full_data <- full_data %>% unite(model, c("model", "distr")) %>%
         model == "cilr_norm" ~ "cILR Normal", 
         model == "gsva_NA" ~ "GSVA", 
         model == "ssgsea_NA" ~ "ssGSEA",
-        model == "wilcox_NA" ~ "Wilcoxon U Statistic"
+        model == "wilcox_NA" ~ "Wilcoxon W Statistic"
     )) %>% 
     mutate(output = case_when(
         output == "cdf" ~ "CDF",
@@ -131,7 +131,7 @@ auc_data <- auc_data %>% unite(models, c("models", "distr")) %>%
         models == "cilr_norm" ~ "cILR Normal", 
         models == "gsva_NA" ~ "GSVA", 
         models == "ssgsea_NA" ~ "ssGSEA",
-        models == "wilcoxon_NA" ~ "Wilcoxon U Statistic"
+        models == "wilcoxon_NA" ~ "Wilcoxon W Statistic"
     )) %>% 
     mutate(output = case_when(
         output == "cdf" ~ "CDF",
