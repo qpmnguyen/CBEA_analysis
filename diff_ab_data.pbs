@@ -38,5 +38,5 @@ cd $PBS_O_WORKDIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate teailr
-Rscript run.R --ncores 15 --dir "analyses/data_diff_ab/" --remove FALSE
+Rscript run.R --ncores 15 --dir "analyses/data_diff_ab/" --remove FALSE --parallel TRUE
 
