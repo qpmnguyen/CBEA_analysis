@@ -6,6 +6,7 @@ library(phyloseq)
 library(DESeq2)
 library(corncob)
 library(glue)
+library(binom)
 
 source("../../R/utils.R")
 source("../../R/cilr.R")
@@ -168,9 +169,14 @@ model_interface <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
 
 #' @param nvec Named vector of 1 and 0s for "sig" output from diff_ab
 #' @return prop is the proportion to be zero 
-eval_function <- function(nvec){
+eval_function <- function(nvec, ci = FALSE){
     prop <- sum(nvec == 1)/length(nvec)
-    return(prop)
+    if (ci == TRUE){
+        conf <- binom.confint(prop, length(nvec), conf.level = 0.95, methods = "ac")
+        return(tibble(est = prop, upper = conf$upper, lower = conf$lower))
+    } else {
+        return(prop)
+    }
 }
 
 

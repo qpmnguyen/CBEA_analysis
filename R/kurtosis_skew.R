@@ -96,11 +96,12 @@ values <- values %>% mutate(raw = map(scores, ~.x[,1])) %>% unnest(c(norm, mnorm
   ))
 
 dens_plot <- ggplot(values, aes(x = val, fill = distr)) + 
-  geom_density(alpha = 0.4, aes(col = distr), show.legend = FALSE) + theme_bw() + 
+  geom_density(alpha = 0.4, aes(col = distr)) + theme_bw() + 
   scale_fill_d3() + 
   scale_color_d3() + 
   facet_grid(Correlation ~ Sparsity, scales = "free_y", labeller = label_both) + 
-  labs(x = "Values", y = "Density", fill = "Distribution") 
+  labs(x = "Values", y = "Density", fill = "Distribution", col = "Distribution") +
+  theme(legend.position = "bottom")
 
 # KS statistic 
 parameters <- parameters %>% unnest(param)
@@ -164,6 +165,7 @@ combined_plt <- (gof_plot_sim + shpp_plot)/dens_plot + plot_annotation(tag_level
 
 combined_plt
 
-ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.png", dpi = 300, width = 8, height = 5)
+ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.png", dpi = 300, 
+       width = 8, height = 8)
 file.copy("figures/kurtosis_skewness_gof.png", 
           "../teailr_manuscript/manuscript/figures/kurtosis_skewness_gof.png", overwrite = TRUE)

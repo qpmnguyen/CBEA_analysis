@@ -31,7 +31,13 @@ sim_grid <- cross_df(list(
 ))
 
 sim_grid$id <- seq(1, nrow(sim_grid))
+
 saveRDS(sim_grid, file = "output/sim_diff_ab_grid.rds")
+
+eval_grid_mini <- tar_target(sim_eval_grid, {
+  tibble(model = c( "cilr_welch", "deseq2", "corncob"), distr = c("norm", NA, NA), 
+         adj = c(TRUE, NA, NA))
+})
 
 eval_grid <- tar_target(sim_eval_grid, {
   eval_settings <- cross_df(list(
@@ -51,7 +57,7 @@ eval_grid <- tar_target(sim_eval_grid, {
 # define function that performs simulation across the defined grid  
 # define function that performs the differential abundance testing across simulation grid
 # define a function that performs evaluation across the differential abundance results  
-analysis <- tar_map(values = sim_grid, unlist = TRUE, names = c("id"), 
+analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"), 
         tar_target(simulation_dat, {
             zinb_simulation(n_samp = n_samp, spar = spar, s_rho = s_rho, eff_size = eff_size, 
                             n_inflate = n_inflate, n_sets = n_sets, prop_set_inflate = prop_set_inflate, 
@@ -74,7 +80,8 @@ analysis <- tar_map(values = sim_grid, unlist = TRUE, names = c("id"),
         })
 )
 
-combined <- tar_combine(combined_results, analysis[[4]])
+combined <- tar_combine(combined_results, analysis[[4]], 
+                        command = dplyr::bind_rows(!!!.x, .id = "id"))
 file <- tarchetypes::tar_rds(save_file, saveRDS(combined_results, file = "output/sim_diff_ab.rds"))
 
 list(eval_grid, analysis, combined, file)

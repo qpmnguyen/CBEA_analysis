@@ -98,7 +98,7 @@ pwr_analysis <- tar_target("pwr_analysis", {
     annotated_result <- inner_join(annotation, result_df, by = "Genera")
     eval <- eval_function(annotated_result$values)
     print("Finializing evaluation by binding evaluation with grid")
-    tibble(eval_grid, eval = eval)
+    tibble(eval_grid, eval)
 }, pattern = map(eval_grid))
 
 # saving files  
