@@ -35,7 +35,7 @@ auc_models <- tibble(
 
 # data enrichment 
 data_auc <- tar_rds(data_enrich, {
-    readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing()
+    readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing() -> data_enrich
 })
 
 # all cilr models under different evaluations  
@@ -61,7 +61,7 @@ fdr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
         X_boot <- X[idx,]
         label_boot <- data_enrich$label[idx]
         fdr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
-                                   distr = distr, adj = adj, output = "sig", metric = "fdr")
+                                   distr = distr, adj = adj, metric = "fdr")
         data.frame(est = fdr$est, upper = fdr$upper, lower = fdr$lower, models = models, distr = distr, adj = adj, output = "sig")
     })
 })
@@ -73,7 +73,7 @@ pwr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
         X_boot <- X[idx,]
         label_boot <- data_enrich$label[idx]
         pwr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
-                                   distr = distr, adj = adj, output = "sig", metric = "pwr")
+                                   distr = distr, adj = adj, metric = "pwr")
         data.frame(est = pwr$est, upper = pwr$upper, lower = pwr$lower, models = models, distr = distr, adj = adj, output = "sig")
     })
 })
@@ -96,7 +96,7 @@ pwr_other_job <- tar_target(pwr_models, {
     X_boot <- X[idx,]
     label_boot <- data_enrich$label[idx]
     pwr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = "wilcoxon", 
-                               label = label_boot, metric = "pwr")
+                               label = label_boot, metric = "pwr", output = "sig")
     data.frame(est = pwr$est, upper = pwr$upper, lower = pwr$lower, models = "wilcox")
 }, error = "workspace")
 
@@ -106,7 +106,7 @@ fdr_other_job <- tar_target(fdr_models, {
     X_boot <- X[idx,]
     label_boot <- data_enrich$label[idx]
     fdr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = "wilcoxon", 
-                               label = label_boot, metric = "fdr")
+                               label = label_boot, metric = "fdr", output = "sig")
     data.frame(est = fdr$est, upper = fdr$upper, lower = fdr$lower, models = "wilcox")
 }, error = "workspace")
 

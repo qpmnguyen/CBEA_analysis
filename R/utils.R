@@ -112,17 +112,20 @@ wc_test <- function(X, A, thresh, alt = "two.sided", preprocess = F,
   R <- matrix(nrow = nrow(X), ncol = ncol(A))
   for (i in seq(ncol(A))){
     R[,i] <- apply(X, 1, function(x){
-      test <- wilcox.test(x = x[which(A[,i] == 1)], y = x[which(A[,i] != 1)], alternative = alt, ...)
-      if (output == "scores"){
+      test <- wilcox.test(x = x[which(A[,i] == 1)], y = x[which(A[,i] != 1)], 
+                          alternative = alt, ...)
+      if (output == "sig"){
         return(test$p.value)
       } else {
         return(test$statistic %>% unname())
       }
     })
   }
-  R <- ifelse(R <= thresh, 1, 0)
   rownames(R) <- rownames(X)
   colnames(R) <- colnames(A)
+  if (output == "sig"){
+    R <- ifelse(R <= thresh,1,0)
+  } 
   return(R)
 }
 
