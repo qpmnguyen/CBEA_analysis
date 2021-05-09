@@ -35,7 +35,7 @@ auc_models <- tibble(
 
 # data enrichment 
 data_auc <- tar_rds(data_enrich, {
-    readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing() -> data_enrich
+    readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing() 
 })
 
 # all cilr models under different evaluations  

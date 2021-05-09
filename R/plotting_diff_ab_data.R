@@ -1,8 +1,6 @@
 library(tidyverse)
 library(ggsci)
 
-pwr <- readRDS(file = "analyses/data_diff_ab/output/gingival_16S_pwr.rds")
-
 fdr_plot <- function(dir){
     data <- readRDS(file = dir)
     data <- data %>% 
@@ -40,6 +38,7 @@ fdr_files <- list("analyses/data_diff_ab/output/stool_16S_fdr.rds",
                   "analyses/data_diff_ab/output/stool_wgs_fdr.rds")
 
 fdr_plots <- map(fdr_files, fdr_plot)
+pwr <- readRDS(file = "analyses/data_diff_ab/output/gingival_16S_pwr.rds")
 
 pwr <- pwr %>% mutate(adj = replace_na(adj, "Not Applicable"), 
                       output = case_when(
