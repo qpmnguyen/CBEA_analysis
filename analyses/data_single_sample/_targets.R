@@ -35,7 +35,7 @@ auc_models <- tibble(
 
 # data enrichment 
 data_auc <- tar_rds(data_enrich, {
-    readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing() 
+    readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing() -> data_enrich
 })
 
 # all cilr models under different evaluations  
@@ -57,11 +57,13 @@ auc_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings, {
 fdr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
     tar_target(fdr_cilr, {
         X <- data_enrich$X
+        # shuffling
         idx <- sample(1:nrow(X), size = nrow(X), replace = F)
         X_boot <- X[idx,]
         label_boot <- data_enrich$label[idx]
+        # evaluate fdr
         fdr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
-                                   distr = distr, adj = adj, metric = "fdr")
+                                   distr = distr, adj = adj, metric = "fdr", output = "sig")
         data.frame(est = fdr$est, upper = fdr$upper, lower = fdr$lower, models = models, distr = distr, adj = adj, output = "sig")
     })
 })
@@ -73,7 +75,7 @@ pwr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
         X_boot <- X[idx,]
         label_boot <- data_enrich$label[idx]
         pwr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
-                                   distr = distr, adj = adj, metric = "pwr")
+                                   distr = distr, adj = adj, metric = "pwr", output = "sig")
         data.frame(est = pwr$est, upper = pwr$upper, lower = pwr$lower, models = models, distr = distr, adj = adj, output = "sig")
     })
 })

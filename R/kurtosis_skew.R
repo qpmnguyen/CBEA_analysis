@@ -123,7 +123,7 @@ gof_plot_sim <- ggplot(parameters %>% rename("Correlation" = "s_rho"),
   geom_point(size = 2) + geom_line() + 
   facet_wrap(~Correlation, labeller = label_both) + 
   theme_bw() + scale_color_d3() + 
-  labs(y = "Kolmogrov D Statistic", x = "Sparsity") + scale_fill_d3() + 
+  labs(y = "Kolmogorov-Smirnov D Statistic", x = "Sparsity") + scale_fill_d3() + 
   theme(legend.position = "bottom", legend.margin = margin())
 
 
