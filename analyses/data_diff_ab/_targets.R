@@ -4,6 +4,7 @@ library(tidyverse)
 library(phyloseq)
 library(stringr)
 library(future)
+
 plan(multisession)
 source("functions/diff_ab_functions.R")
 set.seed(1020)
@@ -43,7 +44,7 @@ eval_grid <- tar_target(eval_grid,{
 # Since tar_rep does not support pattern = map(target_names), having to perform a loop within each data set
 # Which actually doesn't take that much time 
 fdr_analysis <- tar_map(unlist = FALSE, values = fdr_files, names = "dset",
-    tar_rep("fdr_rep", {
+    tar_rep(fdr_rep, {
         print(eval_grid)
         data <- readRDS(path)
         group <- rbinom(n = nsamples(data), size = 1, prob = 0.5)
@@ -60,13 +61,13 @@ fdr_analysis <- tar_map(unlist = FALSE, values = fdr_files, names = "dset",
         }
         eval_grid %>% mutate(eval = eval)
     }, batches = 50, reps = 10),
-    tar_rds("save_file", {
+    tar_rds(save_file_fdr, {
         saveRDS(fdr_rep, file = glue("output/{dset}_fdr.rds", dset = dset))
     })
 )
 
 # Power analysis maps across eval_grid but there is only one data set and no repetition is required 
-pwr_analysis <- tar_target("pwr_analysis", {
+pwr_analysis <- tar_target(pwr, {
     # load_files 
     print("Load files")
     data <- readRDS(pwr_files$path)
@@ -102,7 +103,7 @@ pwr_analysis <- tar_target("pwr_analysis", {
 }, pattern = map(eval_grid))
 
 # saving files  
-pwr_save_file <- tar_rds("pwr_save_file", 
-                         saveRDS(pwr_analysis, file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
+pwr_save_file <- tar_rds(pwr_save_file, 
+                         saveRDS(pwr, file = glue("output/{dset}_pwr.rds", dset = pwr_files$dset)))
 
 list(eval_grid, fdr_analysis, pwr_analysis, pwr_save_file)
