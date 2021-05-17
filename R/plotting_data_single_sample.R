@@ -22,22 +22,6 @@ load_and_process <- function(type = c("fdr", "pwr")){
         mutate(adj = replace_na(adj, "Not applicable")) %>% 
         rename("Correlation" = "s_rho", "Effect Size" = "eff_size", "Set Size" = "n_inflate")
     
-    if (type == "pwr"){
-        full_data <- full_data %>% mutate(est = case_when(
-            adj == "FALSE" ~ NA_real_,
-            model == "Wilcoxon Rank Sum" ~ NA_real_,
-            TRUE ~ est
-        ), upper = case_when(
-            adj == "FALSE" ~ NA_real_,
-            model == "Wilcoxon Rank Sum" ~ NA_real_,
-            TRUE ~ upper
-        ), lower = case_when(
-            adj == "FALSE" ~ NA_real_,
-            model == "Wilcoxon Rank Sum" ~ NA_real_,
-            TRUE ~ lower
-        ))
-    }
-    
     real_data <- real_data %>% unite(models, c("models", "distr")) %>% 
         mutate(model = case_when(
             models == "cilr_mnorm" ~ "cILR Mixture Normal",
@@ -157,7 +141,8 @@ data_plot <- ggplot(auc_data, aes(x = model, y = est, col = model, linetype = ad
          shape = "Output type", linetype = "Correlation adjusted") +
     scale_color_d3() +
     guides(linetype = guide_legend(override.aes = list(shape = NA))) + theme_bw() + 
-    coord_flip()
+    coord_flip() + 
+    ylim(c(0.6,0.8))
 
 layout <- "
 AAB

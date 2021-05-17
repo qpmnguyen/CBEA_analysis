@@ -43,3 +43,15 @@ pwr_cilr_cilr_norm_TRUE|stem|pwr_cilr_cilr_norm_TRUE|0|started
 pwr_cilr_cilr_norm_TRUE|stem|pwr_cilr_cilr_norm_TRUE|0|built
 pwr_models|stem|pwr_models|0|started
 pwr_models|stem|pwr_models|0|built
+auc|stem|auc|0|started
+auc|stem|auc|0|built
+fdr|stem|fdr|0|started
+fdr|stem|fdr|0|built
+pwr|stem|pwr|0|started
+pwr|stem|pwr|0|built
+auc_save|stem|auc_save|0|started
+auc_save|stem|auc_save|0|built
+fdr_save|stem|fdr_save|0|started
+fdr_save|stem|fdr_save|0|built
+pwr_save|stem|pwr_save|0|started
+pwr_save|stem|pwr_save|0|built
