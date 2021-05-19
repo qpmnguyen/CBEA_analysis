@@ -20,3 +20,4 @@ R/test.R
 external/
 .drake/
 simulation/
+diagnostic_dsets/

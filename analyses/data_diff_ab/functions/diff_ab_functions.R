@@ -172,8 +172,8 @@ model_interface <- function(physeq, method = c("cilr_welch", "cilr_wilcox",
 eval_function <- function(nvec, ci = FALSE){
     prop <- sum(nvec == 1)/length(nvec)
     if (ci == TRUE){
-        conf <- binom.confint(prop, length(nvec), conf.level = 0.95, methods = "ac")
-        return(tibble(est = prop, upper = conf$upper, lower = conf$lower))
+        conf <- binom.confint(sum(nvec == 1), length(nvec), conf.level = 0.95, methods = "ac")
+        return(tibble(est = conf$mean, upper = conf$upper, lower = conf$lower))
     } else {
         return(prop)
     }

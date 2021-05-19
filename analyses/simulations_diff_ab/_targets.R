@@ -72,10 +72,10 @@ analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"),
             diff_ab(transform_dat, method = sim_eval_grid$model, 
                     agg_level = "GENUS", data_type = "16S", prune = FALSE, 
                     adj = sim_eval_grid$adj, distr = sim_eval_grid$distr, 
-                    output = sim_eval_grid$output)
+                    output = sim_eval_grid$output, return = "sig")
         }, pattern = map(sim_eval_grid)),
         tar_target(evaluation_res,{
-            res <- eval_function(analysis_res)
+            res <- eval_function(analysis_res, ci = FALSE)
             dplyr::bind_cols(id = id, sim_eval_grid, est = res)
         })
 )
