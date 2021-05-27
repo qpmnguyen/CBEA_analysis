@@ -57,7 +57,7 @@ fdr_analysis <- tar_map(unlist = FALSE, values = fdr_files, names = "dset",
                               return = "sig",
                               output = eval_grid$output[i],
                               distr = eval_grid$distr[i], adj = eval_grid$adj[i])
-            eval[i] <- eval_function(result)
+            eval[i] <- eval_function(result, ci = FALSE)
         }
         eval_grid %>% mutate(eval = eval)
     }, batches = 50, reps = 10),
@@ -97,7 +97,7 @@ pwr_analysis <- tar_target(pwr, {
     print(length(result))
     result_df <- tibble(Genera = names(result), values = unname(result))
     annotated_result <- inner_join(annotation, result_df, by = "Genera")
-    eval <- eval_function(annotated_result$values)
+    eval <- eval_function(annotated_result$values, ci = TRUE)
     print("Finializing evaluation by binding evaluation with grid")
     tibble(eval_grid, eval)
 }, pattern = map(eval_grid))

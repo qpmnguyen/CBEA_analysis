@@ -46,7 +46,9 @@ pwr <- pwr %>% mutate(adj = replace_na(adj, "Not Applicable"),
                           output == "zscore" ~ "z-score", 
                           TRUE ~ "Not Applicable"
                       ))
-
-
+# simulations  
+results <- readRDS(file = "analyses/simulations_diff_ab/output/sim_diff_ab.rds")
+grid 
+View(test)
 
 
