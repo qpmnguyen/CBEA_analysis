@@ -48,7 +48,12 @@ pwr <- pwr %>% mutate(adj = replace_na(adj, "Not Applicable"),
                       ))
 # simulations  
 results <- readRDS(file = "analyses/simulations_diff_ab/output/sim_diff_ab.rds")
-grid 
-View(test)
+grid <- readRDS(file = "analyses/simulations_diff_ab/output/sim_diff_ab_grid.rds")
 
+results <- results %>% rowwise() %>% mutate(id = as.numeric(tail(strsplit(id, "_")[[1]],1)))
 
+combined <- left_join(results,grid)
+
+combined %>% group_by(model, distr, adj, output, spar, s_rho, eff_size) %>% 
+    summarise(est = mean(est), upper = mean(est) + sd(est), lower = mean(est) - sd(est)) %>% 
+    ggplot(aes(x = spar, y = est, col = model)) + geom_line() + facet_grid(eff_size~s_rho)
