@@ -4,7 +4,6 @@
 
 #PBS -N DIFF_AB_SIMULATION
 
-
 # request the queue (enter the possible names, if omitted, default is the default)
 # if more then 600 jobs use the largeq 
 
@@ -18,7 +17,7 @@
 
 # request 99 hours of wall time
 
-#PBS -l walltime=50:00:00
+#PBS -l walltime=60:00:00
 
 # mail is sent to you when the job begins and when it exits or aborts
 # you can use all or some or none. If you don't want email leave this
@@ -38,4 +37,5 @@ cd $PBS_O_WORKDIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate teailr
-Rscript run.R --ncores 20 --dir "analyses/simulations_diff_ab/" --remove FALSE --parallel TRUE
+Rscript run.R --ncores 19 --dir "analyses/simulations_diff_ab/" --remove FALSE --parallel TRUE
+
