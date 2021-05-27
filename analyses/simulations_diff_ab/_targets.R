@@ -32,24 +32,17 @@ sim_grid <- cross_df(list(
 
 sim_grid$id <- seq(1, nrow(sim_grid))
 
+# testing sim_grid 
+# sim_grid <- sim_grid[1,]
+
 saveRDS(sim_grid, file = "output/sim_diff_ab_grid.rds")
 
-eval_grid_mini <- tar_target(sim_eval_grid, {
-  tibble(model = c( "cilr_welch", "deseq2", "corncob"), distr = c("norm", NA, NA), 
-         adj = c(TRUE, NA, NA))
-})
+# eval_grid_mini <- tar_target(sim_eval_grid, {
+#   tibble(model = c( "cilr_welch", "deseq2", "corncob"), distr = c("norm", NA, NA), 
+#          adj = c(TRUE, NA, NA))
+# })
 
-eval_grid <- tar_target(sim_eval_grid, {
-  eval_settings <- cross_df(list(
-    model = c("cilr_wilcox", "cilr_welch"),
-    distr = c("mnorm", "norm"),
-    adj = c(TRUE, FALSE),
-    output = c("zscore", "cdf")
-  ))
-  other <- tibble(model = c("deseq2", "corncob"))
-  eval_settings <- dplyr::bind_rows(other, eval_settings)
-  eval_settings
-})
+
 
 
 
@@ -67,21 +60,33 @@ analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"),
         tar_target(transform_dat, {
             sim2phylo(simulation_dat)
         }),
+        tar_target(eval_grid, {
+          eval_settings <- cross_df(list(
+            model = c("cilr_wilcox", "cilr_welch"),
+            distr = c("mnorm", "norm"),
+            adj = c(TRUE, FALSE),
+            output = c("zscore", "cdf")
+          ))
+          other <- tibble(model = c("deseq2", "corncob"))
+          eval_settings <- dplyr::bind_rows(other, eval_settings)
+          eval_settings
+        }),
         tar_target(analysis_res,{
-            print(sim_eval_grid)
-            diff_ab(transform_dat, method = sim_eval_grid$model, 
+            print(eval_grid)
+            diff_ab(transform_dat, method = eval_grid$model, 
                     agg_level = "GENUS", data_type = "16S", prune = FALSE, 
-                    adj = sim_eval_grid$adj, distr = sim_eval_grid$distr, 
-                    output = sim_eval_grid$output, return = "sig")
-        }, pattern = map(sim_eval_grid)),
+                    adj = eval_grid$adj, distr = eval_grid$distr, 
+                    output = eval_grid$output, return = "sig")
+        }, pattern = map(eval_grid)),
         tar_target(evaluation_res,{
             res <- eval_function(analysis_res, ci = FALSE)
-            dplyr::bind_cols(id = id, sim_eval_grid, est = res)
-        })
+            tibble(id = id, res = res, eval_grid)
+        }, pattern = map(analysis_res, eval_grid))
 )
 
-combined <- tar_combine(combined_results, analysis[[4]], 
+combined <- tar_combine(combined_results, analysis[[5]], 
                         command = dplyr::bind_rows(!!!.x, .id = "id"))
+
 file <- tarchetypes::tar_rds(save_file, saveRDS(combined_results, file = "output/sim_diff_ab.rds"))
 
-list(eval_grid, analysis, combined, file)
+list(analysis, combined, file)
