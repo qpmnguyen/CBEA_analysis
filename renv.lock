@@ -203,13 +203,6 @@
       "Repository": "CRAN",
       "Hash": "b203113193e70978a696b2809525649d"
     },
-    "RApiSerialize": {
-      "Package": "RApiSerialize",
-      "Version": "0.1.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "c5a68b4db79cfe8502878b3ed2b59853"
-    },
     "RColorBrewer": {
       "Package": "RColorBrewer",
       "Version": "1.1-2",
@@ -272,13 +265,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "2df4a9889f104a56c4e4cf1e0b12f480"
-    },
-    "RcppParallel": {
-      "Package": "RcppParallel",
-      "Version": "5.0.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "551d50addb18c7b99637aa377a25afc8"
     },
     "RcppZiggurat": {
       "Package": "RcppZiggurat",
@@ -408,6 +394,13 @@
       "Repository": "CRAN",
       "Hash": "193ab1e887e1b532442087538f79df86"
     },
+    "bench": {
+      "Package": "bench",
+      "Version": "1.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ada12891b62d0de111660ff350e7888f"
+    },
     "binom": {
       "Package": "binom",
       "Version": "1.1-1",
@@ -479,10 +472,10 @@
     },
     "class": {
       "Package": "class",
-      "Version": "7.3-18",
+      "Version": "7.3-19",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "15ef288688a6919417ade6251deea2b3"
+      "Hash": "1593b7beb067c8381c0d24e38bd778e0"
     },
     "cli": {
       "Package": "cli",
@@ -634,12 +627,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "d0509913b27ea898189ee664b6030dc2"
-    },
-    "edgeR": {
-      "Package": "edgeR",
-      "Version": "3.32.0",
-      "Source": "Bioconductor",
-      "Hash": "0919e3fe2510bb119ab37ca33bdfc2d1"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -1015,12 +1002,6 @@
       "Repository": "CRAN",
       "Hash": "361811f31f71f8a617a9a68bf63f1f42"
     },
-    "limma": {
-      "Package": "limma",
-      "Version": "3.46.0",
-      "Source": "Bioconductor",
-      "Hash": "78b860aa595c42e02464243a213b3e6d"
-    },
     "listenv": {
       "Package": "listenv",
       "Version": "0.8.0",
@@ -1134,10 +1115,10 @@
     },
     "nnet": {
       "Package": "nnet",
-      "Version": "7.3-15",
+      "Version": "7.3-16",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "b67ac021b3fb3a4b69d0d3c2bc049e9f"
+      "Hash": "3a3dc184000bc9e6c145c4dbde4dd702"
     },
     "numDeriv": {
       "Package": "numDeriv",
@@ -1299,6 +1280,20 @@
       "Repository": "CRAN",
       "Hash": "c243bf70db3a6631a0c8783152fb7db9"
     },
+    "profmem": {
+      "Package": "profmem",
+      "Version": "0.6.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "4974ce1d5ab22f266af90826f295f6c7"
+    },
+    "profvis": {
+      "Package": "profvis",
+      "Version": "0.3.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e9d21e79848e02e524bea6f5bd53e7e4"
+    },
     "progress": {
       "Package": "progress",
       "Version": "1.2.2",
@@ -1326,13 +1321,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "97def703420c8ab10d8f0e6c72101e02"
-    },
-    "qs": {
-      "Package": "qs",
-      "Version": "0.23.5",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "f1b1a696d95b1fab9103e8133b877920"
     },
     "rappdirs": {
       "Package": "rappdirs",
@@ -1555,13 +1543,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "e0485290545c0e768c2b50390114da1f"
-    },
-    "stringfish": {
-      "Package": "stringfish",
-      "Version": "0.14.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "068640b1efcfae4c7e2f5556149624eb"
     },
     "stringi": {
       "Package": "stringi",
