@@ -14,6 +14,13 @@ source("R/utils.R")
 
 set.seed(1020)
 
+if(Sys.info()["sysname"] == "Darwin"){
+  save_dir <- "../cilr_manuscript/figures"
+} else {
+  save_dir <- "../teailr_manuscript/manuscript/figures"
+}
+
+
 parameters <- create_parameters(list(
   rep = 1, 
   spar = c(0.2, 0.6, 0.8),
@@ -161,11 +168,15 @@ gof_plot_sim <- ggplot(parameters %>% rename("Correlation" = "s_rho"),
 #   labs(y = "Kolmogrov D Statistic") + scale_fill_d3()
 #combined_plt <- shpp_plot + (distr_plot/gof_plot) + plot_annotation(tag_levels = "A")
 
-combined_plt <- (gof_plot_sim + shpp_plot)/dens_plot + plot_annotation(tag_levels = "A") 
+combined_plt <- (shpp_plot + gof_plot_sim)/dens_plot + plot_annotation(tag_levels = "A") 
 
 combined_plt
 
 ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.png", dpi = 300, 
        width = 8, height = 8)
-file.copy("figures/kurtosis_skewness_gof.png", 
-          "../teailr_manuscript/manuscript/figures/kurtosis_skewness_gof.png", overwrite = TRUE)
+ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.eps", dpi = 300, width = 8, height = 8)
+
+file.copy(from = Sys.glob("figures/*.png"), to = glue("{save_dir}", dir = save_dir), 
+          recursive = TRUE, overwrite = TRUE)
+file.copy(from = Sys.glob("figures/*.eps"), to = glue("{save_dir}", dir = save_dir), 
+          recursive = TRUE, overwrite = TRUE)
