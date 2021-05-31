@@ -1,6 +1,15 @@
 library(ggsci)
 library(patchwork)
 library(tidyverse)
+library(glue)
+if(Sys.info()["sysname"] == "Darwin"){
+    save_dir <- "../cilr_manuscript/figures"
+} else {
+    save_dir <- "../teailr_manuscript/manuscript/figures"
+}
+
+
+
 
 # define some functions ####
 plot_func <- function(metrics, sat_value, df_main){
@@ -32,7 +41,7 @@ plot_func <- function(metrics, sat_value, df_main){
     
     plt <- plt + labs(x = "Signal-to-noise ratio", y = ylab, 
                       col = "Models", linetype = "Output type", shape = "Correlation adjustment",
-                      title = title)
+                      subtitle = title)
     return(plt)
 }
 
@@ -79,14 +88,14 @@ classif_auc <- roc$plot[[1]] / roc$plot[[2]] + plot_layout(guides = "collect") +
     theme(plot.title = element_text(face  = "bold")) & ylim(c(0.7,1))
 ggsave(classif_auc, filename = "figures/sim_pred_auc.png", dpi = 300, width = 8, height = 9)
 file.copy(from = "figures/sim_pred_auc.png",
-          to = "../teailr_manuscript/manuscript/figures/sim_pred_auc.png", overwrite = TRUE)
+          to = glue("{save_dir}/sim_pred_auc.png", save_dir = save_dir), overwrite = TRUE)
 
 acc <- classif_names %>% filter(metrics == "accuracy")
 classif_acc <- acc$plot[[1]] / acc$plot[[2]] + plot_layout(guides = "collect") + plot_annotation(tag_levels = "A") &
     theme(plot.title = element_text(face  = "bold")) & ylim(c(0.6,1))
 ggsave(classif_auc, filename = "figures/sim_pred_acc.png", dpi = 300, width = 8, height = 9)
 file.copy(from = "figures/sim_pred_acc.png",
-          to = "../teailr_manuscript/manuscript/figures/sim_pred_acc.png", overwrite = TRUE)
+          to = glue("{save_dir}/sim_pred_acc.png", save_dir = save_dir), overwrite = TRUE)
 
 # Regr ####
 regr_grid <- readRDS(file = "analyses/simulations_prediction_regr/output/simulation_grid_regr.rds")
@@ -105,7 +114,7 @@ regr_rmse <- rmse$plot[[1]] / rmse$plot[[2]] + plot_layout(guides = "collect") +
     theme(plot.title = element_text(face  = "bold"))
 ggsave(regr_rmse, filename = "figures/sim_pred_rmse.png", dpi = 300, width = 8, height = 9)
 file.copy(from = "figures/sim_pred_rmse.png",
-          to = "../teailr_manuscript/manuscript/figures/sim_pred_rmse.png", overwrite = TRUE)
+          to = glue("{save_dir}/sim_pred_rmse.png", save_dir = save_dir), overwrite = TRUE)
 
 
 rsq <- regr_names %>% filter(metrics == "rsq")
@@ -114,7 +123,28 @@ regr_rsq <- rsq$plot[[1]] / rsq$plot[[2]] + plot_layout(guides = "collect") + pl
 
 ggsave(regr_rsq, filename = "figures/sim_pred_rsq.png", dpi = 300, width = 8, height = 9)
 file.copy(from = "figures/sim_pred_rsq.png",
-          to = "../teailr_manuscript/manuscript/figures/sim_pred_rsq.png", overwrite = TRUE)
+          to = glue("{save_dir}/sim_pred_rsq.png", save_dir = save_dir), overwrite = TRUE)
+
+
+regr_rsq_plt <- rsq$plot[[1]] + (rsq$plot[[2]] & theme(axis.title.y = element_blank()))
+
+classif_auc_plt <- roc$plot[[1]] + (roc$plot[[2]] & theme(axis.title.y = element_blank()))  
+
+combined_sim <- regr_rsq_plt / classif_auc_plt + plot_layout(guides = "collect") + 
+    plot_annotation(tag_levels = list(c("A. Regression", "", "B. Classification", ""))) &
+    theme(plot.tag = element_text(face = "bold", size = 16, hjust = 0), plot.tag.position = c(0,1.05),
+          legend.position = "right", plot.margin = margin(t = 15, b = 15, l = 10))
+
+ggsave(combined_sim, filename = "figures/sim_pred_combined.png", dpi = 300, width = 12, height = 10)
+ggsave(combined_sim, filename = "figures/sim_pred_combined.eps", dpi = 300, width = 12, height = 10)
+file.copy(from = "figures/sim_pred_combined.png", 
+          to = glue("{save_dir}/sim_pred_combined.png", save_dir = save_dir), overwrite = TRUE)
+
+file.copy(from = Sys.glob("figures/*.eps"), 
+          to = glue("{save_dir}", save_dir = save_dir), recursive = TRUE, overwrite = TRUE)
+
+
+
 
 
 
