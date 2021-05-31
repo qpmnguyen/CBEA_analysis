@@ -4,6 +4,7 @@ library(tidyverse)
 library(future)
 library(glue)
 library(MASS)
+# library(future.callr)
 
 source("../data_diff_ab/functions/diff_ab_functions.R")
 source("../../R/simulations.R")
@@ -11,7 +12,7 @@ tar_option_set(error = "workspace", memory = "transient", garbage_collection = T
 set.seed(1020)
 
 plan(multisession)
-
+# plan(callr)
 # first, define simulation grid 
 sim_grid <- cross_df(list(
     rep = seq(1,10),
