@@ -1,0 +1,37 @@
+#!/bin/bash -l
+
+<%
+# relative paths are not handled well by Slurm
+log.file = fs::path_expand(log.file)
+-%>
+
+
+# Define names and job files 
+#SBATCH --job-name=<%= job.name %>
+#SBATCH --output=<%= log.file %>
+#SBATCH --error=<%= log.file %>
+
+# Define time and resources 
+#SBATCH --time=<%= sprintf(paste0(resources$walltime,":00:00")) %>
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=<%= resources$cores %>
+#SBATCH --mem-per-cpu=<%= resources$memory %>
+#SBATCH --partition=standard
+
+# Array options look at the slurm_simple.tmpl file on the batchtools website
+
+#SBATCH --mail-user=Quang.P.Nguyen.GR@dartmouth.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+
+# By default, SLURM scripts execute in your home directory, not the
+# directory from which they were submitted.
+
+cd $SLURM_SUBMIT_DIR
+
+## Export value of DEBUGME environemnt var to slave
+export DEBUGME=<%= Sys.getenv("DEBUGME") %>
+
+## Run R:
+## we merge R output with stdout from SLURM, which gets then logged via --output option
+Rscript -e 'batchtools::doJobCollection("<%= uri %>")'

@@ -1,0 +1,20 @@
+#!/bin/bash -l
+# Define names and job files
+#SBATCH --job-name=eval_grid_84
+#SBATCH --output=/dartfs-hpc/rc/home/k/f00345k/research/teailr/teailr/analyses/simulations_diff_ab/.future/20210611_183856-0ulnGG/eval_grid_84_2122248529/logs/job68e7d06aee7be6b1cd2065d4d1d9ac0e.log
+#SBATCH --error=/dartfs-hpc/rc/home/k/f00345k/research/teailr/teailr/analyses/simulations_diff_ab/.future/20210611_183856-0ulnGG/eval_grid_84_2122248529/logs/job68e7d06aee7be6b1cd2065d4d1d9ac0e.log
+# Define time and resources
+#SBATCH --time=20:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=5
+#SBATCH --mem-per-cpu=4000
+#SBATCH --partition=standard
+# Array options look at the slurm_simple.tmpl file on the batchtools website
+#SBATCH --mail-user=Quang.P.Nguyen.GR@dartmouth.edu
+#SBATCH --mail-type=BEGIN,END,FAIL
+# By default, SLURM scripts execute in your home directory, not the
+# directory from which they were submitted.
+cd $SLURM_SUBMIT_DIR
+export DEBUGME=
+Rscript -e 'batchtools::doJobCollection("/dartfs-hpc/rc/home/k/f00345k/research/teailr/teailr/analyses/simulations_diff_ab/.future/20210611_183856-0ulnGG/eval_grid_84_2122248529/jobs/job68e7d06aee7be6b1cd2065d4d1d9ac0e.rds")'
