@@ -298,7 +298,7 @@ get_fit <- function(data, adj, distr=c("norm", "mnorm"), init=NULL, ...){
       k <- 5
     }
   } else {
-    f <- paste0("d",distr)
+    f <- paste0("d", distr)
     dist_name <- paste0("p", distr)
     final_distr <- perm_dist
     if (distr == "norm"){

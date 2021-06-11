@@ -1586,15 +1586,15 @@
     },
     "targets": {
       "Package": "targets",
-      "Version": "0.4.2.9000",
+      "Version": "0.5.0.9000",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteUsername": "wlandau",
       "RemoteRepo": "targets",
       "RemoteRef": "main",
-      "RemoteSha": "1f8cfb5458119e1c45bbfa99df4262f1c1a52765",
+      "RemoteSha": "aba62c794764357db61ad7fabb4721854fbc67ad",
       "RemoteHost": "api.github.com",
-      "Hash": "1a5dd0e18422b66ec5d272e9998826f8"
+      "Hash": "39ce723a3074fda6041305cc67ec2f69"
     },
     "tensorA": {
       "Package": "tensorA",

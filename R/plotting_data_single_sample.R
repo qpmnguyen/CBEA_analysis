@@ -83,7 +83,7 @@ comb_plot <- fdr$sim_plot + pwr$sim_plot + fdr$data_plot + pwr$data_plot +
     plot_layout(guides = "collect", design = layout, widths = c(2,1)) + 
     plot_annotation(tag_levels = "A") &
     theme(legend.position = "bottom", legend.box = "vertical", legend.margin = margin())
-
+saveRDS(comb_plot, file = "figures/sim_data_ss_hypo.rds")
 ggsave(comb_plot, filename = "figures/sim_data_ss_hypo.png", dpi = 300, width = 10, height = 9)
 file.copy("figures/sim_data_ss_hypo.png", "../teailr_manuscript/manuscript/figures/sim_data_ss_hypo.png", 
           overwrite = TRUE)
@@ -152,7 +152,7 @@ AAB
 comb_plot <- sim_plot + data_plot + plot_layout(guides = "collect", design = layout) + 
     plot_annotation(tag_levels = "A") &
     theme(legend.position = "bottom", legend.box = "vertical", legend.margin = margin())
-comb_plot
+saveRDS(comb_plot, file = "figures/sim_data_ss_auc.rds")
 ggsave(comb_plot, filename = "figures/sim_data_ss_auc.png", dpi = 800, width = 10, height = 6)
 file.copy("figures/sim_data_ss_auc.png", "../teailr_manuscript/manuscript/figures/sim_data_ss_auc.png", 
           overwrite = TRUE)

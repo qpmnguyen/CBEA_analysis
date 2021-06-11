@@ -4,14 +4,17 @@ library(tidyverse)
 library(future)
 library(glue)
 library(MASS)
+library(future.callr)
+library(future.batchtools)
 
 source("../data_diff_ab/functions/diff_ab_functions.R")
 source("../../R/simulations.R")
-tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE)
+tar_option_set(error = "workspace", memory = "transient", garbage_collection = TRUE, 
+               resources = tar_resources_future(resources = list(walltime = 20, cores = 5, memory=4000)))
 set.seed(1020)
 
-plan(multisession)
-
+# plan(multisession)
+plan(batchtools_slurm, template = "batchtools.slurm.tmpl")
 # first, define simulation grid 
 sim_grid <- cross_df(list(
     rep = seq(1,10),

@@ -17,7 +17,9 @@ option_list <- list(
     make_option(c("-r", "--remove"), type = "logical", default=TRUE,
                 help = "Restart pipeline from scratch"),
     make_option(c("-p", "--parallel"), type = "logical", default=TRUE,
-    	        help = "Running job in parallel")
+    	        help = "Running job in parallel"),
+    make_option(c("-c", "--cluster"), type = "logical", default = FALSE, 
+                help = "Running job in parallel but using job submission")
 )
 
 opt <- parse_args(OptionParser(option_list=option_list))
