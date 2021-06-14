@@ -8,7 +8,6 @@
 #SBATCH --nodes=5
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=20
-#SBATCH --hostlist=k[40-58]
 
 # Requesting 4000 MB of RAM
 #SBATCH --mem-per-cpu=4000
@@ -22,7 +21,7 @@
 # specify your email address and when things are emailed
 
 #SBATCH --mail-user=Quang.P.Nguyen.GR@dartmouth.edu
-#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-type=END,FAIL
 
 # By default, SLURM scripts execute in your home directory, not the
 # directory from which they were submitted.
