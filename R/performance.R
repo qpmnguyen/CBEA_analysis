@@ -1,48 +1,42 @@
+library(teaR)
 library(tidyverse)
+library(phyloseq)
 library(bench)
-library(profvis)
-library(furrr)
-source("R/cilr.R")
 source("R/utils.R")
 source("R/simulations.R")
 
-set.seed(1020)
+grid <- tibble(
+    n_samp = c(1000, 2000, 3000, 1000, 1000, 1000),
+    n_tax = c(500, 500, 500, 500, 2500, 5000),
+    eval = c("samp", "samp", "samp", "tax", "tax", "tax")
+)
 
-parameters <- create_parameters(list(
-    n_samp = c(1e2,1e3,1e4), 
-    n_tax = c(1000, 2000, 3000)
-))
+A2list <- function(A){
+    sets <- colnames(A)
+    set_list <- map(sets, ~{
+        rownames(A)[which(A[,.x] == 1)] %>% as.vector()
+    })
+    names(set_list) <- sets
+    return(set_list)
+}
 
-# Generating data 
-parameters$data <- map(parameters$param, .f = ~{
-    zinb_simulation(n_samp = .x$n_samp, spar = 0.1, s_rho = 0.1, b_rho = 0, eff_size = 1, 
-                    vary_params = FALSE, n_tax = .x$n_tax, 
-                    n_inflate = 100, n_sets = .x$n_tax/100, samp_prop = 1, method = "normal")
-})
+add_pseudocount <- function(data){
+    data$X <- data$X + 1 
+    return(data)
+}
 
-parameters <- crossing(parameters, distr = c("norm", "mnorm"))
+grid <- grid %>% rowwise() %>% 
+    mutate(data = list(zinb_simulation(n_samp = n_samp, n_tax = n_tax, n_sets = n_tax/50, 
+                                  spar = 0.3, s_rho = 0.2, eff_size = 3, b_rho = 0)))
+grid <- crossing(grid, distr = c("norm", "mnorm"), adj = c(T,F)) 
 
-saveRDS(parameters, file = "data/perf_simulated_dsets.rds")
+grid <- grid %>% mutate(data = map(data, add_pseudocount))
 
-parameters$scores <- map2(parameters$data, parameters$distr, .f = ~{
-    bench::mark(cilr(X = .x$X, A = .x$A, distr = .y, output = "cdf", 
-         resample = T, pcount = 1, transform = "prop", preprocess = T, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5 ))
-})
+grid <- grid %>% rowwise() %>% 
+    mutate(eval = list(mark(cilr(ab_tab = data$X, set_list = A2list(data$A), distr = distr, 
+                                       adj = adj)))) 
+    
+saveRDS(file = "data/performance_grid.rds", grid)
 
-
-parameters <- readRDS(file = "data/perf_simulated_dsets.rds")
-data <- parameters$data[[1]]
-
-profvis(cilr(X = data$X, A = data$A, distr = "norm", output = "cdf", pcount = 1, resample = T,
-                 transform = "prop", 
-                 preprocess = T, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5 ))
-
-profvis(cilr(X = data$X, A = data$A, distr = "mnorm", output = "cdf", pcount = 1, resample = T,
-             transform = "prop", 
-             preprocess = T, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5 ))
-
-
-
-
-
-         
+grid <- grid %>% unnest(time)
+ggplot(grid %>% filter(n_tax == 500), aes(x = n_samp, y = time, col = distr, shape = adj)) + geom_point() + geom_line()
