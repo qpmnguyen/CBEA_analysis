@@ -49,6 +49,12 @@
       "Source": "Bioconductor",
       "Hash": "1fe8a6250d04cfb040ebec87447770ba"
     },
+    "BiocIO": {
+      "Package": "BiocIO",
+      "Version": "1.0.1",
+      "Source": "Bioconductor",
+      "Hash": "f97838d5e18769a435521b1bd52b7e9b"
+    },
     "BiocManager": {
       "Package": "BiocManager",
       "Version": "1.30.10",
@@ -61,6 +67,12 @@
       "Version": "1.24.1",
       "Source": "Bioconductor",
       "Hash": "338a72852f019b3b51ae87dc82391eb3"
+    },
+    "BiocSet": {
+      "Package": "BiocSet",
+      "Version": "1.4.0",
+      "Source": "Bioconductor",
+      "Hash": "5a650d91f88362dc3c41a2d60986c255"
     },
     "BiocVersion": {
       "Package": "BiocVersion",
@@ -168,6 +180,12 @@
       "Version": "2.24.1",
       "Source": "Bioconductor",
       "Hash": "21b3bc3dfb55cb9501c5f3413b35388c"
+    },
+    "KEGGREST": {
+      "Package": "KEGGREST",
+      "Version": "1.30.1",
+      "Source": "Bioconductor",
+      "Hash": "7d6ae73677fac7c6f4640cb632dd5281"
     },
     "KernSmooth": {
       "Package": "KernSmooth",
@@ -1051,6 +1069,13 @@
       "Repository": "CRAN",
       "Hash": "0bde42ee282efb18c7c4e63822f5b4f7"
     },
+    "lobstr": {
+      "Package": "lobstr",
+      "Version": "1.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3354c874f6008f7f1e418526df8ecd8a"
+    },
     "locfit": {
       "Package": "locfit",
       "Version": "1.5-9.4",
@@ -1168,6 +1193,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "df58958f293b166e4ab885ebcad90e02"
+    },
+    "ontologyIndex": {
+      "Package": "ontologyIndex",
+      "Version": "2.7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ca4b9b931c659a989d3fc8e97b1b4525"
     },
     "openssl": {
       "Package": "openssl",
@@ -1294,6 +1326,13 @@
       "Repository": "CRAN",
       "Hash": "ec0e5ab4e5f851f6ef32cd1d1984957f"
     },
+    "png": {
+      "Package": "png",
+      "Version": "0.1-7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "03b7076c234cb3331288919983326c55"
+    },
     "praise": {
       "Package": "praise",
       "Version": "1.0.0",
@@ -1328,13 +1367,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "4974ce1d5ab22f266af90826f295f6c7"
-    },
-    "profvis": {
-      "Package": "profvis",
-      "Version": "0.3.7",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e9d21e79848e02e524bea6f5bd53e7e4"
     },
     "progress": {
       "Package": "progress",
@@ -1637,6 +1669,18 @@
       "RemoteSha": "aba62c794764357db61ad7fabb4721854fbc67ad",
       "RemoteHost": "api.github.com",
       "Hash": "39ce723a3074fda6041305cc67ec2f69"
+    },
+    "teaR": {
+      "Package": "teaR",
+      "Version": "0.99.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "qpmnguyen",
+      "RemoteRepo": "teaR",
+      "RemoteRef": "master",
+      "RemoteSha": "ddbc50c5aff2b3406079f1979e2cfba30fcc0ffb",
+      "Hash": "60b5206822f5b7d4c657d688b845a92e"
     },
     "tensorA": {
       "Package": "tensorA",
