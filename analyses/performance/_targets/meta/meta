@@ -1,0 +1,66 @@
+name|type|data|command|depend|seed|path|time|size|bytes|format|iteration|parent|children|seconds|warnings|error
+simulation_4|stem|38c4427353d85916|8c5b9c422a3dbca9|b68cde43dc3ec6bc|1579005023||t18792.9435091852s|064da7706b92e993|472137|rds|vector|||12.65|package bench was built under R version 4.0.5|
+simulation_5|stem|b806b8eb133edece|effcb9e6ab5c280a|b68cde43dc3ec6bc|1879889981||t18792.9440407856s|5bdf8ed30ef37957|2352853|rds|vector|||55.87|package bench was built under R version 4.0.5|
+simulation_1|stem|6b9e2aad401ea6dc|8c5b9c422a3dbca9|b68cde43dc3ec6bc|1880414297||t18792.9441906697s|62da57eb295ba79a|471835|rds|vector|||11.17|package bench was built under R version 4.0.5|
+transformation_1|stem|6de89d1f487d6af9|da212157f802d906|53c3301151add91b|-2110673820||t18792.944327774s|8ff61817553a3700|429537|rds|vector|||9.57|package bench was built under R version 4.0.5|
+simulation_6|stem|25b5d942776b0ab9|11f1035b5ad09b37|b68cde43dc3ec6bc|-859598419||t18792.9521617455s|d80978c0da20329a|4698787|rds|vector|||456.53|package bench was built under R version 4.0.5|
+simulation_2|stem|bb6fe4c9ec22b1fa|4021a8ccfcfc99f0|b68cde43dc3ec6bc|98239451||t18792.9578259339s|1b3628386671cea2|937924|rds|vector|||12.36|package bench was built under R version 4.0.5|
+simulation_3|stem|cbb1fcd1418cb272|b631d0509a505b07|b68cde43dc3ec6bc|340238516||t18792.9579017332s|6750e326daef47e5|1408547|rds|vector|||13.84|package bench was built under R version 4.0.5|
+transformation_2|stem|cbab04961522ee26|9c19f8cfa235b9d8|74786115ce5205f5|1559388646||t18792.9579749003s|1904173025309f84|855537|rds|vector|||9.5|package bench was built under R version 4.0.5|
+transformation_3|stem|529483d3ef74240f|fd20ab6178281435|c2ad67fa2d9b61f8|-292158157||t18792.9580666034s|ade1cb3bd299747c|1285409|rds|vector|||9.76|package bench was built under R version 4.0.5|
+transformation_4|stem|22dcab605f2fffba|00267caf2d450d8d|e8cd73f32507906e|937662409||t18793.0137348452s|7dc156c1d6161a19|430247|rds|vector|||10.09|package bench was built under R version 4.0.5|
+transformation_5|stem|518bd1a001cc3528|eb2da9e765e8f0b9|08644c44d2bc1395|1227471445||t18793.03022562s|f7b883e21a409807|2140104|rds|vector|||10.68|package bench was built under R version 4.0.5|
+transformation_6|stem|9d803b6ae5007b0b|d99d795e565819af|75c7951425fbc0b3|591326852||t18793.6496769613s|5265850088a9ce00|4281105|rds|vector|||10.52|package bench was built under R version 4.0.5|
+taxtab2A|function|8fcacdc70cfdd3e9||||||||||||||
+A2list|function|adad7ab3f3ac2de0||||||||||||||
+calculate_statistic|function|5966b7dc254bf6ea||||||||||||||
+create_parameters|function|b062e17bdfb9c1aa||||||||||||||
+sim_and_eval|object|436498644daa2a7a||||||||||||||
+add_pseudocount|function|14598359dc7b76ab||||||||||||||
+merge_lists|function|5858e4c3e1befc35||||||||||||||
+zinb_simulation|function|d618ddd910cde115||||||||||||||
+.Random.seed|object|c1a8e1a11ad6b9b6||||||||||||||
+get_fit|function|9122c51ed7b3e9e1||||||||||||||
+aggregate|function|b5b3bc29850ebe81||||||||||||||
+ss_eval|function|75eb6fb57434ab04||||||||||||||
+grid|object|2eb1cd4e5379432a||||||||||||||
+process|function|fceb5d1a6ed8c6f1||||||||||||||
+sim2phylo|function|a509b0054133d0a0||||||||||||||
+taxtab_prune|function|ca3a382753343c57||||||||||||||
+phylo2cilr|function|326534ae2bb25431||||||||||||||
+sim_prediction|function|583b3269585731bb||||||||||||||
+generate_alt_scores|function|e369f7228e60f778||||||||||||||
+wc_test|function|9965ba76d40ecc8a||||||||||||||
+eval_grid|stem|e08bcbe2fcb7231e|d2570cfa51a17f35|401f360868254f6e|129822921||t18792.944455992s|097915d2735aafbe|163|rds|vector||eval_grid_dd6a80a5*eval_grid_31fb1881*eval_grid_7b9c9348*eval_grid_497b3bd8|9.89|package bench was built under R version 4.0.5|
+benchmark_1_85ef85f1|branch|2b390710e418a57d|04349362e70c341a|023a05c58d856952|583699035||t18793.9095557168s|99c198949c16cd60|204|rds|vector|benchmark_1||19.3|NaNs produced|
+benchmark_1_0dbf96e6|branch|b953e1bead1d406c|04349362e70c341a|cd03ca37f175632a|-946440998||t18793.9097692983s|110bf1c30da531aa|205|rds|vector|benchmark_1||38.05|Coercing OTUASV table into matrix format|
+benchmark_1_e8fa6948|branch|4ec38ad5d9bca8fd|04349362e70c341a|e0f8238fe43cc98b|1935687652||t18793.9098269667s|99c198949c16cd60|204|rds|vector|benchmark_1||21.56|Coercing OTUASV table into matrix format|
+benchmark_1_1db977b4|branch|eb534fcdad0512de|04349362e70c341a|e02b7309826ecbba|-700194392||t18793.9099247601s|110bf1c30da531aa|205|rds|vector|benchmark_1||11.49|NaNs produced|
+benchmark_1|pattern|c6b9c78f6f53b542|04349362e70c341a||-533940089||||818|rds|vector||benchmark_1_0dbf96e6*benchmark_1_85ef85f1*benchmark_1_e8fa6948*benchmark_1_1db977b4|90.4||
+benchmark_2_85ef85f1|branch|88d6e661e6148f31|2dcd7f7f47c27be4|8846efdafeeaaf91|30610760||t18793.9101768697s|110bf1c30da531aa|205|rds|vector|benchmark_2||18.98|NaNs produced|
+benchmark_2_0dbf96e6|branch|c783d4053822e0b9|2dcd7f7f47c27be4|e52511e7337876ba|-1998324511||t18793.9110808784s|6b4bfcd70e6e5a55|207|rds|vector|benchmark_2||105.75|Coercing OTUASV table into matrix format|
+benchmark_2_e8fa6948|branch|47ffae845ac22274|2dcd7f7f47c27be4|5bb5faf40e6519cd|861810685||t18793.9111136368s|afc3bd6040499853|208|rds|vector|benchmark_2||78.53|Coercing OTUASV table into matrix format|
+benchmark_2_1db977b4|branch|5a2ad9333214a148|2dcd7f7f47c27be4|1b35e53521a1aa51|1177961457||t18793.9112813814s|6b4bfcd70e6e5a55|207|rds|vector|benchmark_2||14.48|NaNs produced|
+benchmark_2|pattern|c2dcacfa0768715b|2dcd7f7f47c27be4||-171252797||||827|rds|vector||benchmark_2_0dbf96e6*benchmark_2_85ef85f1*benchmark_2_e8fa6948*benchmark_2_1db977b4|217.74||
+benchmark_3_85ef85f1|branch|104229322d7a1274|3695ea5ca9db7c22|b66a0e603b4798d9|-1515618456||t18793.9115441611s|070212bc3cc719b4|206|rds|vector|benchmark_3||18.9|NaNs produced|
+benchmark_3_e8fa6948|branch|2c98c219e1c1cdee|3695ea5ca9db7c22|6c796faaad73d01a|1902364446||t18793.9128298653s|afc3bd6040499853|208|rds|vector|benchmark_3||108.1|Coercing OTUASV table into matrix format|
+benchmark_3_1db977b4|branch|5100d517a6d0bef1|3695ea5ca9db7c22|2e14a726a187cc0f|-1221695840||t18793.9130113261s|110bf1c30da531aa|205|rds|vector|benchmark_3||13.17|NaNs produced|
+benchmark_4_0dbf96e6|branch|7004a994cb089ad3|0feeb80f6b77e0b3|8310168622b43653|-1948781003||t18793.9135406666s|110bf1c30da531aa|205|rds|vector|benchmark_4||43.93|Coercing OTUASV table into matrix format|
+benchmark_4_85ef85f1|branch|d288ef568d6b200a|0feeb80f6b77e0b3|3d7abaa23df2bca3|-2012332417||t18793.9136972413s|070212bc3cc719b4|206|rds|vector|benchmark_4||11.8|NaNs produced|
+benchmark_4_e8fa6948|branch|341e4bd046b9e819|0feeb80f6b77e0b3|d27e60968ae2b07a|-1257120723||t18793.9139462004s|070212bc3cc719b4|206|rds|vector|benchmark_4||19.71|Coercing OTUASV table into matrix format|
+benchmark_4_1db977b4|branch|cb92beff8fdd8e3d|0feeb80f6b77e0b3|1ef049f66b1d6dac|662209110||t18793.9140985375s|070212bc3cc719b4|206|rds|vector|benchmark_4||11.43|NaNs produced|
+benchmark_4|pattern|5d5d67daba4734a6|0feeb80f6b77e0b3||-1723028792||||823|rds|vector||benchmark_4_0dbf96e6*benchmark_4_85ef85f1*benchmark_4_e8fa6948*benchmark_4_1db977b4|86.87||
+benchmark_3_0dbf96e6|branch|27a3653baf5f9fe5|3695ea5ca9db7c22|830fb93329fa177d|-739195918||t18793.9148571346s|6b4bfcd70e6e5a55|207|rds|vector|benchmark_3||320.89|Coercing OTUASV table into matrix format|
+benchmark_3|pattern|2d98a63928cbf4f7|3695ea5ca9db7c22||-2020899002||||826|rds|vector||benchmark_3_0dbf96e6*benchmark_3_85ef85f1*benchmark_3_e8fa6948*benchmark_3_1db977b4|461.06||
+benchmark_5_0dbf96e6|branch|3d373967e13d229e|3b75358f2359c754|8c35bad23ffc79fb|1006141553||t18793.915199522s|110bf1c30da531aa|205|rds|vector|benchmark_5||91.73|Coercing OTUASV table into matrix format|
+benchmark_5_85ef85f1|branch|c5c9f6a2213a3ee0|3b75358f2359c754|647f56adc41a6641|-368259482||t18793.9152189238s|6b4bfcd70e6e5a55|207|rds|vector|benchmark_5||26.23|NaNs produced|
+benchmark_5_1db977b4|branch|8169108a2c543d05|3b75358f2359c754|4025c76a01229cd9|1658083926||t18793.9155640315s|a52a1b9948dbd8e0|209|rds|vector|benchmark_5||26.48|NaNs produced|
+benchmark_5_e8fa6948|branch|66eaad85d3073c78|3b75358f2359c754|cc5888d80437838c|1828122786||t18793.9160036663s|99c198949c16cd60|204|rds|vector|benchmark_5||65.95|Coercing OTUASV table into matrix format|
+benchmark_5|pattern|3c7d82cb23aad2c1|3b75358f2359c754||-523224542||||825|rds|vector||benchmark_5_0dbf96e6*benchmark_5_85ef85f1*benchmark_5_e8fa6948*benchmark_5_1db977b4|210.39||
+benchmark_6_85ef85f1|branch|ce480b1350ec9b5d|49698b00b75c786f|f66e60df9686c588|-1581164600||t18793.9168804015s|110bf1c30da531aa|205|rds|vector|benchmark_6||70.15|NaNs produced|
+benchmark_6_0dbf96e6|branch|9ce46233a063db40|49698b00b75c786f|702fb5d4f680d36d|-1323262111||t18793.9183758851s|13c66cdfc534d525|201|rds|vector|benchmark_6||237.75|Coercing OTUASV table into matrix format|
+benchmark_6_e8fa6948|branch|86ffaa367f8c13a0|49698b00b75c786f|3f941158c2bca95c|-1251466750||t18793.9186626158s|6b4bfcd70e6e5a55|207|rds|vector|benchmark_6||148.86|Coercing OTUASV table into matrix format|
+benchmark_6_1db977b4|branch|aff788b6ab569a96|49698b00b75c786f|cf6c1c60c1e4ca75|1984685629||t18793.9192296286s|070212bc3cc719b4|206|rds|vector|benchmark_6||68.33|NaNs produced|
+benchmark_6|pattern|17b4d0ce0e442e20|49698b00b75c786f||-971733845||||819|rds|vector||benchmark_6_0dbf96e6*benchmark_6_85ef85f1*benchmark_6_e8fa6948*benchmark_6_1db977b4|525.09||
+combined_summaries|stem|296ee7cbf393b7b9|fc3881ae470410bb|814dd2ce00fccc1e|1331604910||t18793.9193646085s|883080b7a7801ecb|421|rds|vector|||10.34|package bench was built under R version 4.0.5|
+output|stem|13b162978eb065f0|8f22fcfe8f1890b4|5265abdc08162cfc|-265169002||t18793.9195328306s|3bd8f66805fd112b|45|rds|vector|||13.09|package bench was built under R version 4.0.5|

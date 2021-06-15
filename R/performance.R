@@ -1,42 +1,43 @@
-library(teaR)
 library(tidyverse)
-library(phyloseq)
-library(bench)
-source("R/utils.R")
-source("R/simulations.R")
+library(ggsci)
+library(patchwork)
+library(glue)
+results <- readRDS(file = "analyses/performance/output/results.rds")
+grid <- readRDS(file = "analyses/performance/output/grid_sim.rds")
 
-grid <- tibble(
-    n_samp = c(1000, 2000, 3000, 1000, 1000, 1000),
-    n_tax = c(500, 500, 500, 500, 2500, 5000),
-    eval = c("samp", "samp", "samp", "tax", "tax", "tax")
-)
-
-A2list <- function(A){
-    sets <- colnames(A)
-    set_list <- map(sets, ~{
-        rownames(A)[which(A[,.x] == 1)] %>% as.vector()
-    })
-    names(set_list) <- sets
-    return(set_list)
+if(Sys.info()["sysname"] == "Darwin"){
+    save_dir <- "../cilr_manuscript/figures"
+} else {
+    save_dir <- "../teailr_manuscript/manuscript/figures"
 }
 
-add_pseudocount <- function(data){
-    data$X <- data$X + 1 
-    return(data)
-}
+data <- left_join(grid, results)
 
-grid <- grid %>% rowwise() %>% 
-    mutate(data = list(zinb_simulation(n_samp = n_samp, n_tax = n_tax, n_sets = n_tax/50, 
-                                  spar = 0.3, s_rho = 0.2, eff_size = 3, b_rho = 0)))
-grid <- crossing(grid, distr = c("norm", "mnorm"), adj = c(T,F)) 
+data <- data %>% mutate()
 
-grid <- grid %>% mutate(data = map(data, add_pseudocount))
+samp_dat <- data %>% filter(eval == "samp")
 
-grid <- grid %>% rowwise() %>% 
-    mutate(eval = list(mark(cilr(ab_tab = data$X, set_list = A2list(data$A), distr = distr, 
-                                       adj = adj)))) 
-    
-saveRDS(file = "data/performance_grid.rds", grid)
+samp_plot <- ggplot(samp_dat, aes(x = n_samp, y = time, col = distr, shape = adj)) + 
+    geom_point(size = 3) + geom_line() + scale_color_d3() + theme_bw() + 
+    labs(x = "Number of samples", y = "Time (seconds)", color = "Distribution", 
+         shape = "Correlation adjustment", 
+         title = "Varying number of samples \n(10 sets) ") + 
+    ylim(c(0,310))
 
-grid <- grid %>% unnest(time)
-ggplot(grid %>% filter(n_tax == 500), aes(x = n_samp, y = time, col = distr, shape = adj)) + geom_point() + geom_line()
+set_dat <- data %>% filter(eval == "tax") %>% mutate(n_sets = n_tax/50)
+set_plot <- ggplot(set_dat, aes(x = n_sets, y = time, col = distr, shape = adj)) + 
+    geom_point(size = 3) + 
+    geom_line() + scale_color_d3() + theme_bw() + 
+    labs(x = "Number of sets", y = "Time (seconds)", color = "Distribution", 
+         shape = "Correlation adjustment", 
+         title = "Varying number of sets \n(N = 1000)") + 
+    theme(axis.title.y = element_blank()) + ylim(c(0,310))
+
+combo_plot <- samp_plot + set_plot + plot_layout(guides = "collect")
+ggsave(combo_plot, filename = "figures/performance.png", dpi = 300, width = 10, height = 5)
+ggsave(combo_plot, filename = "figures/performance.eps", dpi = 300, width = 10, height = 5)
+
+file.copy(from = Sys.glob("figures/*.png"), to = glue("{save_dir}", dir = save_dir), 
+          recursive = TRUE, overwrite = TRUE)
+file.copy(from = Sys.glob("figures/*.eps"), to = glue("{save_dir}", dir = save_dir), 
+          recursive = TRUE, overwrite = TRUE)
