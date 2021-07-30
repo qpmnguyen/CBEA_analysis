@@ -25,7 +25,6 @@ There are total of three tasks: `diff_ab` (Differential abundance), `single_samp
 
 In each of the sub-folders, there is a `_targets.R` file that contains all the rules. There is a `functions/` folder with any relevant functions, `output` with workflow outputs, and `data` for any relevant data sets used (copied from the master `data` folder). To run each workflow, navigate to the folder of interest (e.g. `setwd("analyses/data_single_sample")`) and execute the command `targets::tar_make()`/`targest::tar_make_future()`.  
 
-For more information on the `targets` workflow, please refer to the [documentation](https://books.ropensci.org/targets/).  
-
-
+For more information on the `targets` workflow, please refer to the [documentation](https://books.ropensci.org/targets/).   
+The easiest way to run is to loop through all the directories using the positional arguments in `run.R`.  
 
