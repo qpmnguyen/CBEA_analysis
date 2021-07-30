@@ -78,7 +78,7 @@ pwr_plots <- ggplot(pwr, aes(x = model, y = est, linetype = output, shape = adj,
     scale_color_manual(values = pal_d3("category10")(6), guide = FALSE) + theme_bw() +
     guides(linetype = guide_legend(override.aes = list(shape = NA))) + coord_flip() + 
     theme(axis.title.y = element_blank()) + 
-    labs(y = "Power", shape = "Correlation adjustment", linetype = "Output type", 
+    labs(y = "True Positive Rate", shape = "Correlation adjustment", linetype = "Output type", 
          subtitle = "16S rRNA sequencing of the gingival site") +
     ylim(y = c(0,1))
 

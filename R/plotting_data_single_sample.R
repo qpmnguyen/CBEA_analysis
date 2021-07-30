@@ -3,6 +3,12 @@ library(ggsci)
 library(patchwork)
 library(glue)
 
+if(Sys.info()["sysname"] == "Darwin"){
+    save_dir <- "../cilr_manuscript/figures"
+} else {
+    save_dir <- "../teailr_manuscript/manuscript/figures"
+}
+
 # Processing fdr and pwr ####  
 load_and_process <- function(type = c("fdr", "pwr")){
     type <- match.arg(type)
@@ -85,8 +91,7 @@ comb_plot <- fdr$sim_plot + pwr$sim_plot + fdr$data_plot + pwr$data_plot +
     theme(legend.position = "bottom", legend.box = "vertical", legend.margin = margin())
 saveRDS(comb_plot, file = "figures/sim_data_ss_hypo.rds")
 ggsave(comb_plot, filename = "figures/sim_data_ss_hypo.png", dpi = 300, width = 10, height = 9)
-file.copy("figures/sim_data_ss_hypo.png", "../teailr_manuscript/manuscript/figures/sim_data_ss_hypo.png", 
-          overwrite = TRUE)
+ggsave(comb_plot, filename = "figures/sim_data_ss_hypo.eps", dpi = 300, width = 10, height = 9)
 
 # Plotting AUC data ####
 auc_data <- readRDS(file = "analyses/data_single_sample/output/auc_comparison.rds")
@@ -152,7 +157,14 @@ AAB
 comb_plot <- sim_plot + data_plot + plot_layout(guides = "collect", design = layout) + 
     plot_annotation(tag_levels = "A") &
     theme(legend.position = "bottom", legend.box = "vertical", legend.margin = margin())
-saveRDS(comb_plot, file = "figures/sim_data_ss_auc.rds")
-ggsave(comb_plot, filename = "figures/sim_data_ss_auc.png", dpi = 800, width = 10, height = 6)
-file.copy("figures/sim_data_ss_auc.png", "../teailr_manuscript/manuscript/figures/sim_data_ss_auc.png", 
-          overwrite = TRUE)
+#saveRDS(comb_plot, file = "figures/sim_data_ss_auc.rds")
+ggsave(comb_plot, filename = "figures/sim_data_ss_auc.png", dpi = 300, width = 10, height = 6)
+ggsave(comb_plot, filename = "figures/sim_data_ss_auc.eps", dpi = 300, width = 10, height = 6)
+
+
+
+file.copy(from = Sys.glob("figures/*.png"), 
+          to = glue("{save_dir}", save_dir = save_dir), overwrite = TRUE)
+
+file.copy(from = Sys.glob("figures/*.eps"), 
+          to = glue("{save_dir}", save_dir = save_dir), recursive = TRUE, overwrite = TRUE)

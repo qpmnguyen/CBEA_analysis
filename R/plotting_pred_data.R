@@ -2,6 +2,13 @@
 
 library(tidyverse)
 library(ggsci)
+library(glue)
+
+if(Sys.info()["sysname"] == "Darwin"){
+    save_dir <- "../cilr_manuscript/figures"
+} else {
+    save_dir <- "../teailr_manuscript/manuscript/figures"
+}
 
 data <- readRDS(file = "analyses/data_prediction/output/data_prediction.rds")
 data <- data %>% mutate(output = replace_na(output, "Raw Scores"), 
@@ -38,6 +45,12 @@ plt <- ggplot(data, aes(x = method, y = auc, col = distr, shape = adj, linetype 
     geom_hline(yintercept = 0.8, color = "red") + theme(legend.position = "bottom", legend.box = "vertical", 
                                                         legend.margin = margin())
 
-saveRDS(plt, file = "output/data_prediction_plot.rds")
+#saveRDS(plt, file = "output/data_prediction_plot.rds")
 ggsave(plt, filename = "figures/data_prediction_plot.png", dpi = 300, width = 8, height = 8)
-file.copy("figures/data_prediction_plot.png", "../teailr_manuscript/manuscript/figures/data_prediction_plot.png", overwrite = TRUE)
+ggsave(plt, filename = "figures/data_prediction_plot.eps", dpi = 300, width = 8, height = 8)
+
+file.copy(from = "figures/data_prediction_plot.png", 
+         to = glue("{save_dir}/data_prediction_plot.png", save_dir = save_dir), overwrite = TRUE)
+
+file.copy(from = Sys.glob("figures/*.eps"), 
+          to = glue("{save_dir}", save_dir = save_dir), recursive = TRUE, overwrite = TRUE)
