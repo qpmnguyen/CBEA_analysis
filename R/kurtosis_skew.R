@@ -70,7 +70,7 @@ shpp_plot<- ggplot(shape_plot %>% arrange(label),
   scale_alpha_manual(guide = "none", values = c(0.3, 1)) +
   scale_size_manual(guide = "none", values  = c(1,2.5)) + 
   labs(x = "Skewness", y = "Kurtosis") + 
-  theme(legend.position = "bottom", legend.margin = margin())
+  theme(legend.position = "bottom", legend.margin = margin(), axis.text.x = element_text(angle = 45))
 
 
 
@@ -131,7 +131,7 @@ gof_plot_sim <- ggplot(parameters %>% rename("Correlation" = "s_rho"),
   facet_wrap(~Correlation, labeller = label_both) + 
   theme_bw() + scale_color_d3() + 
   labs(y = "Kolmogorov-Smirnov D Statistic", x = "Sparsity") + scale_fill_d3() + 
-  theme(legend.position = "bottom", legend.margin = margin())
+  theme(legend.position = "bottom", legend.margin = margin(), axis.text.x = element_text(angle = 45))
 
 
 
@@ -173,8 +173,9 @@ combined_plt <- (shpp_plot + gof_plot_sim)/dens_plot + plot_annotation(tag_level
 combined_plt
 
 ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.png", dpi = 300, 
-       width = 8, height = 8)
-ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.eps", dpi = 300, width = 8, height = 8)
+       width = 9, height = 9)
+ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.eps", 
+       dpi = 300, width = 9, height = 9, device = cairo_ps)
 
 file.copy(from = Sys.glob("figures/*.png"), to = glue("{save_dir}", dir = save_dir), 
           recursive = TRUE, overwrite = TRUE)
