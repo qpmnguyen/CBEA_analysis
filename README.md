@@ -1,5 +1,8 @@
 # Taxonomic enrichment analysis using competitive isometric log-ratios (cILR)
 
+[![DOI](https://zenodo.org/badge/253318333.svg)](https://zenodo.org/badge/latestdoi/253318333)
+
+
 Method to perform enrichment analysis using isometric log ratio transformation for microbiome relative abundance data.  
 
 Paper in preparation by Quang Nguyen.  
