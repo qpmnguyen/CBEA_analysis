@@ -35,7 +35,7 @@ combined_df <- combined_df %>% group_by(model, distr, adj, output, spar, eff_siz
         output == "zscore" ~ "z-score", 
         TRUE ~ "Not Applicable"
     )) %>%
-    mutate(model = str_wrap(model, width = 10)) %>% 
+    mutate(model = str_wrap(model, width = 20)) %>% 
     rename("Sparsity" = "spar", "Correlation" = "s_rho", "Effect Size" = "eff_size")
 
 type_i_error <- combined_df %>% filter(`Effect Size` == 1)
@@ -69,20 +69,36 @@ pwr_plot <- ggplot(power, aes(x = Sparsity, y = est,  col = model, shape = adj))
 ggsave(pwr_plot, filename = "figures/sim_diff_ab_pwr.png", dpi = 300, width = 10, height = 8)
 ggsave(pwr_plot, filename = "figures/sim_diff_ab_pwr.eps", dpi = 300, width = 10, height = 8)
 
-combo_plot <- (type_i_plt / pwr_plot) + 
+# this plot has legend going horizontal at the bottom
+# combo_plot <- (type_i_plt / pwr_plot) + 
+#     plot_annotation(tag_levels = list(c("A. Type I error", "B. Power"))) + 
+#     plot_layout(guides = "collect", heights = c(1,2)) & 
+#     guides(linetype = guide_legend(override.aes = list(shape = NA)), 
+#            color = guide_legend(override.aes = list(linetype = 0)), 
+#            shape = guide_legend(override.aes = list(linetype = 0))) &
+#     theme(plot.tag = element_text(face = "bold", size = 16, hjust = 0), 
+#           legend.position = "bottom", legend.box = "horizontal", 
+#           legend.direction = "horizontal", legend.justification = "center", 
+#           legend.box.just = "center", 
+#           legend.box.margin = margin(r = -12, l = -12, unit = "cm"), 
+#           plot.tag.position = c(0,1.05), plot.margin = margin(t = 22, b = 15, l = 10))
+
+combo_plot <- (type_i_plt/pwr_plot) + 
     plot_annotation(tag_levels = list(c("A. Type I error", "B. Power"))) + 
     plot_layout(guides = "collect", heights = c(1,2)) & 
     guides(linetype = guide_legend(override.aes = list(shape = NA)), 
-           color = guide_legend(override.aes = list(linetype = 0)), 
+           color = guide_legend(keyheight = 0.4, keywidth = 0.2, 
+                                default.unit = "inch", 
+                                override.aes = list(linetype = 0)), 
            shape = guide_legend(override.aes = list(linetype = 0))) &
     theme(plot.tag = element_text(face = "bold", size = 16, hjust = 0), 
-          legend.position = "bottom", legend.box = "horizontal", 
-          legend.direction = "horizontal", legend.justification = "center", 
-          legend.box.just = "center", legend.box.margin = margin(r = -12, l = -12, unit = "cm"), 
-          plot.tag.position = c(0,1.05), plot.margin = margin(t = 22, b = 15, l = 10))
+          plot.tag.position = c(0,1.05), 
+          plot.margin = margin(t = 22, b = 15, l = 10))
 
-ggsave(combo_plot, filename = "figures/sim_diff_ab_comb.png", dpi = 300, width = 15, height = 12)
-ggsave(combo_plot, filename = "figures/sim_diff_ab_comb.eps", dpi = 300, width = 15, height = 12)
+ggsave(combo_plot, filename = "figures/sim_diff_ab_comb.png", 
+       dpi = 300, width = 12, height = 12)
+ggsave(combo_plot, filename = "figures/sim_diff_ab_comb.eps", 
+       dpi = 300, width = 15, height = 12)
 
 file.copy(from = Sys.glob("figures/*.png"), to = glue("{save_dir}", dir = save_dir), 
           recursive = TRUE, overwrite = TRUE)
