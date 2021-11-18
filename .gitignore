@@ -21,3 +21,4 @@ external/
 .drake/
 simulation/
 diagnostic_dsets/
+prototype.R
