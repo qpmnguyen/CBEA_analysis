@@ -38,6 +38,16 @@ data_auc <- tar_rds(data_enrich, {
     readRDS("../../data/hmp_supergingival_supragingival_16S.rds") %>% enrichment_processing() -> data_enrich
 })
 
+# data 2 and 3  
+df_16s <- tar_rds(physeq_16s, {
+    readRDS("../../data/ackerman_ibd_16S.rds")
+})
+
+df_wgs <- tar_rds(physeq_wgs, {
+    readRDS("../../data/nielsen_ibd_wgs.rds")
+})
+
+
 # all cilr models under different evaluations  
 auc_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings, {
      tar_target(auc_cilr, {
@@ -52,21 +62,25 @@ auc_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings, {
      })
  })
 
-
-
-fdr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
+fdr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig, {
     tar_target(fdr_cilr, {
-        X <- data_enrich$X
-        # shuffling
-        idx <- sample(1:nrow(X), size = nrow(X), replace = F)
-        X_boot <- X[idx,]
-        label_boot <- data_enrich$label[idx]
-        # evaluate fdr
-        fdr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
-                                   distr = distr, adj = adj, metric = "fdr", output = "sig")
-        data.frame(est = fdr$est, upper = fdr$upper, lower = fdr$lower, models = models, distr = distr, adj = adj, output = "sig")
+        enrichment_analysis()
     })
 })
+
+# fdr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
+#     tar_target(fdr_cilr, {
+#         X <- data_enrich$X
+#         # shuffling
+#         idx <- sample(1:nrow(X), size = nrow(X), replace = F)
+#         X_boot <- X[idx,]
+#         label_boot <- data_enrich$label[idx]
+#         # evaluate fdr
+#         fdr <- enrichment_analysis(X = X_boot, A = data_enrich$A, method = models, label = label_boot, 
+#                                    distr = distr, adj = adj, metric = "fdr", output = "sig")
+#         data.frame(est = fdr$est, upper = fdr$upper, lower = fdr$lower, models = models, distr = distr, adj = adj, output = "sig")
+#     })
+# })
 
 pwr_cilr_job <- tar_map(unlist = FALSE, values = cilr_settings_sig,{
     tar_target(pwr_cilr, {

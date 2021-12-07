@@ -1,6 +1,5 @@
 library(phyloseq)
 library(tidyverse)
-library(CBEA)
 source("../../R/utils.R")
 source("../../R/cilr.R")
 
@@ -39,6 +38,21 @@ enrichment_evaluate <- function(scores, results, metric){
   return(scores)
 }
 
+enrichment_analysis <- function(physeq, set, method, label, metric, ...){
+  if (method %in% c("ssgsea", "gsva")){
+      scores <- alt_scores_physeq(physeq, set, method = method, preprocess = TRUE)
+  } else if (method == "wilcoxon") {
+      if (metric == "auc"){
+          output <- "scores"
+      } else {
+          output <- "sig"
+      }
+      scores <- wc_test_physeq(physeq = physeq, set = set, 
+                               thresh = 0.05, alt = "two.sided")
+      
+  }
+}
+
 enrichment_analysis <- function(X, A, method, label, metric, ...){
   if (method %in% c("ssgsea", "gsva")){
     scores <- generate_alt_scores(X = X, A = A, method = method, preprocess = T, pcount = 1)
@@ -55,6 +69,20 @@ enrichment_analysis <- function(X, A, method, label, metric, ...){
   is.matrix(scores)
   output <- enrichment_evaluate(scores = scores, results = label, metric = metric)
   return(output)
+}
+
+#' Getting random gene sets of different sizes 
+#' @param physeq Phyloseq object containing the data 
+#' @param size The size of the set 
+#' @param n_sets Number of sets of that size 
+get_rand_sets <- function(physeq, size, n_sets){
+  taxa <- taxa_names(physeq)
+  set_list <- purrr::map(seq_len(n_sets), ~{
+    sets <- sample(taxa, size = size)
+  })
+  names(set_list) <- paste0("Set",seq_along(set_list))
+  sets <- BiocSet::BiocSet(set_list)
+  return(sets)
 }
 
 
