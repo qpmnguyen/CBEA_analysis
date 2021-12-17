@@ -38,7 +38,12 @@ enrichment_evaluate <- function(scores, results, metric){
   return(scores)
 }
 
-enrichment_analysis <- function(physeq, set, method, label, metric, ...){
+#' Generate scores 
+#' @param set BiocSet
+#' @param method Either ssgsea, gsva, wilcoxon or auc_scores 
+#' @param metric Either auc or inference
+#' @param ... Additional arguments passed on to CBEA
+enrichment_analysis <- function(physeq, set, method, label=NULL, metric, ...){
   if (method %in% c("ssgsea", "gsva")){
       scores <- alt_scores_physeq(physeq, set, method = method, preprocess = TRUE)
   } else if (method == "wilcoxon") {
@@ -48,28 +53,34 @@ enrichment_analysis <- function(physeq, set, method, label, metric, ...){
           output <- "sig"
       }
       scores <- wc_test_physeq(physeq = physeq, set = set, 
-                               thresh = 0.05, alt = "two.sided")
-      
+                               thresh = 0.05, alt = "two.sided", 
+                               preprocess = TRUE, ...)
+  } else if (method == "cbea"){
+    physeq <- transform_sample_counts(physeq, function(x) x + 1)
+    physeq <- transform_sample_counts(physeq, function(x) x / sum(x))
+    scores <- CBEA::cbea(obj = physeq, set = set, thresh = 0.05, ...)
   }
+  return(scores)
 }
 
-enrichment_analysis <- function(X, A, method, label, metric, ...){
-  if (method %in% c("ssgsea", "gsva")){
-    scores <- generate_alt_scores(X = X, A = A, method = method, preprocess = T, pcount = 1)
-  } else if (method %in% c("wilcoxon")){
-    if (metric == "auc"){
-      output <- "scores"
-    } else {
-      output <- "sig"
-    }
-    scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1, output = output)
-  } else {
-    scores <- cilr(X = X, A = A, resample = T, ..., maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
-  }
-  is.matrix(scores)
-  output <- enrichment_evaluate(scores = scores, results = label, metric = metric)
-  return(output)
-}
+#' Old enrichment analysis function that does not use the CBEA package 
+# enrichment_analysis <- function(X, A, method, label, metric, ...){
+#   if (method %in% c("ssgsea", "gsva")){
+#     scores <- generate_alt_scores(X = X, A = A, method = method, preprocess = T, pcount = 1)
+#   } else if (method %in% c("wilcoxon")){
+#     if (metric == "auc"){
+#       output <- "scores"
+#     } else {
+#       output <- "sig"
+#     }
+#     scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1, output = output)
+#   } else {
+#     scores <- cilr(X = X, A = A, resample = T, ..., maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
+#   }
+#   is.matrix(scores)
+#   output <- enrichment_evaluate(scores = scores, results = label, metric = metric)
+#   return(output)
+# }
 
 #' Getting random gene sets of different sizes 
 #' @param physeq Phyloseq object containing the data 

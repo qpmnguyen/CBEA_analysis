@@ -146,6 +146,18 @@
       "git_last_commit_date": "2021-10-26",
       "Hash": "a2b71046a5e013f4929b85937392a1f9"
     },
+    "CBEA": {
+      "Package": "CBEA",
+      "Version": "0.99.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "qpmnguyen",
+      "RemoteRepo": "CBEA",
+      "RemoteRef": "master",
+      "RemoteSha": "1a7135b6e92851fac360a9a65075dcce82dbb1f0",
+      "Hash": "06e4cf574e3a15911a772d858334d156"
+    },
     "DBI": {
       "Package": "DBI",
       "Version": "1.1.1",
@@ -1431,6 +1443,13 @@
       "Repository": "CRAN",
       "Hash": "0bde42ee282efb18c7c4e63822f5b4f7"
     },
+    "lobstr": {
+      "Package": "lobstr",
+      "Version": "1.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3354c874f6008f7f1e418526df8ecd8a"
+    },
     "locfit": {
       "Package": "locfit",
       "Version": "1.5-9.4",
@@ -2094,12 +2113,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "082656166cf9d1286c0cbf59b555eb1e"
-    },
-    "teaR": {
-      "Package": "teaR",
-      "Version": "0.99.0",
-      "Source": "Bioconductor",
-      "Hash": "8be7b1b30167f9da49f39ba14279727c"
     },
     "tensorA": {
       "Package": "tensorA",
