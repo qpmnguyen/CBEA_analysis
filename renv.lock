@@ -148,15 +148,15 @@
     },
     "CBEA": {
       "Package": "CBEA",
-      "Version": "0.99.0",
+      "Version": "0.99.1",
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
       "RemoteUsername": "qpmnguyen",
       "RemoteRepo": "CBEA",
       "RemoteRef": "master",
-      "RemoteSha": "1a7135b6e92851fac360a9a65075dcce82dbb1f0",
-      "Hash": "06e4cf574e3a15911a772d858334d156"
+      "RemoteSha": "eb7c9585edefa09ac11d9edd80bd90607d4c25cd",
+      "Hash": "44158383b6c163176e33e864187b2498"
     },
     "DBI": {
       "Package": "DBI",

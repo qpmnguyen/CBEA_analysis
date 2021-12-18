@@ -46,15 +46,20 @@ df_wgs <- tar_rds(physeq_wgs, {
 fdr_job <- tar_map(unlist = FALSE, values = get_settings("sig"), 
         tar_target(index_batch, seq_len(1)),
         tar_target(index_rep, seq_len(5)),
-        tar_target(rand_set, get_rand_sets(physeq_16s, size = size, n_sets = 1)),
+        tar_target(rand_set, {
+            purrr::map_dfr(index_rep, ~get_rand_sets(physeq_16s, size = size, n_sets = 1))
+        }, pattern = map(index_batch)),
         tar_target(enrich_test, {
             purrr::map_dfr(index_rep, ~enrichment_analysis(physeq_16s, set = rand_set, method = models, metric = "fdr", 
                                                            distr = distr, adj = adj, output = "sig"))
-        }, pattern = map(index_batch))
+        }, pattern = map(index_batch)),
+        tar_target(enrich_eval, {
+            
+        })
 )
 
 
-fdr_summary <- tar_combine(combine_fdr, fdr_job, command = dplyr::bind_rows(!!!.x))
+fdr_summary <- tar_combine(combine_fdr, fdr_job[[4]], command = dplyr::bind_rows(!!!.x))
 
 list(df_16s, df_wgs, fdr_job, fdr_summary)
 

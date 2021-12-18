@@ -156,9 +156,15 @@ wc_test_physeq <- function(physeq, set, thresh = 0.05, alt = "two.sided",
             }
         })
     }) 
+    #scores <- tibble(
+    #    sample_id = names(set_list),
+    #    scores
+    #)
     scores <- as.data.frame(scores)
     rownames(scores) <- names(set_list)
-    return(t(scores))
+    scores <- t(scores) %>% as.data.frame() %>% 
+        rownames_to_column("sample_id") %>% as_tibble()
+    return(scores)
 }
 
 
