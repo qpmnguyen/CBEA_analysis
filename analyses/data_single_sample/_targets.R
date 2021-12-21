@@ -21,36 +21,39 @@ get_settings <- function(mode){
             models = c("cbea"),
             distr = c("mnorm", "norm"),
             adj = c(TRUE, FALSE), 
-            size = c(20,50,100,150,200)
+            size = c(20,50,100,150,200), 
+            type = c("wgs", "16s")
         ))
         addition <- cross_df(list(
             models = c("wilcoxon"),
+            type = c("wgs", "16s"),
             size = c(20,50,100,150,200)
         ))
-        settings <- full_join(settings, addition, by = c("models", "size"))
+        settings <- full_join(settings, addition, by = c("models", "size", "type"))
         settings$id <- seq_len(nrow(settings))
     }
     return(settings)
 }
 
 # data 2 and 3  
-df_16s <- tar_rds(physeq_16s, {
-    readRDS("../../data/ackerman_ibd_16S.rds")
-})
-
-df_wgs <- tar_rds(physeq_wgs, {
-    readRDS("../../data/nielsen_ibd_wgs.rds")
-})
-
+ibd_load <- function(type){
+    type <- match.arg(type, c("16s", "wgs"))
+    if (type == "16s"){
+        return(readRDS("../../data/ackerman_ibd_16S.rds"))
+    } else (
+        return(readRDS("../../data/nielsen_ibd_wgs.rds"))
+    )
+}
 
 fdr_job <- tar_map(unlist = FALSE, values = get_settings("sig"), 
-        tar_target(index_batch, seq_len(50)),
-        tar_target(index_rep, seq_len(10)),
+        tar_target(index_batch, seq_len(10)),
+        tar_target(index_rep, seq_len(50)),
+        tar_rds(input_data, ibd_load(type)),
         tar_target(rand_set, {
-            purrr::map(index_rep, ~get_rand_sets(physeq_16s, size = size, n_sets = 1))
+            purrr::map(index_rep, ~get_rand_sets(input_data, size = size, n_sets = 1))
         }, pattern = map(index_batch)),
         tar_target(enrich_test, {
-            purrr::map(rand_set, ~enrichment_analysis(physeq_16s, 
+            purrr::map(rand_set, ~enrichment_analysis(input_data, 
                                                   set = .x, method = models, 
                                                   metric = "fdr", distr = distr, 
                                                   adj = adj, output = "sig"))
@@ -58,6 +61,7 @@ fdr_job <- tar_map(unlist = FALSE, values = get_settings("sig"),
         tar_target(enrich_eval, {
             purrr::map_dfr(enrich_test, ~{
                 tibble(
+                    type = type,
                     models = models,
                     distr = distr,
                     adj = adj,
@@ -69,11 +73,12 @@ fdr_job <- tar_map(unlist = FALSE, values = get_settings("sig"),
 )
 
 
-fdr_summary <- tar_combine(combine_fdr, fdr_job[[5]], command = dplyr::bind_rows(!!!.x))
+
+fdr_summary <- tar_combine(combine_fdr, fdr_job[[6]], command = dplyr::bind_rows(!!!.x))
 
 fdr_save <- tarchetypes::tar_rds(save_fdr, saveRDS(auc, "output/fdr_randset_comparison.rds"))
 
-list(df_16s, df_wgs, fdr_job, fdr_summary, fdr_save)
+list(fdr_job, fdr_summary, fdr_save)
 
 
 
