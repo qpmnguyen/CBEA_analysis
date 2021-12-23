@@ -65,9 +65,9 @@ get_settings <- function(mode){
 ibd_load <- function(type){
     type <- match.arg(type, c("16s", "wgs"))
     if (type == "16s"){
-        return(readRDS("../../data/ackerman_ibd_16S.rds"))
+        return(readRDS("data/ackerman_ibd_16S.rds"))
     } else (
-        return(readRDS("../../data/nielsen_ibd_wgs.rds"))
+        return(readRDS("data/nielsen_ibd_wgs.rds"))
     )
 }
 
