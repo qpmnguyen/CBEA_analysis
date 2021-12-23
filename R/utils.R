@@ -45,9 +45,12 @@ calculate_statistic <- function(eval, pred, true = NULL) {
 #' @param set The BiocSet object
 #' @param method The method of evaluation
 #' @param preprocess Standard preprocessing includes proportion normalization and pseudocount
-alt_scores_physeq <- function(physeq, set, method, preprocess, ...) {
+alt_scores_physeq <- function(physeq, set, method, preprocess, 
+                              pseudocount = TRUE, ...) {
     method <- match.arg(method, c("plague", "zscore", "ssgsea", "gsva", "prop"))
-    physeq <- transform_sample_counts(physeq, function(x) x + 1)
+    if (pseudocount == TRUE){
+        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+    }
     if (method == "gsva") {
         preprocess <- FALSE
     }
