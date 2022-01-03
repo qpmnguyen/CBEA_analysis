@@ -168,3 +168,25 @@ file.copy(from = Sys.glob("figures/*.png"),
 
 file.copy(from = Sys.glob("figures/*.eps"), 
           to = glue("{save_dir}", save_dir = save_dir), recursive = TRUE, overwrite = TRUE)
+
+
+### FDR PLOTS NEW #### 
+df <- readRDS(file = "output/fdr_ss_randset.rds")
+df <- df %>% mutate(adj = if_else(adj, "Yes", "No")) %>% 
+    mutate(adj = if_else(is.na(adj), "Not applicable", adj), 
+           models = if_else(is.na(models), "Not applicable", models)) %>%
+    unite("models", models:distr) %>% 
+    mutate(models = if_else(str_detect(models, "_NA"), 
+                            str_remove_all(models, "_NA"), models)) %>% 
+    group_by(type, models, adj, size) %>% 
+    summarise(estimate = mean(res), 
+              se = sd(res)/sqrt(500)) %>% 
+    mutate(upper = estimate + se, lower = estimate - se) %>% ungroup()
+
+
+
+ggplot(df %>% filter(type == "16s"), aes(x = models, y = estimate, col = models, shape = adj)) +
+    geom_point(position = position_dodge(width = 1)) +
+    scale_color_d3() +
+    geom_pointrange(aes(ymax = upper, ymin = lower), position = position_dodge(width = 1)) + 
+    facet_grid(. ~ size) + theme_bw()

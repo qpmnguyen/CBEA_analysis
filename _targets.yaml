@@ -1,6 +1,3 @@
-plotting:
-  script: script_plot.R
-  store: store_plot
 data_ss:
   script: script_data_ss.R
   store: store_data_ss
