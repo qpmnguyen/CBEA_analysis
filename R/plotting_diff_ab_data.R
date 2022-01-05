@@ -17,10 +17,10 @@ fdr_plot <- function(dir){
         mutate(upper = est + sd/sqrt(n), lower = est - sd/sqrt(n)) %>%
         unite("model", methods, distr)  %>% 
         mutate(model = case_when(
-            model == "cilr_wilcox_mnorm" ~ "cILR Mixture Normal w/ Wilcox Test", 
-            model == "cilr_wilcox_norm" ~ "cILR Normal w/ Wilcox Test",
-            model == "cilr_welch_mnorm" ~ "cILR Mixture Normal w/ Welch Test", 
-            model == "cilr_welch_norm" ~ "cILR Normal w/ Welch Test",
+            model == "cilr_wilcox_mnorm" ~ "CBEA Mixture Normal w/ Wilcox Test", 
+            model == "cilr_wilcox_norm" ~ "CBEA Normal w/ Wilcox Test",
+            model == "cilr_welch_mnorm" ~ "CBEA Mixture Normal w/ Welch Test", 
+            model == "cilr_welch_norm" ~ "CBEA Normal w/ Welch Test",
             model == "deseq2_NA" ~ "DESeq2", 
             model == "corncob_NA" ~ "corncob"
         )) %>% 
@@ -63,10 +63,10 @@ pwr <- pwr %>% mutate(adj = replace_na(adj, "Not Applicable"),
                    TRUE ~ "Not Applicable")) %>% 
     unite("model", methods, distr)  %>% 
     mutate(model = case_when(
-        model == "cilr_wilcox_mnorm" ~ "cILR Mixture Normal w/ Wilcox Test", 
-        model == "cilr_wilcox_norm" ~ "cILR Normal w/ Wilcox Test",
-        model == "cilr_welch_mnorm" ~ "cILR Mixture Normal w/ Welch Test", 
-        model == "cilr_welch_norm" ~ "cILR Normal w/ Welch Test",
+        model == "cilr_wilcox_mnorm" ~ "CBEA Mixture Normal w/ Wilcox Test", 
+        model == "cilr_wilcox_norm" ~ "CBEA Normal w/ Wilcox Test",
+        model == "cilr_welch_mnorm" ~ "CBEA Mixture Normal w/ Welch Test", 
+        model == "cilr_welch_norm" ~ "CBEA Normal w/ Welch Test",
         model == "deseq2_NA" ~ "DESeq2", 
         model == "corncob_NA" ~ "corncob"
     )) %>% 

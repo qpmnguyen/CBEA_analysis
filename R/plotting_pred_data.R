@@ -24,7 +24,7 @@ data <- data %>% mutate(output = replace_na(output, "Raw Scores"),
         TRUE ~ "Not Applicable"
     )) %>% 
     mutate(method = case_when(
-        method == "cilr" ~ "cILR",
+        method == "cilr" ~ "CBEA",
         method == "ssgsea" ~ "ssGSEA",
         method == "gsva" ~ "GSVA", 
         method == "clr" ~ "CLR"

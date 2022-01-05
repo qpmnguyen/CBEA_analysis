@@ -21,8 +21,8 @@ load_and_process <- function(type = c("fdr", "pwr")){
     full_data <- full_join(sim_grid, sim_results, by = "id")
     full_data <- full_data %>% unite(model, c("model", "distr")) %>% 
         mutate(model = case_when(
-            model == "cilr_mnorm" ~ "cILR Mixture Normal",
-            model == "cilr_norm" ~ "cILR Normal", 
+            model == "cilr_mnorm" ~ "CBEA Mixture Normal",
+            model == "cilr_norm" ~ "CBEA Normal", 
             model == "wilcox_NA" ~ "Wilcoxon Rank Sum"
         )) %>% 
         mutate(adj = replace_na(adj, "Not applicable")) %>% 
@@ -30,8 +30,8 @@ load_and_process <- function(type = c("fdr", "pwr")){
     
     real_data <- real_data %>% unite(models, c("models", "distr")) %>% 
         mutate(model = case_when(
-            models == "cilr_mnorm" ~ "cILR Mixture Normal",
-            models == "cilr_norm" ~ "cILR Normal", 
+            models == "cilr_mnorm" ~ "CBEA Mixture Normal",
+            models == "cilr_norm" ~ "CBEA Normal", 
             models == "wilcox_NA" ~ "Wilcoxon Rank Sum",
         )) %>% 
         mutate(adj = replace_na(adj, "Not applicable")) 
@@ -100,8 +100,8 @@ sim_auc_results <- readRDS(file = "analyses/simulations_single_sample_auc/output
 full_data <- full_join(sim_auc_grid, sim_auc_results, by = "id")
 full_data <- full_data %>% unite(model, c("model", "distr")) %>% 
     mutate(model = case_when(
-        model == "cilr_mnorm" ~ "cILR Mixture Normal",
-        model == "cilr_norm" ~ "cILR Normal", 
+        model == "cilr_mnorm" ~ "CBEA Mixture Normal",
+        model == "cilr_norm" ~ "CBEA Normal", 
         model == "gsva_NA" ~ "GSVA", 
         model == "ssgsea_NA" ~ "ssGSEA",
         model == "wilcox_NA" ~ "Wilcoxon W Statistic"
@@ -116,8 +116,8 @@ full_data <- full_data %>% unite(model, c("model", "distr")) %>%
 
 auc_data <- auc_data %>% unite(models, c("models", "distr")) %>% 
     mutate(model = case_when(
-        models == "cilr_mnorm" ~ "cILR Mixture Normal",
-        models == "cilr_norm" ~ "cILR Normal", 
+        models == "cilr_mnorm" ~ "CBEA Mixture Normal",
+        models == "cilr_norm" ~ "CBEA Normal", 
         models == "gsva_NA" ~ "GSVA", 
         models == "ssgsea_NA" ~ "ssGSEA",
         models == "wilcoxon_NA" ~ "Wilcoxon W Statistic"

@@ -44,7 +44,7 @@ gingival_evaluate <- function(physeq, results){
 #' @param ... Additional arguments passed on to CBEA
 enrichment_analysis <- function(physeq, set, method, 
                                 label = NULL, metric, preprocess = TRUE, ...) {
-    if (method == "gsva"){
+    if (method %in% c("gsva", "wilcoxon")){
         preprocess <- FALSE
         message("Forcing preprocess to be false when evaluating GSVA")
     }
@@ -56,6 +56,8 @@ enrichment_analysis <- function(physeq, set, method,
         scores <- alt_scores_physeq(physeq, set, method = method, preprocess = TRUE)
         scores <- scores %>% rownames_to_column(var = "sample_id") %>% as_tibble()
     } else if (method == "wilcoxon") {
+        # wilcoxon with raw counts but adding pseudocounts to avoid zeroes 
+        physeq <- transform_sample_counts(physeq, function(x) x + 1)
         if (metric == "auc") {
             output <- "scores"
         } else {

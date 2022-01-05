@@ -73,7 +73,7 @@ ibd_load <- function(type){
 
 fdr <- tar_map(unlist = FALSE, values = get_settings("sig"), 
                tar_target(index_batch, seq_len(10)),
-               tar_target(index_rep, seq_len(50)),
+               tar_target(index_rep, seq_len(100)),
                tar_rds(input_data, ibd_load(type)),
                tar_target(rand_set, {
                    purrr::map(index_rep, ~get_rand_sets(input_data, size = size, n_sets = 1))
