@@ -1,3 +1,6 @@
 data_ss:
   script: script_data_ss.R
   store: store_data_ss
+data_diffab:
+  script: script_data_diffab.R
+  store: store_data_diffab
