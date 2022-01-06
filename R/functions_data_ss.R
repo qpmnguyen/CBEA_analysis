@@ -15,7 +15,7 @@ gingival_processing <- function(data) {
     full_table <- full_join(tax_table, annotation, by = "GENUS") %>% 
         filter(!is.na(id) & !is.na(METABOLISM))
     sets <- const_set(full_table, id = "id", member = "METABOLISM")
-    physeq <- filter_taxa(physeq, function(x) sum(x > 0)/length(x) >= 0.05, TRUE)
+    #physeq <- filter_taxa(physeq, function(x) sum(x > 0)/length(x) >= 0.05, TRUE)
     sets <- unify_sets(physeq, sets)
     return(list(
         physeq = physeq,
@@ -43,17 +43,11 @@ gingival_evaluate <- function(physeq, results){
 #' @param metric Either auc or inference
 #' @param ... Additional arguments passed on to CBEA
 enrichment_analysis <- function(physeq, set, method, 
-                                label = NULL, metric, preprocess = TRUE, ...) {
-    if (method %in% c("gsva", "wilcoxon")){
-        preprocess <- FALSE
-        message("Forcing preprocess to be false when evaluating GSVA")
-    }
-    if (preprocess == TRUE){
-        physeq <- transform_sample_counts(physeq, function(x) x + 1)
-        physeq <- transform_sample_counts(physeq, function(x) x / sum(x))
-    }
+                                label = NULL, metric, ...) {
     if (method %in% c("ssgsea", "gsva")) {
-        scores <- alt_scores_physeq(physeq, set, method = method, preprocess = TRUE)
+        # for ssgsea and gsva only pseudocount
+        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+        scores <- alt_scores_physeq(physeq, set, method = method, preprocess = FALSE)
         scores <- scores %>% rownames_to_column(var = "sample_id") %>% as_tibble()
     } else if (method == "wilcoxon") {
         # wilcoxon with raw counts but adding pseudocounts to avoid zeroes 
@@ -66,9 +60,12 @@ enrichment_analysis <- function(physeq, set, method,
         scores <- wc_test_physeq(
             physeq = physeq, set = set,
             thresh = 0.05, alt = "two.sided",
-            preprocess = TRUE, ...
+            preprocess = FALSE, ...
         )
     } else if (method == "cbea") {
+        # cbea requries transformation to proportions
+        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+        physeq <- transform_sample_counts(physeq, function(x) x / sum(x))
         scores <- CBEA::cbea(obj = physeq, set = set, thresh = 0.05, ...)
     }
     return(scores)

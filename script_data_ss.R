@@ -82,8 +82,7 @@ fdr <- tar_map(unlist = FALSE, values = get_settings("sig"),
                    purrr::map(rand_set, ~enrichment_analysis(input_data, 
                                                              set = .x, method = models, 
                                                              metric = "fdr", distr = distr, 
-                                                             adj = adj, output = "sig", 
-                                                             preprocess = TRUE))
+                                                             adj = adj, output = "sig"))
                }, pattern = map(rand_set)),
                tar_target(enrich_eval, {
                    purrr::map_dfr(enrich_test, ~{
@@ -120,8 +119,7 @@ phenotype_sig <- tar_map(unlist = FALSE, values = get_settings("pheno"),
                                              set = proc_sig_data$sets, 
                                              method = models, 
                                              metric = "fdr", distr = distr, 
-                                             adj = adj, output = "sig", 
-                                             preprocess = TRUE)),
+                                             adj = adj, output = "sig")),
     tar_target(sig_eval, gingival_evaluate(physeq = proc_sig_data$physeq, 
                                          results = sig_scores)),
     tar_target(sig_metric, {
@@ -153,8 +151,7 @@ phenotype_auc <- tar_map(unlist = FALSE, values = get_settings("auc"),
                                               set = proc_auc_data$sets, 
                                               method = models, 
                                               metric = "auc", distr = distr, 
-                                              adj = adj, output = "sig", 
-                                              preprocess = TRUE)),
+                                              adj = adj, output = "sig")),
      tar_target(auc_eval, gingival_evaluate(physeq = proc_auc_data$physeq, 
                                           results = auc_scores)),
      tar_target(auc_metric, {
