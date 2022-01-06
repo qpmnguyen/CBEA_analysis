@@ -83,7 +83,7 @@ fdr <- tar_map(unlist = FALSE, values = get_settings("sig"),
                                                              set = .x, method = models, 
                                                              metric = "fdr", distr = distr, 
                                                              adj = adj, output = "sig", 
-                                                             preproces = TRUE))
+                                                             preprocess = TRUE))
                }, pattern = map(rand_set)),
                tar_target(enrich_eval, {
                    purrr::map_dfr(enrich_test, ~{
