@@ -23,7 +23,6 @@ gingival_processing <- function(data) {
     ))
 }
 
-
 #' @param results Output of enrichment_analysis  
 #' @param physeq This is the original physeq 
 gingival_evaluate <- function(physeq, results){
