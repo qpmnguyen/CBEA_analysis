@@ -27,6 +27,5 @@ external/
 .drake/
 simulation/
 diagnostic_dsets/
-prototype.R
 _targets/
 store_*/
