@@ -178,7 +178,7 @@ df_fdr_new <- df_fdr_new %>% mutate(adj = if_else(adj, "Yes", "No")) %>%
     unite("models", models:distr) %>% 
     mutate(models = if_else(str_detect(models, "_NA"), 
                             str_remove_all(models, "_NA"), models)) %>% 
-    group_by(type, models, adj, size) %>% 
+    group_by(models, adj, size) %>% 
     summarise(estimate = mean(res), 
               se = sd(res)/sqrt(1000)) %>% 
     mutate(upper = estimate + se, lower = estimate - se) %>% ungroup() %>% 
@@ -188,7 +188,9 @@ df_fdr_new <- df_fdr_new %>% mutate(adj = if_else(adj, "Yes", "No")) %>%
         models == "wilcoxon" ~ str_wrap("Wilcoxon Rank Sum Test", width = 70)
     ))
 
-fdr_16s_new <- ggplot(df_fdr_new %>% filter(type == "16s"), aes(x = models, y = estimate, col = models, shape = adj)) +
+
+
+fdr_new <- ggplot(df_fdr_new, aes(x = models, y = estimate, col = models, shape = adj)) +
     geom_point(position = position_dodge(width = 1)) +
     scale_color_d3() +
     geom_pointrange(aes(ymax = upper, ymin = lower), position = position_dodge(width = 1)) + 

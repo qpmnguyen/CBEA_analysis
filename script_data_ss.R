@@ -76,7 +76,7 @@ gingival_load <- function(){
 
 fdr <- tar_map(unlist = FALSE, values = get_settings("sig"), 
                tar_target(index_batch, seq_len(10)),
-               tar_target(index_rep, seq_len(100)),
+               tar_target(index_rep, seq_len(1)),
                tar_target(input_data, {gingival_load()$physeq}),
                tar_target(rand_set, {
                    purrr::map(index_rep, ~get_rand_sets(input_data, size = size, n_sets = 1))
@@ -173,9 +173,9 @@ pheno_auc_save <- tarchetypes::tar_rds(save_pheno_auc, saveRDS(combine_pheno_auc
 
 
 list(
-    fdr, fdr_summary, fdr_save,
-    phenotype_sig, phenotype_sig_summary, phenotype_sig_save,
-    phenotype_auc, phenotype_auc_summary, pheno_auc_save
+    fdr, fdr_summary, fdr_save
+    #phenotype_sig, phenotype_sig_summary, phenotype_sig_save,
+    #phenotype_auc, phenotype_auc_summary, pheno_auc_save
 )
 
 

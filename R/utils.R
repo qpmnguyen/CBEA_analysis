@@ -150,7 +150,10 @@ wc_test_physeq <- function(physeq, set, thresh = 0.05, alt = "two.sided",
                            preprocess = F,
                            output = c("pval", "sig", "scores"), ...){
     output <- match.arg(output)
-    physeq <- transform_sample_counts(physeq, function(x) x + 1)
+    if (preprocess == TRUE){
+        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+    }
+    # this is now a taxa-by-sample matrix 
     X <- as(otu_table(physeq), "matrix")
     set_list <- as(set, "list")
     scores <- map_dfr(set_list, ~{
