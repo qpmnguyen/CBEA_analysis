@@ -22,12 +22,10 @@ get_settings <- function(mode){
             models = c("cbea"),
             distr = c("mnorm", "norm"),
             adj = c(TRUE, FALSE), 
-            size = c(20,50,100,150,200), 
-            type = c("wgs", "16s")
+            size = c(20,50,100,150,200)
         ))
         addition <- cross_df(list(
             models = c("wilcoxon"),
-            type = c("wgs", "16s"),
             size = c(20,50,100,150,200)
         ))
         settings <- full_join(settings, addition, by = c("models", "size", "type"))
@@ -71,10 +69,15 @@ ibd_load <- function(type){
     )
 }
 
+#' @title Function that loads the data 
+gingival_load <- function(){
+    readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
+}
+
 fdr <- tar_map(unlist = FALSE, values = get_settings("sig"), 
                tar_target(index_batch, seq_len(10)),
                tar_target(index_rep, seq_len(100)),
-               tar_rds(input_data, ibd_load(type)),
+               tar_rds(input_data, gingival_load()),
                tar_target(rand_set, {
                    purrr::map(index_rep, ~get_rand_sets(input_data, size = size, n_sets = 1))
                }, pattern = map(index_batch)),
@@ -106,11 +109,6 @@ fdr_save <- tarchetypes::tar_rds(save_fdr, saveRDS(combine_fdr,
                                                    "output/fdr_ss_randset.rds"))
 
 # ACCURACY ANALYSES - PHENOTYPE RELEVANCE ####
-
-#' @title Function that loads the data 
-gingival_load <- function(){
-    readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
-}
 
 phenotype_sig <- tar_map(unlist = FALSE, values = get_settings("pheno"), 
     tar_target(sig_data, gingival_load()),
