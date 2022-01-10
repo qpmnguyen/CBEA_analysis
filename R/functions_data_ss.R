@@ -65,7 +65,7 @@ enrichment_analysis <- function(physeq, set, method,
         # cbea requries transformation to proportions
         physeq <- transform_sample_counts(physeq, function(x) x + 1)
         physeq <- transform_sample_counts(physeq, function(x) x / sum(x))
-        scores <- CBEA::cbea(obj = physeq, set = set, thresh = 0.05, n_boot = 5, ...)
+        scores <- CBEA::cbea(obj = physeq, set = set, thresh = 0.05, n_boot = 1, ...)
     }
     return(scores)
 }

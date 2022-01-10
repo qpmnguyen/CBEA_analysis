@@ -10,7 +10,55 @@ gingival_load <- function(){
     readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
 }
 
-fdr_analysis <- tar_map()
+# DEFINE SETTINGS ####
+# if not auc, then only care about significant outcomes 
+get_settings <- function(mode){
+    mode <- match.arg(mode, choices = c("sig","pheno", "auc"))
+    if (mode == "rset"){
+        settings <- cross_df(list(
+            models = c("cbea"),
+            distr = c("mnorm", "norm"),
+            adj = c(TRUE, FALSE),
+            output = c("zscore", "cdf", "raw"),
+            size = c(20,50,100,150,200)
+        ))
+        addition <- cross_df(list(
+            models = c("corncob", "deseq2"),
+            size = c(20,50,100,150,200)
+        ))
+        settings <- full_join(settings, addition, by = c("models", "size"))
+        settings$id <- seq_len(nrow(settings))
+    } else if (mode == "auc"){
+        settings <- cross_df(list(
+            models = c("cbea"),
+            distr = c("mnorm", "norm"),
+            adj = c(TRUE, FALSE)
+        ))
+        addition <- cross_df(list(
+            models = c("ssgsea", "gsva", "wilcoxon")
+            
+        ))
+        settings <- full_join(settings, addition, by = c("models"))
+        settings$id <- seq_len(nrow(settings))
+    } else if (mode == "pheno"){
+        settings <- cross_df(list(
+            models = c("cbea"),
+            distr = c("mnorm", "norm"),
+            adj = c(TRUE, FALSE) 
+        ))
+        addition <- cross_df(list(
+            models = c("wilcoxon")
+        ))
+        settings <- full_join(settings, addition, by = c("models"))
+        settings$id <- seq_len(nrow(settings))
+        
+    }
+    return(settings)
+}
+
+
+
+fdr_analysis <- tar_map(unlist = FALSE, values = get_settings(""))
 
 
 rset_analysis <- tar_map(unlist = FALSE, values = get_settings("sig"), 
