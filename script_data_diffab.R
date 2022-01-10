@@ -6,8 +6,14 @@ library(future)
 library(phyloseq)
 source("R/functions_data_diffab.R")
 
+gingival_load <- function(){
+    readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
+}
 
-fdr <- tar_map(unlist = FALSE, values = get_settings("sig"), 
+fdr_analysis <- tar_map()
+
+
+rset_analysis <- tar_map(unlist = FALSE, values = get_settings("sig"), 
                tar_target(index_batch, seq_len(10)),
                tar_target(index_rep, seq_len(1)),
                tar_target(input_data, {gingival_load()$physeq}),

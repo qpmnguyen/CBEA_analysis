@@ -2,6 +2,7 @@ library(tidyverse)
 library(ggsci)
 library(patchwork)
 library(glue)
+library(ggridges)
 
 if(Sys.info()["sysname"] == "Darwin"){
     save_dir <- "../cilr_manuscript/figures"
@@ -172,6 +173,20 @@ file.copy(from = Sys.glob("figures/*.eps"),
 
 ### FDR PLOTS NEW #### 
 df_fdr_new <- readRDS(file = "output/fdr_ss_randset.rds")
+
+# diagnostic distribution plots 
+df_fdr_new %>%  mutate(adj = if_else(adj, "Adjusted", "Not Adjusted")) %>% 
+    mutate(adj = if_else(is.na(adj), "Not applicable", adj), 
+           models = if_else(is.na(models), "Not applicable", models)) %>%
+    unite("models", c(models, distr, adj)) %>% 
+    mutate(models = if_else(str_detect(models, "_NA"), 
+                            str_remove_all(models, "_NA"), models)) %>% 
+    ggplot(aes(x = res, y = models, fill = models)) + 
+    geom_density_ridges() + 
+    facet_wrap(~size, labeller = label_both) + 
+    labs(x = "Type I error", y = "Counts") + theme_bw() +
+    scale_fill_d3()
+
 df_fdr_new <- df_fdr_new %>% mutate(adj = if_else(adj, "Yes", "No")) %>% 
     mutate(adj = if_else(is.na(adj), "Not applicable", adj), 
            models = if_else(is.na(models), "Not applicable", models)) %>%
