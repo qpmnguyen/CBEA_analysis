@@ -244,8 +244,8 @@
       "RemoteUsername": "qpmnguyen",
       "RemoteRepo": "CBEA",
       "RemoteRef": "master",
-      "RemoteSha": "4ba1d686789c6c6152ec461f8d84d6d96c040e9b",
-      "Hash": "b13236403da4c2d9bc96d40fb2018507",
+      "RemoteSha": "3f436df53c0327f7c88380ba065628c2f8ac8cd3",
+      "Hash": "c4340320a7d7bc654730414c8036da6e",
       "Requirements": [
         "BiocSet",
         "Rcpp",

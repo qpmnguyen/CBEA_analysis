@@ -28,7 +28,7 @@ get_settings <- function(mode){
             models = c("wilcoxon"),
             size = c(20,50,100,150,200)
         ))
-        settings <- full_join(settings, addition, by = c("models", "size", "type"))
+        settings <- full_join(settings, addition, by = c("models", "size"))
         settings$id <- seq_len(nrow(settings))
     } else if (mode == "auc"){
         settings <- cross_df(list(

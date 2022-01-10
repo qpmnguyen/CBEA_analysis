@@ -62,7 +62,7 @@ do_new_code_randset <- function(otu_table, settings){
     new_anal <- settings %>% 
         mutate(sets = list(get_rand_sets(otu_table, size = 100, n_sets = 1))) %>%
         mutate(res = pmap(., function(models, distr, adj, iter, sets){
-            cbea(obj = otu_table, set = sets, output = "sig", distr = distr, adj = adj)
+            cbea(obj = otu_table, set = sets, output = "sig", distr = distr, adj = adj, n_boot = 1)
         })) %>% 
         mutate(eval = map_dbl(res, function(x){
             pred <- x %>% pull(Set1) %>% factor(levels = c(0,1))
