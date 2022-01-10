@@ -90,7 +90,6 @@ fdr <- tar_map(unlist = FALSE, values = get_settings("sig"),
                tar_target(enrich_eval, {
                    purrr::map_dfr(enrich_test, ~{
                        tibble(
-                           type = type,
                            models = models,
                            distr = distr,
                            adj = adj,
