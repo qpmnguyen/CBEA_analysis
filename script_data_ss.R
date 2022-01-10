@@ -173,9 +173,9 @@ pheno_auc_save <- tarchetypes::tar_rds(save_pheno_auc, saveRDS(combine_pheno_auc
 
 
 list(
-    fdr, fdr_summary, fdr_save
-    #phenotype_sig, phenotype_sig_summary, phenotype_sig_save,
-    #phenotype_auc, phenotype_auc_summary, pheno_auc_save
+    fdr, fdr_summary, fdr_save,
+    phenotype_sig, phenotype_sig_summary, phenotype_sig_save,
+    phenotype_auc, phenotype_auc_summary, pheno_auc_save
 )
 
 

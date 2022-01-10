@@ -23,8 +23,15 @@ calculate_statistic <- function(eval, pred, true = NULL) {
             message("Cannot find true, assuming all values are 1")
             true <- rep(1, length(pred))
         }
-        stat <- sum(pred == 1 & true == 1)
-        conf <- binom.confint(stat, length(pred), conf.level = 0.95, methods = "ac")
+        if (eval == "pwr"){
+            stat <- sum(pred == 1 & true == 1)
+            # if true == 1 in everything (in the case of the global alternate), 
+            # then sum(true == 1) = length(pred) == length(true)
+            conf <- binom.confint(stat, sum(true == 1), conf.level = 0.95, methods = "ac")
+        } else if (eval == "fdr"){
+            stat <- sum(pred == 1 & true == 0)
+            conf <- binom.confint(stat, sum(true == 0), conf.level = 0.95, methods = "ac")
+        }
         stat <- conf %>%
             dplyr::select(c(mean, upper, lower)) %>%
             as.list()
