@@ -13,7 +13,7 @@ gingival_load <- function(){
 # DEFINE SETTINGS ####
 # if not auc, then only care about significant outcomes 
 get_settings <- function(mode){
-    mode <- match.arg(mode, choices = c("sig","pheno", "auc"))
+    mode <- match.arg(mode, choices = c("fdr","rset"))
     if (mode == "rset"){
         settings <- cross_df(list(
             models = c("cbea"),
@@ -28,37 +28,46 @@ get_settings <- function(mode){
         ))
         settings <- full_join(settings, addition, by = c("models", "size"))
         settings$id <- seq_len(nrow(settings))
-    } else if (mode == "auc"){
+    } else if (mode == "fdr"){
         settings <- cross_df(list(
             models = c("cbea"),
             distr = c("mnorm", "norm"),
-            adj = c(TRUE, FALSE)
+            adj = c(TRUE, FALSE),
+            output = c("zscore", "cdf", "raw")
         ))
         addition <- cross_df(list(
-            models = c("ssgsea", "gsva", "wilcoxon")
-            
+            models = c("corncob", "deseq2")
         ))
         settings <- full_join(settings, addition, by = c("models"))
         settings$id <- seq_len(nrow(settings))
-    } else if (mode == "pheno"){
-        settings <- cross_df(list(
-            models = c("cbea"),
-            distr = c("mnorm", "norm"),
-            adj = c(TRUE, FALSE) 
-        ))
-        addition <- cross_df(list(
-            models = c("wilcoxon")
-        ))
-        settings <- full_join(settings, addition, by = c("models"))
-        settings$id <- seq_len(nrow(settings))
-        
     }
     return(settings)
 }
 
 
 
-fdr_analysis <- tar_map(unlist = FALSE, values = get_settings(""))
+fdr_analysis <- tar_map(unlist = FALSE, values = get_settings("fdr"), 
+    tar_target(index_batch, seq_len(10)),
+    tar_target(index_rep, seq_len(1)),
+    tar_target(input_data, {
+        gingival_process(gingival_load())
+    }),
+    tar_target(rand_label, {
+        purr::map(index_rep, ~{
+            sample_data(input_data$physeq)[,"group"] <- rbinom(n = nsamples(input_data$physeq), 
+                                                               size = 1, prob = 0.5)
+            return(input_data$physeq)
+        })
+    }, pattern = map(index_batch)),
+    tar_target(diff_analysis, {
+        purrr::map(rand_label, ~{
+            
+        })
+    }, pattern = map(rand_label)), 
+    tar_target(eval_diff, {
+        
+    })
+)
 
 
 rset_analysis <- tar_map(unlist = FALSE, values = get_settings("sig"), 
