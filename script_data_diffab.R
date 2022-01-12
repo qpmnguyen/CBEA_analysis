@@ -53,7 +53,7 @@ fdr_analysis <- tar_map(unlist = FALSE, values = get_settings("fdr"),
         gingival_process(gingival_load())
     }),
     tar_target(rand_label, {
-        purr::map(index_rep, ~{
+        purrr::map(index_rep, ~{
             sample_data(input_data$physeq)[,"group"] <- rbinom(n = nsamples(input_data$physeq), 
                                                                size = 1, prob = 0.5)
             return(input_data$physeq)

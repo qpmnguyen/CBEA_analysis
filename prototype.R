@@ -150,38 +150,38 @@ eval_settings %>% mutate(res = pmap(., function(models, distr, adj){
 
 
 # NEW CODE WITH DISTRIBUTION #### 
-rand_set <- get_rand_sets(df_hard, size = 100, n_sets = 10)
-scores <- cbea(obj = df_hard, set = rand_set, output = "raw", distr = "norm")
+rand_set <- get_rand_sets(otu, size = 100, n_sets = 1)
+true_scores <- cbea(obj = otu, set = rand_set, output = "raw", distr=NULL, adj=FALSE)
+true_scores <- true_scores %>% rename(truth = Set1)
 
-plot_scores <- scores %>% pivot_longer(cols = Set1:Set9) 
-
+test_set <- get_rand_sets(otu, size = 100, n_sets = 100)
+rand_scores <- cbea(obj = otu, set = test_set, output = "raw", distr = NULL, adj = FALSE)
+plot_scores <- rand_scores %>% pivot_longer(cols = -c(sample_id))
 distr <- fitdistrplus::fitdist(data = plot_scores$value, distr = "norm")
-
 distr_mnorm <- mixtools::normalmixEM(x  = plot_scores$value)
 
-plot_scores <- plot_scores %>% 
-    mutate(norm = rnorm(nrow(.), 
+plot_scores <- plot_scores %>% rename(permuted_values = value) %>% left_join(true_scores) %>% 
+    dplyr::select(-name) %>% 
+    mutate(fitted_norm = rnorm(nrow(.), 
                         mean = distr$estimate["mean"], 
                         sd = distr$estimate["sd"]), 
-           mnorm = rnormmix(n = nrow(.), 
+           fitted_mnorm = rnormmix(n = nrow(.), 
                             lambda = distr_mnorm$lambda, 
                             mu = distr_mnorm$mu, 
-                            sigma = distr_mnorm$sigma))    
+                            sigma = distr_mnorm$sigma)) %>% 
+    pivot_longer(cols = -c(sample_id, truth))
 
-plot_scores <- plot_scores %>% dplyr::select(-c(name)) %>% 
-    rename(data = value) %>% 
-    pivot_longer(norm:mnorm)
 
-ggplot(plot_scores) + 
-    geom_histogram(mapping = aes(x = data, y = ..count..), 
-                   bins = 20, alpha = 0.7, fill = "gray40") + 
-    geom_histogram(mapping = aes(x = value, y = ..count.., 
-                                 color = name, fill = name), 
-                   bins = 20, alpha = 0.4) + 
+ggplot(plot_scores) +
+    geom_histogram(mapping = aes(x = truth), 
+                   alpha = 0.7, fill = "gray40", bins = 40) + 
+    geom_histogram(mapping = aes(x = value, 
+                    color = name, fill = name), 
+                 alpha = 0.4, bins = 40) + 
     scale_fill_npg() + 
     scale_color_npg() + 
     guides(color = "none", fill = "none") + 
-    facet_wrap(~name, nrow = 1) + theme_bw()
+    facet_wrap(~name, nrow = 3) + theme_bw()
 
 
 

@@ -211,8 +211,7 @@ fdr_new <- ggplot(df_fdr_new, aes(x = models, y = estimate, col = models, shape 
     geom_pointrange(aes(ymax = upper, ymin = lower), position = position_dodge(width = 1)) + 
     facet_wrap(~ size, dir = "v", labeller = label_both) + 
     theme_bw() + labs(x = "Models", y = "False Discovery Rate", 
-                      col = "Models", shape = "Correlation adjusted", 
-                      title = "16S Dataset")
+                      col = "Models", shape = "Correlation adjusted")
 
 fdr_wgs_new <- ggplot(df_fdr_new %>% filter(type == "wgs"), aes(x = models, y = estimate, col = models, shape = adj)) +
     geom_point(position = position_dodge(width = 1)) +
