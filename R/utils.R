@@ -3,6 +3,7 @@ library(tidyverse)
 library(GSVA)
 library(pROC)
 library(MASS)
+library(mia)
 library(compositions)
 library(mixtools)
 library(binom)
@@ -53,21 +54,28 @@ calculate_statistic <- function(eval, pred, true = NULL) {
 #' @param method The method of evaluation
 #' @param preprocess Standard preprocessing includes proportion normalization and pseudocount
 alt_scores_physeq <- function(physeq, set, method, preprocess, 
-                              pseudocount = TRUE, ...) {
-    method <- match.arg(method, c("plague", "zscore", "ssgsea", "gsva", "prop"))
+                              pseudocount = TRUE, abund_values = "16SrRNA", ...) {
+    method <- match.arg(method, c("plage", "zscore", "ssgsea", "gsva", "prop"))
     if (pseudocount == TRUE){
-        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+        assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
     }
     if (method == "gsva") {
         preprocess <- FALSE
     }
-    if (method %in% c("plague", "zscore")) {
-        physeq <- phyloseq::transform_sample_counts(physeq, function(x) compositions::clr(x))
+    if (method %in% c("plage", "zscore")) {
+        physeq <- mia::transformCounts(physeq, abund_values = abund_values, method = "clr", pseudocount = 1, 
+                                       name = "main_input")
     }
     if (preprocess == TRUE) {
-        physeq <- transform_sample_counts(physeq, function(x) x / sum(x))
+        physeq <- mia::transformCounts(physeq, 
+                                       abund_values = abund_values, 
+                                       method = "relabundance", name = "main_input")
     }
-    X <- as(otu_table(physeq), "matrix")
+    if (preprocess == TRUE | method %in% c("plage", "zscore")){
+        X <- assay(physeq, "main_input")
+    } else {
+        X <- assay(physeq, abund_values)
+    }
     set_list <- as(set, "list")
     if (method %in% c("gsva", "ssgsea", "zscore", "plage")) {
         if (method == "gsva") {
@@ -145,16 +153,17 @@ generate_alt_scores <- function(X, A, method = c("plage", "zscore", "ssgsea", "g
     return(as.data.frame(scores))
 }
 
-#' Similar to wc_test but now operating for physeq objects  
+#' Similar to wc_test but now operating for physeq objects
+#' physeq objects here are TreeSummarizedExperiments 
 wc_test_physeq <- function(physeq, set, thresh = 0.05, alt = "two.sided", 
                            preprocess = F,
                            output = c("pval", "sig", "scores"), ...){
     output <- match.arg(output)
     if (preprocess == TRUE){
-        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+        assay(physeq) <- assay(physeq) + 1
     }
     # this is now a taxa-by-sample matrix 
-    X <- as(otu_table(physeq), "matrix")
+    X <- assay(physeq)
     set_list <- as(set, "list")
     scores <- map_dfr(set_list, ~{
         idx <- which(rownames(X) %in% .x)

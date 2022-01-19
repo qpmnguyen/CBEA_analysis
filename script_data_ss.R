@@ -3,7 +3,6 @@ library(targets)
 library(tarchetypes)
 library(tidyverse)
 library(future)
-library(phyloseq)
 # library(future.batchtools)
 source("R/functions_data_ss.R")
 tar_option_set(workspace_on_error = TRUE)
@@ -20,21 +19,35 @@ get_settings <- function(mode){
     if (mode == "sig"){
         settings <- cross_df(list(
             models = c("cbea"),
-            distr = c("mnorm", "norm"),
+            distr = c("mnorm", "norm", "lst"),
             adj = c(TRUE, FALSE), 
-            size = c(20,50,100,150,200)
+            size = c(20,50,100,150,200), 
+            fix_comp = c("none", "large", "small", NA)
         ))
         addition <- cross_df(list(
             models = c("wilcoxon"),
             size = c(20,50,100,150,200)
         ))
+        anti_1 <- cross_df(list(
+            models = c("cbea"),
+            distr = c("norm", "lst"),
+            fix_comp = c("none", "large", "small")
+        ))
+        anti_2 <- cross_df(list(
+            models = "cbea",
+            distr = c("mnorm"),
+            fix_comp = NA
+        ))
         settings <- full_join(settings, addition, by = c("models", "size"))
+        settings <- anti_join(settings, anti_1, by = c("models", "distr", "fix_comp"))
+        settings <- anti_join(settings, anti_2, by = c("models", "distr", "fix_comp"))
         settings$id <- seq_len(nrow(settings))
     } else if (mode == "auc"){
         settings <- cross_df(list(
             models = c("cbea"),
             distr = c("mnorm", "norm"),
-            adj = c(TRUE, FALSE)
+            adj = c(TRUE, FALSE),
+            fix_comp = c("none", "large", "small")
         ))
         addition <- cross_df(list(
             models = c("ssgsea", "gsva", "wilcoxon")
@@ -46,7 +59,8 @@ get_settings <- function(mode){
         settings <- cross_df(list(
             models = c("cbea"),
             distr = c("mnorm", "norm"),
-            adj = c(TRUE, FALSE) 
+            adj = c(TRUE, FALSE),
+            fix_comp = c("none", "large", "small")
         ))
         addition <- cross_df(list(
             models = c("wilcoxon")
@@ -71,13 +85,15 @@ ibd_load <- function(type){
 
 #' @title Function that loads the data 
 gingival_load <- function(){
-    readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
+    # readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
+    data(hmp_gingival)
+    return(hmp_gingival)
 }
 
 fdr <- tar_map(unlist = FALSE, values = get_settings("sig"), 
-               tar_target(index_batch, seq_len(10)),
-               tar_target(index_rep, seq_len(100)),
-               tar_target(input_data, {gingival_load()$physeq}),
+               tar_target(index_batch, seq_len(100)),
+               tar_target(index_rep, seq_len(10)),
+               tar_target(input_data, {gingival_load()$data}),
                tar_target(rand_set, {
                    purrr::map(index_rep, ~get_rand_sets(input_data, size = size, n_sets = 1))
                }, pattern = map(index_batch)),
@@ -86,7 +102,8 @@ fdr <- tar_map(unlist = FALSE, values = get_settings("sig"),
                                                              set = .x, method = models, 
                                                              metric = "fdr", distr = distr, 
                                                              adj = adj, output = "sig", 
-                                                             parametric = TRUE, n_perm = 100))
+                                                             parametric = TRUE, n_perm = 200, 
+                                                             control = list(fix_comp = fix_comp)))
                }, pattern = map(rand_set)),
                tar_target(enrich_eval, {
                    purrr::map_dfr(enrich_test, ~{
@@ -95,6 +112,7 @@ fdr <- tar_map(unlist = FALSE, values = get_settings("sig"),
                            distr = distr,
                            adj = adj,
                            size = size,
+                           fix_comp = fix_comp,
                            res = sum(.x[,2])/nrow(.x)
                        )
                    })

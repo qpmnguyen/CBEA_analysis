@@ -1,5 +1,5 @@
-library(phyloseq)
 library(tidyverse)
+library(mia)
 library(CBEA)
 library(yardstick)
 source("R/utils.R")
@@ -26,14 +26,13 @@ gingival_processing <- function(data) {
 #' @param results Output of enrichment_analysis  
 #' @param physeq This is the original physeq 
 gingival_evaluate <- function(physeq, results){
-    sample <- as(sample_data(physeq), "data.frame")
+    sample <- as(colData(physeq), "data.frame")
     sample <- sample %>% rownames_to_column(var = "sample_id") %>% 
         mutate(label = if_else(HMP_BODY_SUBSITE == "Supragingival Plaque",1,0)) %>% 
         dplyr::select(sample_id, label) %>% as_tibble()
-    outcomes <- left_join(results, sample, by = "sample_id")
+    outcomes <- left_join(results, sample, by = "sample_id") %>% as_tibble()
     return(outcomes)
 }
-
 
 
 #' Generate scores
@@ -42,15 +41,15 @@ gingival_evaluate <- function(physeq, results){
 #' @param metric Either auc or inference
 #' @param ... Additional arguments passed on to CBEA
 enrichment_analysis <- function(physeq, set, method, 
-                                label = NULL, metric, ...) {
+                                label = NULL, metric, abund_values = "16SrRNA", ...) {
     if (method %in% c("ssgsea", "gsva")) {
         # for ssgsea and gsva only pseudocount
-        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+        assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
         scores <- alt_scores_physeq(physeq, set, method = method, preprocess = FALSE)
         scores <- scores %>% rownames_to_column(var = "sample_id") %>% as_tibble()
     } else if (method == "wilcoxon") {
         # wilcoxon with raw counts but adding pseudocounts to avoid zeroes 
-        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+        assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
         if (metric == "auc") {
             output <- "scores"
         } else {
@@ -62,39 +61,34 @@ enrichment_analysis <- function(physeq, set, method,
             preprocess = FALSE, ...
         )
     } else if (method == "cbea") {
+        args <- list(...)
+        if ("control" %in% names(args)){
+            if (args$distr == "norm"){
+                args$control <- NULL
+            }
+        }
         # cbea requries transformation to proportions
-        physeq <- transform_sample_counts(physeq, function(x) x + 1)
-        physeq <- transform_sample_counts(physeq, function(x) x / sum(x))
-        scores <- CBEA::cbea(obj = physeq, set = set, thresh = 0.05, ...)
+        assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
+        physeq <- transformCounts(physeq, abund_values = abund_values, method = "relabundance", 
+                                  name = "main_input")
+        
+        args <- c(args, list(
+            obj = physeq, 
+            set = set, 
+            thresh = 0.05, 
+            abund_values = "main_input"
+        ))
+        scores <- do.call(cbea, args)
     }
     return(scores)
 }
-
-#' Old enrichment analysis function that does not use the CBEA package
-# enrichment_analysis <- function(X, A, method, label, metric, ...){
-#   if (method %in% c("ssgsea", "gsva")){
-#     scores <- generate_alt_scores(X = X, A = A, method = method, preprocess = T, pcount = 1)
-#   } else if (method %in% c("wilcoxon")){
-#     if (metric == "auc"){
-#       output <- "scores"
-#     } else {
-#       output <- "sig"
-#     }
-#     scores <- wc_test(X = X, A = A, thresh = 0.05, preprocess = T, pcount = 1, output = output)
-#   } else {
-#     scores <- cilr(X = X, A = A, resample = T, ..., maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
-#   }
-#   is.matrix(scores)
-#   output <- enrichment_evaluate(scores = scores, results = label, metric = metric)
-#   return(output)
-# }
 
 #' Getting random gene sets of different sizes
 #' @param physeq Phyloseq object containing the data
 #' @param size The size of the set
 #' @param n_sets Number of sets of that size
 get_rand_sets <- function(physeq, size, n_sets) {
-    taxa <- taxa_names(physeq)
+    taxa <- rownames(rowData(physeq))
     set_list <- purrr::map(seq_len(n_sets), ~ {
         sets <- sample(taxa, size = size)
     })
