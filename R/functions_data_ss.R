@@ -63,7 +63,7 @@ enrichment_analysis <- function(physeq, set, method,
     } else if (method == "cbea") {
         args <- list(...)
         if ("control" %in% names(args)){
-            if (args$distr == "norm"){
+            if (args$distr %in% c("norm", "lst")){
                 args$control <- NULL
             }
         }

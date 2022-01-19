@@ -3,11 +3,14 @@ library(targets)
 library(tarchetypes)
 library(tidyverse)
 library(future)
+library(CBEA)
 library(phyloseq)
+library(mia)
 source("R/functions_data_diffab.R")
 
 gingival_load <- function(){
-    readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
+    # readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
+    data(hmp_gingival)
 }
 
 # DEFINE SETTINGS ####
@@ -31,14 +34,15 @@ get_settings <- function(mode){
     } else if (mode == "fdr"){
         settings <- cross_df(list(
             models = c("cbea"),
-            distr = c("mnorm", "norm"),
+            distr = c("mnorm", "norm", "lst"),
             adj = c(TRUE, FALSE),
-            output = c("zscore", "cdf", "raw")
+            output = c("zscore", "cdf")
         ))
         addition <- cross_df(list(
             models = c("corncob", "deseq2")
         ))
         settings <- full_join(settings, addition, by = c("models"))
+        settings <- bind_rows(settings, data.frame(models = "cbea", distr = "norm", adj = TRUE, output = "raw"))
         settings$id <- seq_len(nrow(settings))
     }
     return(settings)
@@ -47,15 +51,14 @@ get_settings <- function(mode){
 
 
 fdr_analysis <- tar_map(unlist = FALSE, values = get_settings("fdr"), 
-    tar_target(index_batch, seq_len(10)),
+    tar_target(index_batch, seq_len(2)),
     tar_target(index_rep, seq_len(1)),
-    tar_target(input_data, {
-        gingival_process(gingival_load())
-    }),
+    tar_target(input_data, gingival_load()),
     tar_target(rand_label, {
         purrr::map(index_rep, ~{
-            sample_data(input_data$physeq)[,"group"] <- rbinom(n = nsamples(input_data$physeq), 
-                                                               size = 1, prob = 0.5)
+            physeq <- mia::makePhyloseqFromTreeSummarizedExperiment(input_data$data, abund_values = "16SrRNA")
+            sample_data(physeq)[,"group"] <- rbinom(n = nsamples(physeq), size = 1, prob = 0.5)
+            
             return(input_data$physeq)
         })
     }, pattern = map(index_batch)),
