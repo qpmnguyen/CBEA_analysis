@@ -3,58 +3,62 @@ library(corncob)
 library(glue)
 library(binom)
 library(CBEA)
+requireNamespace("speedyseq", quietly = TRUE)
 
 # retrieving 
 source("R/functions_data_ss.R")
 source("R/utils.R")
 
 
-diff_ab <- function(physeq, sets, method, thresh, return){
+diff_ab <- function(physeq, eval, sets = NULL, method, thresh, return, ...){
     method <- match.arg(method, c("cbea", "corncob", "deseq2"))
     return <- match.arg(return, c("pval", "sig"))
+    eval <- match.arg(eval, c("fdr", "rset"))
+    if (!eval %in% c("fdr")){
+        if (is.null(sets)){
+            stop("Sets are required for this analysis")
+        }
+    }
     if (method %in% c("corncob", "deseq2")){
-        tax_counts <- otu_table(physeq) %>% as("matrix")
-        map_dfc(seq_along(n_sets))
+        physeq <- speedyseq::tax_glom(physeq, taxrank = "GENUS")
+        if (method == "corncob"){
             
+        }
+            
+    } else if (method == "cbea"){
+        sets <- const_set_taxtable(tax_table(physeq), rank = "GENUS")
+        mat <- otu_table(physeq) %>% as("matrix") %>% t()
+        scores <- cbea(obj = mat, set = sets, ...)
+        
     }
 }
-diff_ab <- function(physeq, 
-                    method = c("cilr_welch", "cilr_wilcox", "corncob", "deseq2"),
-                    agg_level,
-                    data_type,
-                    thresh = 0.05, 
-                    padj = FALSE, 
-                    return = c("pvalue", "sig"), prune = TRUE, 
-                    ...){
-    method <- match.arg(method)
-    return <- match.arg(return)
-    if (data_type == "wgs"){
-        tax_counts <- otu_table(physeq) %>% as("matrix") %>% as.data.frame() %>% 
-            rownames_to_column(var = "tax") %>%  
-            filter(str_starts(tax, "s_")) %>% column_to_rownames(var = "tax")
-        otu_table(physeq) <- otu_table(tax_counts, taxa_are_rows = T)
-    }
-    
-    # filtering out singletons 
-    if (prune == TRUE){
-        physeq <- taxtab_prune(physeq, agg_level = agg_level)
-    }
-    
-    if (method %in% c("corncob", "deseq2")){
-        # aggregating  
-        physeq <- tax_glom(physeq, taxrank = agg_level)
-        # adding a pseudocount 
-        physeq <- transform_sample_counts(physeq, function(x) ifelse(x == 0, 1, x))
-    } 
-    results <- model_interface(physeq, method, agg_level, ...)
-    if (padj == TRUE){
-        results <- p.adjust(p = results, method = "BH")
-    }
-    if (return == "pvalue"){
-        return(results)
-    } else if (return == "sig"){
-        return((results <= thresh)*1)
-    }
+
+
+const_set_taxtable <- function(table, rank) {
+    set <- NULL # R CMD NOTE
+    id <- which(colnames(table) == rank)
+    table <- as.data.frame(as(table, "matrix")[, seq_len(id)])
+    # Get all names -- have to do this because sometimes
+    # different phyla might have the same
+    # genus or family.
+    all_names <- apply(table, 1, function(i) {
+        paste(i, sep = ";_;", collapse = ";_;")
+    })
+    # Getting all unique names by removing NAs
+    unq_names <- stats::na.omit(unique(all_names))
+    unq_names <- unq_names[!stringr::str_ends(unq_names, "NA")]
+    # Get all set ids
+    sets <- purrr::map(unq_names, ~ {
+        names(all_names)[which(all_names == .x)]
+    })
+    names(sets) <- unq_names
+    # Constructing sets
+    sets <- BiocSet::BiocSet(sets)
+    set_sizes <- BiocSet::es_elementset(sets) %>%
+        dplyr::count(set, name = "size")
+    # filter set by set sizes
+    sets <- BiocSet::left_join_set(sets, set_sizes)
+    return(sets)
 }
 
 #' Function to run models, with the defining feature labelled "group"
