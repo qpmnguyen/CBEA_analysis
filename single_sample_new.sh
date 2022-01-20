@@ -30,5 +30,5 @@ cd $SLURM_SUBMIT_DIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate cbea
-Rscript run_new.R --ncores 20 --analysis "data_ss" --remove TRUE --parallel TRUE
+Rscript run_new.R --ncores 20 --analysis "data_ss" --remove FALSE --parallel TRUE
 

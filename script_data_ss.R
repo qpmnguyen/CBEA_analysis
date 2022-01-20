@@ -3,6 +3,7 @@ library(targets)
 library(tarchetypes)
 library(tidyverse)
 library(future)
+library(extraDistr)
 # library(future.batchtools)
 source("R/functions_data_ss.R")
 tar_option_set(workspace_on_error = TRUE)
@@ -90,7 +91,7 @@ gingival_load <- function(){
     return(hmp_gingival)
 }
 
-fdr <- tar_map(unlist = FALSE, values = get_settings("sig"), 
+fdr <- tar_map(unlist = FALSE, values = get_settings("sig") %>% filter(distr != "lst"), 
                tar_target(index_batch, seq_len(100)),
                tar_target(index_rep, seq_len(10)),
                tar_target(input_data, {gingival_load()$data}),

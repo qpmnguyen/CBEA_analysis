@@ -244,8 +244,8 @@
       "RemoteUsername": "qpmnguyen",
       "RemoteRepo": "CBEA",
       "RemoteRef": "master",
-      "RemoteSha": "15d2f904eff4eb558a40c5bb8d0ddb38349cfdde",
-      "Hash": "41b5b540c7a6233c14f923e8692dddcc",
+      "RemoteSha": "c49a3a3bc3e6dd2751f081e10108f8f353449ce7",
+      "Hash": "dd61a5167aef6801180b57f0532fea51",
       "Requirements": [
         "BiocParallel",
         "BiocSet",
@@ -253,7 +253,6 @@
         "SummarizedExperiment",
         "TreeSummarizedExperiment",
         "dplyr",
-        "extraDistr",
         "fitdistrplus",
         "magrittr",
         "mixtools",
