@@ -54,18 +54,15 @@ fdr_analysis <- tar_map(unlist = FALSE, values = get_settings("fdr"),
     tar_target(index_batch, seq_len(2)),
     tar_target(index_rep, seq_len(1)),
     tar_target(input_data, gingival_load()),
-    tar_target(rand_label, {
+    tar_target(rand_seq, {
         purrr::map(index_rep, ~{
             physeq <- mia::makePhyloseqFromTreeSummarizedExperiment(input_data$data, abund_values = "16SrRNA")
-            sample_data(physeq)[,"group"] <- rbinom(n = nsamples(physeq), size = 1, prob = 0.5)
-            
-            return(input_data$physeq)
+            sample_data(physeq)[,"group"] <- factor(rbinom(n = nsamples(physeq), size = 1, prob = 0.5))
+            return(physeq)
         })
     }, pattern = map(index_batch)),
     tar_target(diff_analysis, {
-        purrr::map(rand_label, ~{
-            
-        })
+        purrr::map(rand_label, ~diff_ab(physeq = .x))
     }, pattern = map(rand_label)), 
     tar_target(eval_diff, {
         
