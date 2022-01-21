@@ -92,7 +92,7 @@ gingival_load <- function(){
 }
 
 fdr <- tar_map(unlist = FALSE, values = get_settings("sig") %>% filter(distr != "lst"), 
-               tar_target(index_batch, seq_len(100)),
+               tar_target(index_batch, seq_len(50)),
                tar_target(index_rep, seq_len(10)),
                tar_target(input_data, {gingival_load()$data}),
                tar_target(rand_set, {
@@ -103,7 +103,7 @@ fdr <- tar_map(unlist = FALSE, values = get_settings("sig") %>% filter(distr != 
                                                              set = .x, method = models, 
                                                              metric = "fdr", distr = distr, 
                                                              adj = adj, output = "sig", 
-                                                             parametric = TRUE, n_perm = 200, 
+                                                             parametric = TRUE, n_perm = 100, 
                                                              control = list(fix_comp = fix_comp)))
                }, pattern = map(rand_set)),
                tar_target(enrich_eval, {

@@ -2,7 +2,7 @@
 
 # declare the name for this job 
 
-#SBATCH --job-name=SINGLE_SAMPLE_NEW
+#SBATCH --job-name=SINGLE_SAMPLE_NEW_REDUCED
 
 # Distributing jobs across 5 nodes with 20 cores each node 
 #SBATCH --nodes=1
