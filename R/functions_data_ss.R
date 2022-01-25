@@ -66,7 +66,7 @@ enrichment_analysis <- function(physeq, set, method,
             if (args$distr %in% c("norm", "lst")){
                 args$control <- NULL
             }
-        }
+        } 
         # cbea requries transformation to proportions
         assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
         physeq <- transformCounts(physeq, abund_values = abund_values, method = "relabundance", 
@@ -78,7 +78,11 @@ enrichment_analysis <- function(physeq, set, method,
             thresh = 0.05, 
             abund_values = "main_input"
         ))
-        scores <- do.call(cbea, args)
+        model <- do.call(cbea, args)
+        scores <- tidy(model)
+        if (!"sample_id" %in% colnames(scores)){
+            scores <- scores %>% tibble::add_column(sample_id = colnames(assay(physeq, "main_input")), .before = 1)
+        }
     }
     return(scores)
 }
