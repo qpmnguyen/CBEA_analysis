@@ -6,11 +6,18 @@ library(future)
 library(CBEA)
 library(phyloseq)
 library(mia)
+library(BiocSet)
+library(future.batchtools)
+library(furrr)
 source("R/functions_data_diffab.R")
+tar_option_set(workspace_on_error = TRUE)
+
+plan(batchtools_slurm, template = "batchtools.slurm.tmpl")
 
 gingival_load <- function(){
     # readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
     data(hmp_gingival, package = "CBEA")
+    return(hmp_gingival)
 }
 
 # DEFINE SETTINGS ####
@@ -59,8 +66,8 @@ get_settings <- function(mode){
 
 # FDR ANALYSIS #### 
 fdr_analysis <- tar_map(unlist = FALSE, values = get_settings(mode = "fdr"), 
-    tar_target(index_batch, seq_len(1)),
-    tar_target(index_rep, seq_len(1)),
+    tar_target(index_batch, seq_len(50)),
+    tar_target(index_rep, seq_len(10)),
     tar_target(input_data, gingival_load()),
     tar_target(rand_seq, {
         purrr::map(index_rep, ~{
@@ -70,18 +77,29 @@ fdr_analysis <- tar_map(unlist = FALSE, values = get_settings(mode = "fdr"),
         })
     }, pattern = map(index_batch)),
     tar_target(diff_analysis, {
-        purrr::map(rand_seq, ~diff_ab(obj = .x, eval = "fdr", method = models, 
+        plan(multisession, workers = 5)
+        furrr::future_map(rand_seq, ~diff_ab(obj = .x, eval = "fdr", method = models, 
                                       thresh = 0.05, return = "sig", 
                                       distr = distr, adj = adj, output = output))
-    }, pattern = map(rand_seq)), 
+    }, pattern = map(rand_seq), 
+       resources = tar_resources(
+           future = tar_resources_future(
+               plan = tweak(
+                   batchtools_slurm,
+                   template = "batchtools.slurm.tmpl", 
+                   resources = list(walltime = "5:00:00", ntasks = 1, ncpus = 5, memory = 3000)
+               )
+           )
+       )), 
     tar_target(eval_diff, {
-        purr::map(diff_analysis, ~{
+        purrr::map_dfr(diff_analysis, ~{
+            results <- sum(.x == 1)/length(.x)
             tibble(
                 models = models, 
                 distr = distr, 
                 adj = adj,
                 output = output, 
-                res = sum(.x == 1)/length(.x)
+                res = results
             )
         })
     }, pattern = map(diff_analysis))
@@ -98,29 +116,32 @@ rset_analysis <- tar_map(unlist = FALSE, values = get_settings("rset"),
                tar_target(input_data, {
                    obj <- gingival_load()$data
                    colData(obj)$group <- factor(ifelse(colData(obj)$HMP_BODY_SUBSITE == "Supragingival Plaque", 1,0))
+                   obj
                }),
                tar_target(rand_set, {
-                   purrr::map(index_rep, ~get_rand_sets(input_data, size = size, n_sets = 100))
-               }, pattern = map(index_batch)),
+                   get_rand_sets(input_data, size = size, n_sets = 100)
+               }),
                tar_target(enrich_test, {
-                   purrr::map(rand_set, ~diff_ab(obj = input_data,
-                                                 eval = "rset", 
-                                                 return = "sig",
-                                                 abund_values = "16SrRNA",
-                                                 sets = .x, method = models,
-                                                 distr = distr, adj = adj, output = output))
-               }, pattern = map(rand_set)),
+                   diff_ab(obj = input_data, eval = "rset", return = "sig",
+                           abund_values = "16SrRNA",
+                           sets = rand_set, method = models,
+                           distr = distr, adj = adj, output = output, thresh = 0.05)
+               }),
                tar_target(enrich_eval, {
-                   purrr::map_dfr(enrich_test, ~{
-                       tibble(
-                           models = models,
-                           distr = distr,
-                           adj = adj,
-                           size = size,
-                           res = sum(.x == 1)/length(.x)
-                       )
-                   })
-               }, pattern = map(enrich_test))
+                   bintest <- binom.confint(x = sum(enrich_test == 1), 
+                                            n = length(enrich_test), 
+                                         method = "ac")
+                   tibble(
+                       models = models,
+                       distr = distr,
+                       adj = adj,
+                       size = size,
+                       output = output,
+                       estimate = bintest$mean,
+                       lower = bintest$lower, 
+                       upper = bintest$upper
+                   )
+                })
 )
 
 rset_summary <- tar_combine(combine_rset, rset_analysis[[4]], command = dplyr::bind_rows(!!!.x))
@@ -128,10 +149,47 @@ rset_summary <- tar_combine(combine_rset, rset_analysis[[4]], command = dplyr::b
 rset_save <- tarchetypes::tar_rds(save_rset, saveRDS(combine_rset, 
                                                    "output/data_diffab_rset.rds"))
 
+# POWER ANALYSIS #### 
+pwr_analysis <- tar_map(unlist = FALSE, values = get_settings("fdr"),
+                         tar_target(pwr_data, {
+                             obj <- gingival_load()$data
+                             colData(obj)$group <- factor(ifelse(colData(obj)$HMP_BODY_SUBSITE == "Supragingival Plaque", 1,0))
+                             list(obj = obj, set = gingival_load()$set)
+                        }),
+                         tar_target(pwr_test, {
+                             diff_ab(obj = pwr_data$obj,
+                                     eval = "fdr", 
+                                     return = "pval",
+                                     abund_values = "16SrRNA", 
+                                     method = models,
+                                     distr = distr, adj = adj, output = output)
+                         }),
+                         tar_target(pwr_eval, {
+                             # pwr_test is a vector of named p-values  
+                             res <- eval_results(obj = pwr_data$obj, set = pwr_data$set, 
+                                                 sig_vec = pwr_test)
+                             
+                             tibble(
+                                 models = models,
+                                 distr = distr,
+                                 adj = adj,
+                                 estimate = res$estimate,
+                                 lower = res$lower,
+                                 upper = res$upper
+                             )
+                         })
+)
+
+pwr_summary <- tar_combine(combine_pwr, pwr_analysis[[3]], command = dplyr::bind_rows(!!!.x))
+
+pwr_save <- tarchetypes::tar_rds(save_pwr, saveRDS(combine_pwr, 
+                                                     "output/data_diffab_pwr.rds"))
+
 
 list(
     fdr_analysis, fdr_summary, fdr_save,
-    rset_analysis, rset_summary, rset_save
+    rset_analysis, rset_summary, rset_save,
+    pwr_analysis, pwr_summary, pwr_save
 )
 
 

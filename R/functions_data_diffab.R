@@ -23,7 +23,22 @@ diff_ab <- function(obj, eval, abund_values = "16SrRNA", sets = NULL, method, th
         }
     }
     if (method %in% c("corncob", "deseq2")){
-        physeq <- speedyseq::tax_glom(physeq, taxrank = "GENUS")
+        physeq <- transform_sample_counts(physeq, function(x) x + 1)
+        if (eval == "fdr"){
+            physeq <- speedyseq::tax_glom(physeq, taxrank = "GENUS")
+        } else if (eval == "rset"){
+            grp_vec <- rep(NA, ntaxa(physeq))
+            names(grp_vec) <- taxa_names(physeq)
+            set_names <- sets %>% es_set() %>% pull(set)
+            for (i in seq_along(set_names)){
+                el_names <- sets %>% es_elementset() %>% filter(set == set_names[i]) %>% 
+                    pull(element)
+                idx <- which(names(grp_vec) %in% el_names)
+                grp_vec[idx] <- set_names[i]
+            }
+            grp_vec <- as.vector(grp_vec)
+            physeq <- speedyseq::merge_taxa_vec(physeq, grp_vec)
+        }
         if (method == "corncob"){
             args <- list(formula = ~ group, phi.formula = ~ group, formula_null = ~1, 
                         phi.formula_null = ~ group, test = "Wald", boot = FALSE,
@@ -32,7 +47,7 @@ diff_ab <- function(obj, eval, abund_values = "16SrRNA", sets = NULL, method, th
             mod <- do.call(corncob::differentialTest, args)
             sig <- mod$p
             names(sig) <- as.vector(tax_table(physeq)[names(sig), "GENUS"])
-        } else if (method == "DESeq2"){
+        } else if (method == "deseq2"){
             args <- list(test = "LRT", fitType = "local", reduced = ~1)
             deseq <- phyloseq_to_deseq2(physeq, ~factor(group))
             args$object <- deseq
@@ -42,12 +57,13 @@ diff_ab <- function(obj, eval, abund_values = "16SrRNA", sets = NULL, method, th
             names(sig) <- as.vector(tax_table(physeq)[rownames(res), "GENUS"])
         }
     } else if (method == "cbea"){
-        sets <- const_set_taxtable(tax_table(physeq), rank = "GENUS")
+        if (eval == "fdr"){
+            sets <- const_set_taxtable(tax_table(physeq), rank = "GENUS")
+        } 
         assay(obj, abund_values) <- assay(obj, abund_values) + 1
         obj <- mia::transformCounts(obj, 
                                        abund_values = abund_values, 
                                        method = "relabundance", name = "main_input")
-        mia::tra
         args <- list(...)
         args <- c(args, list(
             obj = obj,
@@ -58,7 +74,7 @@ diff_ab <- function(obj, eval, abund_values = "16SrRNA", sets = NULL, method, th
         if ("distr" %in% names(args)){
             if (args$distr == "mnorm"){
                 args <- c(args, list(
-                    control = list(fit_comp = "large")
+                    control = list(fix_comp = "large")
                 ))
             }
         }
@@ -80,6 +96,39 @@ diff_ab <- function(obj, eval, abund_values = "16SrRNA", sets = NULL, method, th
     }
     return(sig)
 }
+
+eval_results <- function(obj, set, sig_vec){
+    # first, let's extract names that should be differentially abundant 
+    physeq <- mia::makePhyloseqFromTreeSummarizedExperiment(obj, "16SrRNA")
+    
+    target_elements <- set %>% es_elementset() %>% 
+        filter(set %in% c("Aerobic", "Anaerobic")) %>%
+        pull(element)
+    
+    g_sets <- const_set_taxtable(table = tax_table(physeq), "GENUS")
+    
+    target_diffab <- g_sets %>% es_elementset() %>% 
+        filter(element %in% target_elements) %>% pull(set) %>% 
+        unique() %>% strsplit(";_;") %>% map_chr(., ~.x[length(.x)])
+    
+    # second, we extract names that are actually differentially abundant 
+    real_diffab <- names(sig_vec)[p.adjust(sig_vec) <= 0.1]
+    
+    # third, we examine the intersection and 
+    inter <- length(intersect(target_diffab, real_diffab))
+    
+    # fourth, construct the binomial test 
+    bintest <- binom.confint(x = inter, n = length(sig_vec), method = "ac")
+    return(
+        list(
+            estimate = bintest$mean, 
+            lower = bintest$lower,
+            upper = bintest$upper
+        )
+    )
+    
+}
+
 
 
 const_set_taxtable <- function(table, rank) {
