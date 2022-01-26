@@ -78,20 +78,11 @@ fdr_analysis <- tar_map(unlist = FALSE, values = get_settings(mode = "fdr"),
         })
     }, pattern = map(index_batch)),
     tar_target(diff_analysis, {
-        bplapply(rand_seq, diff_ab, eval = "fdr", 
-		method = models, 
-                thresh = 0.05, return = "sig", 
-                distr = distr, adj = adj, output = output, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
-    }, pattern = map(rand_seq), 
-       resources = tar_resources(
-           future = tar_resources_future(
-               plan = tweak(
-                   batchtools_slurm,
-                   template = "batchtools.slurm.tmpl", 
-                   resources = list(walltime = "10:00:00", ntasks = 1, ncpus = 5, memory = 4000)
-               )
-           )
-       )), 
+        purrr::map(rand_seq, ~diff_ab(obj = .x, eval = "fdr", 
+                                      method = models, 
+                                      thresh = 0.05, return = "sig", 
+                                      distr = distr, adj = adj, output = output))
+    }, pattern = map(rand_seq)), 
     tar_target(eval_diff, {
         purrr::map_dfr(diff_analysis, ~{
             results <- sum(.x == 1)/length(.x)

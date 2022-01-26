@@ -5,7 +5,7 @@
 # Distributing jobs across 5 nodes with 20 cores each node 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=5
+#SBATCH --cpus-per-task=40
 
 # Requesting RAM in MBs
 #SBATCH --mem-per-cpu=2000
@@ -28,4 +28,4 @@ cd $SLURM_SUBMIT_DIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate teailr
-Rscript run.R --ncores 5 --dir "analyses/simulations_diff_ab/" --remove FALSE --parallel TRUE
+Rscript run.R --ncores 40 --dir "analyses/simulations_diff_ab/" --remove FALSE --parallel TRUE

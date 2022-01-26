@@ -13,7 +13,7 @@ if(Sys.info()["sysname"] == "Darwin"){
 my_pretty_theme <- theme_minimal(base_family = "Lato", base_size = 12) +
     theme(panel.grid.minor = element_blank(),
           # Bold, bigger title
-          plot.title = element_text(face = "bold", size = rel(1.7)),
+          #plot.title = element_text(face = "bold", size = rel(1.7)),
           # Plain, slightly bigger subtitle that is grey
           plot.subtitle = element_text(face = "plain", size = rel(1.3), color = "grey70"),
           # Italic, smaller, grey caption that is left-aligned
@@ -103,7 +103,8 @@ df_pwr_new <- readRDS(file = "output/pwr_ss_pheno.rds") %>%
 pwr_new <- ggplot(df_pwr_new, aes(x = str_wrap(models, width = 20), y = estimate, col = models, shape = adj)) + 
     geom_point(position = position_dodge(width = 0.5)) + 
     geom_pointrange(aes(ymax = upper, ymin = lower), position = position_dodge(width = 0.5)) + 
-    labs(x = "Models", y = "Power", shape = "Correlation adjusted", col = "Models") + 
+    labs(x = "Models", y = "Power", shape = "Correlation adjusted", col = "Models", 
+         title = "Statistical power") + 
     scale_color_d3() + guides(color = "none") + 
     my_pretty_theme
 
@@ -126,16 +127,16 @@ df_auc_new <- readRDS(file = "output/auc_ss_pheno.rds") %>%
 auc_new <- ggplot(df_auc_new, aes(x = str_wrap(models, width = 20), y = estimate, col = models, shape = adj)) + 
     geom_point(position = position_dodge(width = 0.5)) + 
     geom_pointrange(aes(ymax = upper, ymin = lower), position = position_dodge(width = 0.5)) + 
-    labs(x = "Models", y = "AUROC", shape = "Correlation adjusted", col = "Models") + 
+    labs(x = "Models", y = "AUROC", shape = "Correlation adjusted", col = "Models", title = "Score rankings") + 
     scale_color_d3() + guides(color = "none") + 
     theme(axis.title.y = element_blank()) + my_pretty_theme
 
 combo_rel <- pwr_new + auc_new + plot_layout(guides = "collect") + 
-    plot_annotation(tag_levels = list(c("A. Statistical Power", "B. Score rankings"))) & 
+    plot_annotation(tag_levels = "A") & 
     coord_flip() 
 
-ggsave(fdr_new, filename = "figures/data_ss_pwr_new.png", dpi = 300, width = 10, height = 6)
-ggsave(fdr_new, filename = "figures/data_ss_pwr_new.eps", dpi = 300, width = 10, height = 6, device = cairo_ps)
+ggsave(combo_rel, filename = "figures/data_ss_pwr_new.png", dpi = 300, width = 10, height = 6)
+ggsave(combo_rel, filename = "figures/data_ss_pwr_new.eps", dpi = 300, width = 10, height = 6, device = cairo_ps)
 file.copy(from = Sys.glob("figures/*.png"), 
           to = glue("{save_dir}", save_dir = save_dir), overwrite = TRUE)
 
