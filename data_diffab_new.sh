@@ -13,7 +13,7 @@
 #SBATCH --mem-per-cpu=4000
 
 # request 60 hours of wall time
-#SBATCH --time=60:00:00
+#SBATCH --time=70:00:00
 
 # Dispatching job to standard partitions on discovery
 #SBATCH --partition=standard

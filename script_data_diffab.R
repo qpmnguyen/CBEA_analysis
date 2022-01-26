@@ -9,6 +9,7 @@ library(mia)
 library(BiocSet)
 library(future.batchtools)
 library(furrr)
+library(BiocParallel)
 source("R/functions_data_diffab.R")
 tar_option_set(workspace_on_error = TRUE)
 
@@ -77,17 +78,17 @@ fdr_analysis <- tar_map(unlist = FALSE, values = get_settings(mode = "fdr"),
         })
     }, pattern = map(index_batch)),
     tar_target(diff_analysis, {
-        plan(multisession, workers = 5)
-        furrr::future_map(rand_seq, ~diff_ab(obj = .x, eval = "fdr", method = models, 
-                                      thresh = 0.05, return = "sig", 
-                                      distr = distr, adj = adj, output = output))
+        bplapply(rand_seq, diff_ab, eval = "fdr", 
+		method = models, 
+                thresh = 0.05, return = "sig", 
+                distr = distr, adj = adj, output = output, BPPARAM = BiocParallel::MulticoreParam(workers = 4))
     }, pattern = map(rand_seq), 
        resources = tar_resources(
            future = tar_resources_future(
                plan = tweak(
                    batchtools_slurm,
                    template = "batchtools.slurm.tmpl", 
-                   resources = list(walltime = "5:00:00", ntasks = 1, ncpus = 5, memory = 3000)
+                   resources = list(walltime = "10:00:00", ntasks = 1, ncpus = 5, memory = 4000)
                )
            )
        )), 
