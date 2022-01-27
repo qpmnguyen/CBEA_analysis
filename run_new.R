@@ -26,7 +26,7 @@ opt <- parse_args(OptionParser(option_list=option_list))
 
 proj_name <- opt$analysis
 
-match.arg(proj_name, c("data_ss", "data_diffab"))
+match.arg(proj_name, c("data_ss", "data_diffab", "sim_fdr_ss"))
 
 Sys.setenv(TAR_PROJECT = proj_name)
 
