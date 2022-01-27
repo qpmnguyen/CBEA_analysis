@@ -6,7 +6,7 @@ library(future)
 library(CBEA)
 library(phyloseq)
 library(mia)
-# library(BiocSet)
+library(BiocSet)
 library(future.batchtools)
 library(furrr)
 library(BiocParallel)
@@ -167,7 +167,8 @@ pwr_analysis <- tar_map(unlist = FALSE, values = get_settings("fdr"),
                                  models = models,
                                  distr = distr,
                                  adj = adj,
-                                 estimate = res$estimate,
+                                 output = output,
+				 estimate = res$estimate,
                                  lower = res$lower,
                                  upper = res$upper
                              )
