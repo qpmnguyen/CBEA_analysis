@@ -6,4 +6,4 @@ data_diffab:
   store: store_data_diffab
 sim_fdr_ss:
   script: script_sim_fdr_ss.R
-  store: store_sim_fdrs_ss.R
+  store: store_sim_fdr_ss

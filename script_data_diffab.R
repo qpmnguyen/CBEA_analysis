@@ -6,14 +6,16 @@ library(future)
 library(CBEA)
 library(phyloseq)
 library(mia)
-library(BiocSet)
+# library(BiocSet)
 library(future.batchtools)
 library(furrr)
 library(BiocParallel)
 source("R/functions_data_diffab.R")
 tar_option_set(workspace_on_error = TRUE)
 
-plan(batchtools_slurm, template = "batchtools.slurm.tmpl")
+#plan(batchtools_slurm, template = "batchtools.slurm.tmpl")
+
+plan(multisession)
 
 gingival_load <- function(){
     # readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")

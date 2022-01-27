@@ -3,6 +3,7 @@ library(corncob)
 library(glue)
 library(binom)
 library(CBEA)
+library(BiocSet)
 requireNamespace("speedyseq", quietly = TRUE)
 
 # retrieving 
@@ -101,13 +102,13 @@ eval_results <- function(obj, set, sig_vec){
     # first, let's extract names that should be differentially abundant 
     physeq <- mia::makePhyloseqFromTreeSummarizedExperiment(obj, "16SrRNA")
     
-    target_elements <- set %>% es_elementset() %>% 
+    target_elements <- set %>% BiocSet::es_elementset() %>% 
         filter(set %in% c("Aerobic", "Anaerobic")) %>%
         pull(element)
     
     g_sets <- const_set_taxtable(table = tax_table(physeq), "GENUS")
     
-    target_diffab <- g_sets %>% es_elementset() %>% 
+    target_diffab <- g_sets %>% BiocSet::es_elementset() %>% 
         filter(element %in% target_elements) %>% pull(set) %>% 
         unique() %>% strsplit(";_;") %>% map_chr(., ~.x[length(.x)])
     
