@@ -14,7 +14,6 @@ tar_option_set(workspace_on_error = TRUE)
 sim_pwr <- generate_grid(eval = "pwr")
 saveRDS(sim_pwr, file = "output/simulation_grid_pwr.rds")
 
-
 pwr_jobs <- tar_map(unlist = FALSE, values = sim_pwr, names = c("id"),
                     tar_target(simulation_pwr, {
                         zinb_simulation(n_samp = n_samp, spar = spar, s_rho = s_rho, eff_size = eff_size, 
@@ -43,11 +42,11 @@ pwr_jobs <- tar_map(unlist = FALSE, values = sim_pwr, names = c("id"),
                                                    adj = generate_grid$adj, output = "sig", 
                                                    parametric = TRUE, n_perm = 100, 
                                                    control = list(fix_comp = generate_grid$fix_comp))
-                        
                         b_test <- binom.confint(x = sum(res[,2]), n = nrow(res), methods = "ac")
-                        df <- dplyr::bind_cols(id = id, generate_grid, estimate = b_test$mean, 
-                                               lower = b_test$lower, 
-                                               upper = b_test$upper)
+                        df <- dplyr::bind_cols(id = id, generate_grid, 
+                                               estimate = b_test$mean, 
+                                               lower = b_test$upper, 
+                                               upper = b_test$lower)
                         df
                     }, pattern = map(generate_grid))
 )
