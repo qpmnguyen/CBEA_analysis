@@ -119,7 +119,7 @@ rset_analysis <- tar_map(unlist = FALSE, values = get_settings("rset"),
                    diff_ab(obj = input_data, eval = "rset", return = "sig",
                            abund_values = "16SrRNA",
                            sets = rand_set, method = models,
-                           distr = distr, adj = adj, output = output, thresh = 0.05)
+                           distr = distr, adj = adj, output = output, thresh = 0.1, p_adjust = TRUE)
                }),
                tar_target(enrich_eval, {
                    bintest <- binom.confint(x = sum(enrich_test == 1), 
@@ -182,9 +182,9 @@ pwr_save <- tarchetypes::tar_rds(save_pwr, saveRDS(combine_pwr,
 
 
 list(
-    fdr_analysis, fdr_summary, fdr_save,
-    rset_analysis, rset_summary, rset_save,
-    pwr_analysis, pwr_summary, pwr_save
+    #fdr_analysis, fdr_summary, fdr_save,
+    rset_analysis, rset_summary, rset_save
+    #pwr_analysis, pwr_summary, pwr_save
 )
 
 
