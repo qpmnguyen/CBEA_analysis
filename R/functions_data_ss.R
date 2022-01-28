@@ -45,7 +45,8 @@ enrichment_analysis <- function(physeq, set, method,
     if (method %in% c("ssgsea", "gsva")) {
         # for ssgsea and gsva only pseudocount
         assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
-        scores <- alt_scores_physeq(physeq, set, method = method, preprocess = FALSE)
+        scores <- alt_scores_physeq(physeq, set, method = method, preprocess = FALSE, 
+                                    abund_values = abund_values)
         scores <- scores %>% rownames_to_column(var = "sample_id") %>% as_tibble()
     } else if (method == "wilcoxon") {
         # wilcoxon with raw counts but adding pseudocounts to avoid zeroes 

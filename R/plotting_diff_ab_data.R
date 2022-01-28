@@ -2,7 +2,7 @@ library(tidyverse)
 library(ggsci)
 library(glue)
 library(patchwork)
-
+source("R/utils.R")
 if(Sys.info()["sysname"] == "Darwin"){
     save_dir <- "../cilr_manuscript/figures"
 } else {
@@ -37,7 +37,7 @@ fdr_plt <- ggplot(fdr_df, aes(x = str_wrap(models, width = 10), y = mean, col = 
     geom_pointrange(aes(ymin = lower, ymax = upper), size = 1, 
                     position = position_dodge(width = 1)) +
     geom_hline(yintercept = 0.05, col = "red") + 
-    labs(x = "Type I error", y = "Models", shape = "Correlation adjusted", col = "Output type") +
+    labs(y = "Type I error", x = "Models", shape = "Correlation adjusted", col = "Output type") +
     coord_flip() + 
     scale_color_d3() +
     my_pretty_theme +
