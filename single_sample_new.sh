@@ -2,7 +2,7 @@
 
 # declare the name for this job 
 
-#SBATCH --job-name=SINGLE_SAMPLE_NEW_SIM
+#SBATCH --job-name=SIM_AUC
 
 # Distributing jobs across 5 nodes with 20 cores each node 
 #SBATCH --nodes=1
@@ -30,5 +30,5 @@ cd $SLURM_SUBMIT_DIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate cbea
-Rscript run_new.R --ncores 45 --analysis "sim_fdr_ss" --remove FALSE --parallel TRUE
+Rscript run_new.R --ncores 45 --analysis "sim_auc_ss" --remove FALSE --parallel TRUE
 
