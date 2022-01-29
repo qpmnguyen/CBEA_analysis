@@ -11,7 +11,8 @@ source("R/functions_data_ss.R")
 source("R/utils.R")
 
 
-diff_ab <- function(obj, eval, abund_values = "16SrRNA", sets = NULL, method, thresh, return, p_adjust = FALSE,...){
+diff_ab <- function(obj, eval, abund_values = "16SrRNA", 
+                    sets = NULL, method, thresh, return, p_adjust = FALSE,...){
     method <- match.arg(method, c("cbea", "corncob", "deseq2"))
     return <- match.arg(return, c("pval", "sig"))
     eval <- match.arg(eval, c("fdr", "rset"))
