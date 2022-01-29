@@ -190,7 +190,7 @@ df_fdr_new %>%  mutate(adj = if_else(adj, "Adjusted", "Not Adjusted")) %>%
 df_fdr_new <- df_fdr_new %>% mutate(adj = if_else(adj, "Yes", "No")) %>% 
     mutate(adj = if_else(is.na(adj), "Not applicable", adj), 
            models = if_else(is.na(models), "Not applicable", models)) %>%
-    unite("models", models:distr) %>% 
+    unite("models", c(models, distr, fix_comp)) %>% 
     mutate(models = if_else(str_detect(models, "_NA"), 
                             str_remove_all(models, "_NA"), models)) %>% 
     group_by(models, adj, size) %>% 
@@ -198,15 +198,19 @@ df_fdr_new <- df_fdr_new %>% mutate(adj = if_else(adj, "Yes", "No")) %>%
               se = sd(res)/sqrt(1000)) %>% 
     mutate(upper = estimate + se, lower = estimate - se) %>% ungroup() %>% 
     mutate(models = case_when(
-        models == "cbea_mnorm" ~ str_wrap("CBEA Mixture Normal", width = 70),
+        models == "cbea_mnorm_large" ~ str_wrap("CBEA Mixture Normal (Fix large component)", width = 70),
+        models == "cbea_mnorm_small" ~ str_wrap("CBEA Mixture Normal (Fix small component)", width = 70),
+        models == "cbea_mnorm_none" ~ str_wrap("CBEA Mixture Normal (Vary both components)", width = 70),
         models == "cbea_norm" ~ str_wrap("CBEA Normal", width = 70),
         models == "wilcoxon" ~ str_wrap("Wilcoxon Rank Sum Test", width = 70)
     ))
 
 
 
-fdr_new <- ggplot(df_fdr_new, aes(x = models, y = estimate, col = models, shape = adj)) +
+fdr_new <- ggplot(df_fdr_new, aes(x = models, y = estimate, col = str_wrap(models,width = 5), shape = adj)) +
     geom_point(position = position_dodge(width = 1)) +
+    geom_hline(yintercept = 0.05, col = "red") +
+    coord_flip() +
     scale_color_d3() +
     geom_pointrange(aes(ymax = upper, ymin = lower), position = position_dodge(width = 1)) + 
     facet_wrap(~ size, dir = "v", labeller = label_both) + 

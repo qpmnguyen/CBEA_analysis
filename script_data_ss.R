@@ -20,28 +20,15 @@ get_settings <- function(mode){
     if (mode == "sig"){
         settings <- cross_df(list(
             models = c("cbea"),
-            distr = c("mnorm", "norm", "lst"),
+            distr = c("mnorm", "norm"),
             adj = c(TRUE, FALSE), 
-            size = c(20,50,100,150,200), 
-            fix_comp = c("none", "large", "small", NA)
+            size = c(20,50,100,150,200)
         ))
         addition <- cross_df(list(
             models = c("wilcoxon"),
             size = c(20,50,100,150,200)
         ))
-        anti_1 <- cross_df(list(
-            models = c("cbea"),
-            distr = c("norm", "lst"),
-            fix_comp = c("none", "large", "small")
-        ))
-        anti_2 <- cross_df(list(
-            models = "cbea",
-            distr = c("mnorm"),
-            fix_comp = NA
-        ))
         settings <- full_join(settings, addition, by = c("models", "size"))
-        settings <- anti_join(settings, anti_1, by = c("models", "distr", "fix_comp"))
-        settings <- anti_join(settings, anti_2, by = c("models", "distr", "fix_comp"))
         settings$id <- seq_len(nrow(settings))
     } else if (mode == "auc"){
         settings <- cross_df(list(
@@ -91,7 +78,7 @@ gingival_load <- function(){
     return(hmp_gingival)
 }
 
-fdr <- tar_map(unlist = FALSE, values = get_settings("sig") %>% filter(distr != "lst"), 
+fdr <- tar_map(unlist = FALSE, values = get_settings("sig"), 
                tar_target(index_batch, seq_len(50)),
                tar_target(index_rep, seq_len(10)),
                tar_target(input_data, {gingival_load()$data}),
@@ -103,8 +90,7 @@ fdr <- tar_map(unlist = FALSE, values = get_settings("sig") %>% filter(distr != 
                                                              set = .x, method = models, 
                                                              metric = "fdr", distr = distr, 
                                                              adj = adj, output = "sig", 
-                                                             parametric = TRUE, n_perm = 100, 
-                                                             control = list(fix_comp = fix_comp)))
+                                                             parametric = TRUE, n_perm = 100))
                }, pattern = map(rand_set)),
                tar_target(enrich_eval, {
                    purrr::map_dfr(enrich_test, ~{
