@@ -45,7 +45,8 @@ enrichment_analysis <- function(physeq, set, method,
     if (method %in% c("ssgsea", "gsva")) {
         # for ssgsea and gsva only pseudocount
         assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
-        scores <- alt_scores_physeq(physeq, set, method = method, preprocess = FALSE)
+        scores <- alt_scores_physeq(physeq, set, method = method, preprocess = FALSE, 
+                                    abund_values = abund_values)
         scores <- scores %>% rownames_to_column(var = "sample_id") %>% as_tibble()
     } else if (method == "wilcoxon") {
         # wilcoxon with raw counts but adding pseudocounts to avoid zeroes 
@@ -58,7 +59,7 @@ enrichment_analysis <- function(physeq, set, method,
         scores <- wc_test_physeq(
             physeq = physeq, set = set,
             thresh = 0.05, alt = "two.sided",
-            preprocess = FALSE, ...
+            preprocess = FALSE, output = output, ...
         )
     } else if (method == "cbea") {
         args <- list(...)
@@ -66,7 +67,7 @@ enrichment_analysis <- function(physeq, set, method,
             if (args$distr %in% c("norm", "lst")){
                 args$control <- NULL
             }
-        }
+        } 
         # cbea requries transformation to proportions
         assay(physeq, abund_values) <- assay(physeq, abund_values) + 1
         physeq <- transformCounts(physeq, abund_values = abund_values, method = "relabundance", 
@@ -78,7 +79,13 @@ enrichment_analysis <- function(physeq, set, method,
             thresh = 0.05, 
             abund_values = "main_input"
         ))
-        scores <- do.call(cbea, args)
+        model <- do.call(cbea, args)
+        print("Fitted model")
+        scores <- tidy(model)
+        if (!"sample_id" %in% colnames(scores)){
+            scores <- scores %>% tibble::add_column(sample_id = colnames(assay(physeq, "main_input")), 
+                                                    .before = 1)
+        }
     }
     return(scores)
 }

@@ -3,7 +3,6 @@ library(targets)
 library(tarchetypes)
 library(tidyverse)
 library(future)
-library(extraDistr)
 # library(future.batchtools)
 source("R/functions_data_ss.R")
 tar_option_set(workspace_on_error = TRUE)
@@ -22,7 +21,8 @@ get_settings <- function(mode){
             models = c("cbea"),
             distr = c("mnorm", "norm"),
             adj = c(TRUE, FALSE), 
-            size = c(20,50,100,150,200)
+            size = c(20,50,100,150,200),
+            fix_comp = c("large")
         ))
         addition <- cross_df(list(
             models = c("wilcoxon"),
@@ -35,7 +35,7 @@ get_settings <- function(mode){
             models = c("cbea"),
             distr = c("mnorm", "norm"),
             adj = c(TRUE, FALSE),
-            fix_comp = c("none", "large", "small")
+            fix_comp = c("large")
         ))
         addition <- cross_df(list(
             models = c("ssgsea", "gsva", "wilcoxon")
@@ -48,7 +48,7 @@ get_settings <- function(mode){
             models = c("cbea"),
             distr = c("mnorm", "norm"),
             adj = c(TRUE, FALSE),
-            fix_comp = c("none", "large", "small")
+            fix_comp = c("large")
         ))
         addition <- cross_df(list(
             models = c("wilcoxon")
@@ -74,7 +74,7 @@ ibd_load <- function(type){
 #' @title Function that loads the data 
 gingival_load <- function(){
     # readRDS(file = "data/hmp_supergingival_supragingival_16S.rds")
-    data(hmp_gingival)
+    data(hmp_gingival, package = "CBEA")
     return(hmp_gingival)
 }
 
@@ -117,13 +117,14 @@ fdr_save <- tarchetypes::tar_rds(save_fdr, saveRDS(combine_fdr,
 
 phenotype_sig <- tar_map(unlist = FALSE, values = get_settings("pheno"), 
     tar_target(sig_data, gingival_load()),
-    tar_target(proc_sig_data, gingival_processing(data = sig_data)),
-    tar_target(sig_scores, enrichment_analysis(proc_sig_data$physeq, 
-                                             set = proc_sig_data$sets, 
+    #tar_target(proc_sig_data, gingival_processing(data = sig_data)),
+    tar_target(sig_scores, enrichment_analysis(sig_data$data, 
+                                             set = sig_data$set, 
                                              method = models, 
                                              metric = "fdr", distr = distr, 
-                                             adj = adj, output = "sig")),
-    tar_target(sig_eval, gingival_evaluate(physeq = proc_sig_data$physeq, 
+                                             adj = adj, output = "sig", n_perm = 100, 
+                                             control = list(fix_comp = fix_comp))),
+    tar_target(sig_eval, gingival_evaluate(physeq = sig_data$data, 
                                          results = sig_scores)),
     tar_target(sig_metric, {
         result <- calculate_statistic(eval = "pwr", 
@@ -140,7 +141,7 @@ phenotype_sig <- tar_map(unlist = FALSE, values = get_settings("pheno"),
 
 
 
-phenotype_sig_summary <- tar_combine(combine_pheno_sig, phenotype_sig[[5]], 
+phenotype_sig_summary <- tar_combine(combine_pheno_sig, phenotype_sig[[4]], 
                                      command = dplyr::bind_rows(!!!.x))
 
 phenotype_sig_save <- tarchetypes::tar_rds(save_pheno_sig, saveRDS(combine_pheno_sig, 
@@ -149,13 +150,15 @@ phenotype_sig_save <- tarchetypes::tar_rds(save_pheno_sig, saveRDS(combine_pheno
 # AUC ANALYSES - PHENOTYPE RELEVANCE ####  
 phenotype_auc <- tar_map(unlist = FALSE, values = get_settings("auc"),
      tar_target(auc_data, gingival_load()),
-     tar_target(proc_auc_data, gingival_processing(data = auc_data)),
-     tar_target(auc_scores, enrichment_analysis(proc_auc_data$physeq, 
-                                              set = proc_auc_data$sets, 
+     #tar_target(proc_auc_data, gingival_processing(data = auc_data)),
+     tar_target(auc_scores, enrichment_analysis(auc_data$data, 
+                                              set = auc_data$set, 
+                                              abund_values = "16SrRNA",
                                               method = models, 
                                               metric = "auc", distr = distr, 
-                                              adj = adj, output = "sig")),
-     tar_target(auc_eval, gingival_evaluate(physeq = proc_auc_data$physeq, 
+                                              adj = adj, output = "sig", n_perm = 100, 
+                                              control = list(fix_comp = fix_comp))),
+     tar_target(auc_eval, gingival_evaluate(physeq = auc_data$data, 
                                           results = auc_scores)),
      tar_target(auc_metric, {
          result <- calculate_statistic(eval = "auc", 
@@ -170,7 +173,7 @@ phenotype_auc <- tar_map(unlist = FALSE, values = get_settings("auc"),
      })
 )
 
-phenotype_auc_summary <- tar_combine(combine_pheno_auc, phenotype_auc[[5]], 
+phenotype_auc_summary <- tar_combine(combine_pheno_auc, phenotype_auc[[4]], 
                                      command = dplyr::bind_rows(!!!.x))
 
 pheno_auc_save <- tarchetypes::tar_rds(save_pheno_auc, saveRDS(combine_pheno_auc, 
@@ -179,9 +182,9 @@ pheno_auc_save <- tarchetypes::tar_rds(save_pheno_auc, saveRDS(combine_pheno_auc
 
 
 list(
-    fdr, fdr_summary, fdr_save
-    #phenotype_sig, phenotype_sig_summary, phenotype_sig_save,
-    #phenotype_auc, phenotype_auc_summary, pheno_auc_save
+    fdr, fdr_summary, fdr_save,
+    phenotype_sig, phenotype_sig_summary, phenotype_sig_save,
+    phenotype_auc, phenotype_auc_summary, pheno_auc_save
 )
 
 

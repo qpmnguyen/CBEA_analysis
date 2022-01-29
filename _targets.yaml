@@ -4,3 +4,15 @@ data_ss:
 data_diffab:
   script: script_data_diffab.R
   store: store_data_diffab
+sim_fdr_ss:
+  script: script_sim_fdr_ss.R
+  store: store_sim_fdr_ss
+sim_pwr_ss:
+  script: script_sim_pwr_ss.R
+  store: store_sim_pwr_ss
+sim_auc_ss:
+  script: script_sim_auc_ss.R
+  store: store_sim_auc_ss
+sim_diffab:
+  script: script_sim_diffab.R
+  store: store_sim_diffab

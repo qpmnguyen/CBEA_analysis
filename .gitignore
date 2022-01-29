@@ -29,3 +29,4 @@ simulation/
 diagnostic_dsets/
 _targets/
 store_*/
+.future/
