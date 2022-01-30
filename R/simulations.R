@@ -168,6 +168,7 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
         zeroes <- rbinom(length(abundance), size = 1, prob = 1 - spar)
         abundance <- abundance * zeroes
     }
+    
     label <- c(rep(1, inf_size), rep(0, n_samp - inf_size))
 
     colnames(abundance) <- glue("Tax{i}", i = seq(n_tax))
@@ -185,8 +186,12 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
     }
     colnames(A) <- glue("Set{i}ss", i = 1:n_sets)
     rownames(A) <- colnames(abundance)
+    
     sets_inf <- rep(0, n_sets)
-    sets_inf[seq(round(n_sets * prop_set_inflate, 0))] <- 1
+    if (eff_size != 1){
+        sets_inf[seq(round(n_sets * prop_set_inflate, 0))] <- 1
+    } 
+
     # convert A into BiocSet and abundance into physeq with label and sets_inf
     set_list <- map(seq_len(ncol(A)), ~{
         rownames(A)[which(A[,.x] == 1)]
@@ -196,7 +201,7 @@ zinb_simulation <- function(n_samp, spar, s_rho, eff_size,
     
     # convert abund into physeq
     obj <- TreeSummarizedExperiment(list(Counts = t(as.data.frame(abundance))))
-    
+    names(sets_inf) <- colnames(A)
 
     output <- list(obj = obj, set = set, label = label, sets_inf = sets_inf)
     return(output)

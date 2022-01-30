@@ -5,6 +5,7 @@ library(future)
 library(glue)
 library(MASS)
 library(BiocSet)
+library(phyloseq)
 library(mia)
 library(future.callr)
 library(future.batchtools)
@@ -41,28 +42,40 @@ sim_grid <- cross_df(list(
     vary_params=FALSE
 ))
 
+# small_function to process sim_dat
+
+proc_sim <- function(simulation_dat){
+    assay_data <- assay(simulation_dat$obj, "Counts")
+    rdata <- S4Vectors::DataFrame(GENUS = rownames(assay_data), 
+                                  row.names = rownames(assay_data))
+    
+    cdata <- S4Vectors::DataFrame(group = factor(simulation_dat$label, 
+                                                 levels = c(0,1)), 
+                                  row.names = colnames(assay_data))
+    
+    colData(simulation_dat$obj) <- cdata
+    rowData(simulation_dat$obj) <- rdata
+    return(simulation_dat)
+}
+
 sim_grid$id <- seq(1, nrow(sim_grid))
 saveRDS(sim_grid, file = "output/sim_diff_ab_grid.rds")
 
 
-# define an evaluation grid for cilr 
+# define an evaluation grid for cbea
 # define function that performs simulation across the defined grid  
 # define function that performs the differential abundance testing across simulation grid
 # define a function that performs evaluation across the differential abundance results  
 analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"), 
                     tar_target(simulation_dat, {
-                        zinb_simulation(n_samp = n_samp, spar = spar, s_rho = s_rho, eff_size = eff_size, 
+                        sim <- zinb_simulation(n_samp = n_samp, spar = spar, s_rho = s_rho, eff_size = eff_size, 
                                         n_inflate = n_inflate, n_sets = n_sets, prop_set_inflate = prop_set_inflate, 
                                         method = method, samp_prop = samp_prop, vary_params = vary_params, n_tax = n_tax, 
                                         prop_inflate = prop_inflate)
+                        sim
                     }),
                     # processing the simulated data 
-                    tar_target(proc_sim , ~{
-                        rdata <- S4Vectors::DataFrame(row.names = colnames(assay(obj$obj, "Counts")),
-                                                      group = obj$label)
-                        SummarizedExperiment::colData(obj$obj) <- rdata
-                        
-                    }),
+                    tar_target(p_sim, proc_sim(simulation_dat)),
                     tar_target(eval_grid, {
                         eval_settings <- cross_df(list(
                             models = c("cbea"),
@@ -77,20 +90,37 @@ analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"),
                     tar_target(analysis_res,{
                         print(eval_grid)
                         # TODO: Fix this Quang
-                        diff_ab(obj = simulation_dat$obj, 
-                                sets = simulation_dat$set, 
-                                abund_values = "Counts", method = "models", 
-                                eval = "fdr")
+                        diff_ab(obj = p_sim$obj, 
+                                sets = p_sim$set, 
+                                make_phylo_manual = TRUE,
+                                abund_values = "Counts", 
+                                method = eval_grid$models,
+                                distr = eval_grid$distr, 
+                                adj = eval_grid$adj, 
+                                output = eval_grid$output,
+                                eval = "rset", thresh = 0.05, return = "sig")
                     }, pattern = map(eval_grid)),
                     tar_target(evaluation_res,{
-                        res <- eval_function(analysis_res, ci = FALSE)
-                        tibble(id = id, res = res, eval_grid)
+                        if (eff_size > 1){
+                            set_lab <- p_sim$sets_inf
+                            set_lab <- set_lab[match(names(analysis_res), names(set_lab))] 
+                            val <- 1 - yardstick::sens_vec(truth = factor(set_lab, levels = c(0,1)), 
+                                               estimate = factor(test_results, levels = c(0,1)), 
+                                               event_level = "second")
+                            
+                        } else {
+                            val <- sum(analysis_res == 1)
+                        }
+                        tibble(id = id, value = val, models = eval_grid$models, 
+                               distr = eval_grid$distr, output = eval_grid$output, 
+                               adj = eval_grid$adj)
                     }, pattern = map(analysis_res, eval_grid))
 )
 
 combined <- tar_combine(combined_results, analysis[[5]], 
                         command = dplyr::bind_rows(!!!.x, .id = "id"))
 
-file <- tarchetypes::tar_rds(save_file, saveRDS(combined_results, file = "output/sim_diff_ab.rds"))
+file <- tarchetypes::tar_rds(save_file, saveRDS(combined_results, 
+                                                file = "output/sim_diff_ab.rds"))
 
 list(analysis, combined, file)

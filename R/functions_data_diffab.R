@@ -12,13 +12,21 @@ source("R/utils.R")
 
 
 diff_ab <- function(obj, eval, abund_values = "16SrRNA", 
-                    sets = NULL, method, thresh, return, p_adjust = FALSE,...){
+                    sets = NULL, method, thresh, return, p_adjust = FALSE, 
+                    make_phylo_manual = FALSE,...){
     method <- match.arg(method, c("cbea", "corncob", "deseq2"))
     return <- match.arg(return, c("pval", "sig"))
     eval <- match.arg(eval, c("fdr", "rset"))
     
-    physeq <- mia::makePhyloseqFromTreeSummarizedExperiment(obj, abund_values = abund_values)
-    
+    if (make_phylo_manual == FALSE){
+        physeq <- mia::makePhyloseqFromTreeSummarizedExperiment(obj, 
+                                                                abund_values = abund_values)
+    } else {
+        otu <- phyloseq::otu_table(assay(obj, abund_values), taxa_are_rows = TRUE)
+        sdata <- phyloseq::sample_data(as(colData(obj), "data.frame"))
+        ttable <- tax_table(as.matrix(rowData(obj)))
+        physeq <- phyloseq(otu, sdata, ttable)
+    }
     if (!eval %in% c("fdr")){
         if (is.null(sets)){
             stop("Sets are required for this analysis")
@@ -48,7 +56,11 @@ diff_ab <- function(obj, eval, abund_values = "16SrRNA",
             args$data <- physeq
             mod <- do.call(corncob::differentialTest, args)
             sig <- mod$p
-            names(sig) <- as.vector(tax_table(physeq)[names(sig), "GENUS"])
+            if (is.null(sets)){
+                names(sig) <- as.vector(tax_table(physeq)[names(sig), "GENUS"])
+            } else {
+                names(sig) <- sets %>% es_set() %>% pull(set)
+            }
         } else if (method == "deseq2"){
             args <- list(test = "LRT", fitType = "local", reduced = ~1)
             deseq <- phyloseq_to_deseq2(physeq, ~factor(group))
@@ -56,7 +68,11 @@ diff_ab <- function(obj, eval, abund_values = "16SrRNA",
             mod <- do.call(DESeq2::DESeq, args)
             res <- DESeq2::results(mod)
             sig <- res$pvalue
-            names(sig) <- as.vector(tax_table(physeq)[rownames(res), "GENUS"])
+            if (is.null(sets)) {
+                names(sig) <- as.vector(tax_table(physeq)[rownames(res), "GENUS"])
+            } else {
+                names(sig) <- sets %>% es_set() %>% pull(set)
+            }
         }
     } else if (method == "cbea"){
         if (eval == "fdr"){
