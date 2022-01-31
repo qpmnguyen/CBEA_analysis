@@ -59,7 +59,7 @@ enrichment_analysis <- function(physeq, set, method,
         scores <- wc_test_physeq(
             physeq = physeq, set = set,
             thresh = 0.05, alt = "two.sided",
-            preprocess = FALSE, output = output, ...
+            preprocess = FALSE, output = output
         )
     } else if (method == "cbea") {
         args <- list(...)
