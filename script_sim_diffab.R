@@ -105,7 +105,7 @@ analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"),
                             set_lab <- p_sim$sets_inf
                             set_lab <- set_lab[match(names(analysis_res), names(set_lab))] 
                             val <- 1 - yardstick::sens_vec(truth = factor(set_lab, levels = c(0,1)), 
-                                               estimate = factor(test_results, levels = c(0,1)), 
+                                               estimate = factor(analysis_res, levels = c(0,1)), 
                                                event_level = "second")
                             
                         } else {

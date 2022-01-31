@@ -38,6 +38,7 @@ auc_jobs <- tar_map(unlist = FALSE, values = sim_auc, names = c("id"),
                      }),
                      tar_target(result_auc, {
                          print("Currently mapping")
+			 print(paste("Currently at", generate_grid$models, generate_grid$distr, generate_grid$adj, generate_grid$output))
                          res <- enrichment_analysis(physeq = simulation_auc$obj, 
                                                     set = simulation_auc$set, 
                                                     method = generate_grid$models, 
