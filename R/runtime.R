@@ -18,5 +18,3 @@ results <- bench::press(n_samp = c(100,500, 1000), adj = c(TRUE, FALSE), distr =
     )
 })
 
-
-microbenchmark::microbenchmark(cbea(df[[1]]$obj, df[[1]]$set, abund_values = "Counts", distr = "norm", adj = FALSE, output = "sig"))
