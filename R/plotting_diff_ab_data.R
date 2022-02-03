@@ -2,7 +2,8 @@ library(tidyverse)
 library(ggsci)
 library(glue)
 library(patchwork)
-source("R/utils.R")
+source("R/plot_utils.R")
+
 if(Sys.info()["sysname"] == "Darwin"){
     save_dir <- "../cilr_manuscript/figures"
 } else {

@@ -16,3 +16,6 @@ sim_auc_ss:
 sim_diffab:
   script: script_sim_diffab.R
   store: store_sim_diffab
+data_pred:
+  script: script_data_pred.R
+  store: store_data_pred
