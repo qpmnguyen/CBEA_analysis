@@ -35,6 +35,9 @@ fdr_jobs <- tar_map(unlist = FALSE, values = sim_fdr, names = c("id"),
                     }),
                     tar_target(result_fdr, {
                         print("Currently mapping")
+                        res <- generate_aggregation(zinb_simulation$obj, method = models, output = output, distr = distr, 
+                                                   adj = adj)
+                        
                         res <- enrichment_analysis(physeq = simulation_fdr$obj, 
                                             set = simulation_fdr$set, 
                                             method = generate_grid$models, 
