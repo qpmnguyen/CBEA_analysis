@@ -2,7 +2,7 @@
 
 # declare the name for this job 
 
-#SBATCH --job-name=SIM_AUC
+#SBATCH --job-name=SIM_CLASSIF
 
 # Distributing jobs across 5 nodes with 20 cores each node 
 #SBATCH --nodes=1
