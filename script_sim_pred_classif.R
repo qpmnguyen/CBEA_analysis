@@ -33,22 +33,6 @@ sim_classif <- cross_df(list(
 sim_classif$id <- seq(1, nrow(sim_classif))
 saveRDS(sim_classif, file = "output/simulation_grid_classif.rds")
 
-#TODO: Adapt proc_sim to simulation data 
-proc_sim <- function(simulation_dat){
-    assay_data <- assay(simulation_dat$obj, "Counts")
-    rdata <- S4Vectors::DataFrame(GENUS = rownames(assay_data), 
-                                  row.names = rownames(assay_data))
-    
-    cdata <- S4Vectors::DataFrame(group = factor(simulation_dat$label, 
-                                                 levels = c(0,1)), 
-                                  row.names = colnames(assay_data))
-    
-    colData(simulation_dat$obj) <- cdata
-    rowData(simulation_dat$obj) <- rdata
-    return(simulation_dat)
-}
-
-
 classif_jobs <- tar_map(unlist = FALSE, values = sim_classif, names = c("id"),
                      tar_target(classif_dat, {
                          sim_prediction(type = type, snr = snr, sat = sat, 
@@ -59,43 +43,50 @@ classif_jobs <- tar_map(unlist = FALSE, values = sim_classif, names = c("id"),
                      tar_target(generate_grid, {
                          settings <- cross_df(list(
                              models = c("cbea"),
-                             data = c("16s", "wgs"),
-                             distr = c("mnorm", "norm"),
+                             distr = c("norm", "morm"),
                              adj = c(TRUE, FALSE),
                              output = c("zscore", "cdf")
                          ))
                          addition <- cross_df(list(
-                             data = c("16s", "wgs"),
                              models = c("ssgsea", "gsva", "clr")
                          ))
                          addition_2 <- cross_df(list(
-                             data = c("16s", "wgs"), 
                              models = "cbea", distr = "norm", adj = FALSE, output = "raw"))
                          settings <- full_join(settings, addition)
                          settings <- full_join(settings, addition_2)
                          settings
                      }),
-                     tar_target(proc_classif, {
-                         proc_sim(classif_dat)
-                     }),
+                     tar_target(proc_classif, proc_sim(classif_dat)),
                      tar_target(agg_classif, {
                          print("Currently running")
-                         generate_aggregation()
-                     }, pattern = map(generate_grid)),
+                         generate_aggregation(proc_classif$physeq, proc_classif$set, 
+                                              method = generate_grid$models, 
+                                              distr = generate_grid$distr, 
+                                              adj = generate_grid$adj, 
+                                              output = generate_grid$output)
+                     }, pattern = map(generate_grid, index = c(3,7))),
                      tar_target(fit_classif, {
                          print("Currently evaluating")
-                         res <- fit_and_eval(agg_classif, nfolds = 10, task = "classification")
+                         fit_and_eval(agg_classif$aug_df, nfolds = 10, task = "classification")
                      }, pattern = map(agg_classif)),
                      tar_target(eval_classif, {
                          # evaluation_code_here return tibble to bind rows
-                     })
+                         tibble(
+                             estimate = fit_classif %>% dplyr::filter(.metric == "rmse") %>% pull(mean),
+                             stderr = fit_classif %>% dplyr::filter(.metric == "rmse") %>% pull(std_err),
+                             distr = distr, 
+                             output = output, 
+                             adj = adj, 
+                             models = models
+                         )
+                     }, pattern = map(fit_classif, generate_grid))
 )
 
-combine_classif <- tar_combine(combine_classif, classif_jobs[[6]], command = dplyr::bind_rows(!!!.x))
+summary_classif <- tar_combine(combine_classif, classif_jobs[[6]], command = dplyr::bind_rows(!!!.x))
 
-save_classif <- tarchetypes::tar_rds(save_classif, saveRDS(combine_classif, file = "output/sim_pred_classif.rds"))
+rds_classif <- tarchetypes::tar_rds(save_classif, saveRDS(combine_classif, file = "output/sim_pred_classif.rds"))
 
 #list(grid, sim, hypo_grid, eval)
-list(classif_jobs, combine_classif, save_classif)
+list(classif_jobs, summary_classif, rds_classif)
 
 

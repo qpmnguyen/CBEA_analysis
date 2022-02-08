@@ -19,3 +19,9 @@ sim_diffab:
 data_pred:
   script: script_data_pred.R
   store: store_data_pred
+sim_pred_regr:
+  script: script_sim_pred_regr.R
+  store: store_sim_pred_regr
+sim_pred_classif:
+  script: script_sim_pred_classif.R
+  store: store_sim_pred_classif

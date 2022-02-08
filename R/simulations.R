@@ -233,8 +233,10 @@ sim_prediction <- function(type = c("regr", "classif"), snr = 2, sat = 0.1, ...)
     }
     # generate baseline data based on arguments
     baseline <- do.call(zinb_simulation, args)
+    
     # index of samples that are related to the outcome based on model saturation
-    set_names <- colnames(baseline$A)
+    set_names <- baseline$set %>% es_set() %>% pull(set)
+
     # baseline$X <- baseline$X %>% as.matrix() %>% acomp() %>% unclass() %>% as.data.frame()
     if (sat > 0) {
         # First, let's sample from the sets the size of saturation
@@ -242,18 +244,21 @@ sim_prediction <- function(type = c("regr", "classif"), snr = 2, sat = 0.1, ...)
         if (n_core_sets %% 2 != 0) {
             n_core_sets <- n_core_sets + 1
         }
-        important_sets <- sample(seq(length(set_names)), size = n_core_sets)
+        important_sets <- sample(set_names, size = n_core_sets)
         # Then let's generate a list of the sets that are determined to be important, and then
         # retrieve the taxa that are important
         n_pos <- n_core_sets / 2
         index_list <- lapply(important_sets, function(x) {
-            as.vector(which(baseline$A[, x] == 1))
+            baseline$set %>% es_elementset() %>% filter(set == x) %>% 
+                pull(element)
         })
-        y_mean <- rep(0, nrow(baseline$X))
+        names(index_list) <- important_sets
+        y_mean <- rep(0, ncol(baseline$obj))
         beta_0 <- 6 / sqrt(10)
         while (sd(y_mean) == 0) { # remake y until the standard deviation is larger than 0
             # beta are beta values per taxa
-            beta <- rep(0, ncol(baseline$X))
+            beta <- rep(0, nrow(baseline$obj))
+            names(beta) <- rownames(baseline$obj)
             # beta_sets are beta valutes per set
             beta_sets <- rep(0, n_core_sets)
             beta_sets[1:n_pos] <- runif(n_pos, 1.5, 2)
@@ -263,9 +268,9 @@ sim_prediction <- function(type = c("regr", "classif"), snr = 2, sat = 0.1, ...)
                 # mat[mat == 0] <- beta_corr
                 beta[index_list[[i]]] <- beta_sets[i]
             }
-            y_mean <- beta_0 + as.matrix(baseline$X) %*% beta
+            y_mean <- beta_0 + t(assay(baseline$obj, "Counts")) %*% beta
         }
-        y <- y_mean + rnorm(nrow(baseline$X), mean = 0, sd = sd(y_mean) * (1 / snr))
+        y <- y_mean + rnorm(ncol(baseline$obj), mean = 0, sd = sd(y_mean) * (1 / snr))
         if (type == "classif") {
             prob <- plogis(y) # logistic function
             n_samp <- length(prob)
@@ -283,9 +288,10 @@ sim_prediction <- function(type = c("regr", "classif"), snr = 2, sat = 0.1, ...)
             y <- b_y
         }
     } else {
-        y <- rnorm(nrow(baseline$X))
-        beta <- rep(0, ncol(baseline$X))
+        y <- rnorm(ncol(baseline$obj))
+        beta <- rep(0, nrow(baseline$obj))
     }
     print("End generation")
-    output <- list(outcome = y, predictors = list(X = baseline$X, A = baseline$A), beta = beta)
+    colData(baseline$obj) <- S4Vectors::DataFrame(outcome = y)
+    output <- list(outcome = y, predictors = list(X = baseline$obj, set = baseline$set), beta = beta)
 }
