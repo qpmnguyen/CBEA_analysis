@@ -97,8 +97,8 @@ generate_wkflow <- function(data, task = c("regression", "classification"), unba
 }
 
 
-fit_and_eval <- function(data, nfolds = 10, task = c("regression", "classification")){
-    wkflow <- generate_wkflow(data, task = task)
+fit_and_eval <- function(data, nfolds = 10, task = c("regression", "classification"), unbal_class = TRUE){
+    wkflow <- generate_wkflow(data, task = task, unbal_class = unbal_class)
     folds <- vfold_cv(data, v = nfolds)
     eval <- wkflow %>% fit_resamples(folds)
     metrics <- collect_metrics(eval)

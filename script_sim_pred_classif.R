@@ -64,29 +64,31 @@ classif_jobs <- tar_map(unlist = FALSE, values = sim_classif, names = c("id"),
                                               distr = generate_grid$distr, 
                                               adj = generate_grid$adj, 
                                               output = generate_grid$output)
-                     }, pattern = map(generate_grid, index = c(3,7))),
+                     }, pattern = map(slice(generate_grid, index = c(3)))),
                      tar_target(fit_classif, {
                          print("Currently evaluating")
-                         fit_and_eval(agg_classif$aug_df, nfolds = 10, task = "classification")
+                         fit_and_eval(agg_classif$aug_df, nfolds = 10, task = "classification", 
+                                      unbal_class = FALSE)
                      }, pattern = map(agg_classif)),
                      tar_target(eval_classif, {
                          # evaluation_code_here return tibble to bind rows
                          tibble(
-                             estimate = fit_classif %>% dplyr::filter(.metric == "rmse") %>% pull(mean),
-                             stderr = fit_classif %>% dplyr::filter(.metric == "rmse") %>% pull(std_err),
-                             distr = distr, 
-                             output = output, 
-                             adj = adj, 
-                             models = models
+                             id = id,
+                             estimate = fit_classif %>% dplyr::filter(.metric == "roc_auc") %>% pull(mean),
+                             stderr = fit_classif %>% dplyr::filter(.metric == "roc_auc") %>% pull(std_err),
+                             distr = generate_grid$distr, 
+                             output = generate_grid$output, 
+                             adj = generate_grid$adj, 
+                             models = generate_grid$models
                          )
-                     }, pattern = map(fit_classif, generate_grid))
+                     }, pattern = map(fit_classif, slice(generate_grid, index = c(3))))
 )
 
 summary_classif <- tar_combine(combine_classif, classif_jobs[[6]], command = dplyr::bind_rows(!!!.x))
 
 rds_classif <- tarchetypes::tar_rds(save_classif, saveRDS(combine_classif, file = "output/sim_pred_classif.rds"))
 
-#list(grid, sim, hypo_grid, eval)
+
 list(classif_jobs, summary_classif, rds_classif)
 
 

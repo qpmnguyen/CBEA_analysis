@@ -292,6 +292,6 @@ sim_prediction <- function(type = c("regr", "classif"), snr = 2, sat = 0.1, ...)
         beta <- rep(0, nrow(baseline$obj))
     }
     print("End generation")
-    colData(baseline$obj) <- S4Vectors::DataFrame(outcome = y)
+    colData(baseline$obj) <- S4Vectors::DataFrame(outcome = as.vector(y))
     output <- list(outcome = y, predictors = list(X = baseline$obj, set = baseline$set), beta = beta)
 }
