@@ -16,7 +16,7 @@ sim_classif <- cross_df(list(
     type = c("classif"),
     snr = c(1.5, 2, 3),
     sat = c(0.1, 0.5),
-    n_samp = 2000, 
+    n_samp = 1000, 
     spar = c(0.2,0.4,0.6), 
     s_rho = c(0,0.2,0.5), 
     eff_size = 1,

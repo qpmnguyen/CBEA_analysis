@@ -17,24 +17,24 @@ tar_option_set(workspace_on_error = TRUE)
 tar_option_set(memory = "transient", garbage_collection=TRUE)
 
 set.seed(1020)
-# SET PLAN ####
-# plan(multisession)
+# SET PLAN ####s
+plan(multisession)
 # plan(batchtools_slurm, template = "batchtools.slurm.tmpl")
-plan(callr)
+#plan(callr)
 
 
 # SIMULATION GRID ####
 # first, define simulation grid 
 sim_grid <- cross_df(list(
     rep = seq(1,10),
-    n_samp = 2000, 
+    n_samp = 500, 
     spar = c(0.2,0.4,0.6), 
     s_rho = c(0,0.2,0.5), 
     eff_size = c(1, 1.5, 2, 3),
     b_rho = 0, 
     n_tax = 5000, 
-    n_inflate = 50, 
-    n_sets = 100,
+    n_inflate = 100, 
+    n_sets = 50,
     prop_set_inflate = 0.5, 
     prop_inflate = 1, 
     samp_prop = 0.5,
@@ -98,7 +98,8 @@ analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"),
                                 distr = eval_grid$distr, 
                                 adj = eval_grid$adj, 
                                 output = eval_grid$output,
-                                eval = "rset", thresh = 0.05, return = "sig")
+                                eval = "rset", thresh = 0.05, return = "sig", 
+                                n_perm = 50)
                     }, pattern = map(eval_grid)),
                     tar_target(evaluation_res,{
                         if (eff_size > 1){
