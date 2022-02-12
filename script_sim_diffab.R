@@ -110,9 +110,10 @@ analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"),
                                                event_level = "second")
                             
                         } else {
-                            val <- sum(analysis_res == 1)
+                            val <- sum(analysis_res == 1)/length(analysis_res)
                         }
-                        tibble(id = id, value = val, models = eval_grid$models, 
+                        tibble(id = id, rep = rep, 
+			       value = val, models = eval_grid$models, 
                                distr = eval_grid$distr, output = eval_grid$output, 
                                adj = eval_grid$adj)
                     }, pattern = map(analysis_res, eval_grid))
