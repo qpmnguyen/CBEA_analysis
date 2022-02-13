@@ -43,7 +43,7 @@ classif_jobs <- tar_map(unlist = FALSE, values = sim_classif, names = c("id"),
                      tar_target(generate_grid, {
                          settings <- cross_df(list(
                              models = c("cbea"),
-                             distr = c("norm", "morm"),
+                             distr = c("norm", "mnorm"),
                              adj = c(TRUE, FALSE),
                              output = c("zscore", "cdf")
                          ))
@@ -64,7 +64,7 @@ classif_jobs <- tar_map(unlist = FALSE, values = sim_classif, names = c("id"),
                                               distr = generate_grid$distr, 
                                               adj = generate_grid$adj, 
                                               output = generate_grid$output)
-                     }, pattern = map(slice(generate_grid, index = c(3)))),
+                     }, pattern = map(generate_grid)),
                      tar_target(fit_classif, {
                          print("Currently evaluating")
                          fit_and_eval(agg_classif$aug_df, nfolds = 10, task = "classification", 
@@ -81,7 +81,7 @@ classif_jobs <- tar_map(unlist = FALSE, values = sim_classif, names = c("id"),
                              adj = generate_grid$adj, 
                              models = generate_grid$models
                          )
-                     }, pattern = map(fit_classif, slice(generate_grid, index = c(3))))
+                     }, pattern = map(fit_classif, generate_grid))
 )
 
 summary_classif <- tar_combine(combine_classif, classif_jobs[[6]], command = dplyr::bind_rows(!!!.x))

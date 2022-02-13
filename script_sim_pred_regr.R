@@ -43,7 +43,7 @@ regr_jobs <- tar_map(unlist = FALSE, values = sim_regr, names = c("id"),
                         tar_target(generate_grid, {
                             settings <- cross_df(list(
                                 models = c("cbea"),
-                                distr = c("norm", "morm"),
+                                distr = c("norm", "mnorm"),
                                 adj = c(TRUE, FALSE),
                                 output = c("zscore", "cdf")
                             ))
@@ -65,7 +65,7 @@ regr_jobs <- tar_map(unlist = FALSE, values = sim_regr, names = c("id"),
                                                  distr = generate_grid$distr, 
                                                  adj = generate_grid$adj, 
                                                  output = generate_grid$output)
-                        }, pattern = map(slice(generate_grid, index = c(3,7)))),
+                        }, pattern = map(generate_grid)),
                         tar_target(fit_regr, {
                             print("Currently evaluating")
                             fit_and_eval(agg_regr$aug_df, nfolds = 10, task = "regression", unbal_class = FALSE)
@@ -81,7 +81,7 @@ regr_jobs <- tar_map(unlist = FALSE, values = sim_regr, names = c("id"),
                                 adj = generate_grid$adj, 
                                 models = generate_grid$models
                             )
-                        }, pattern = map(fit_regr, slice(generate_grid, index = c(3,7))))
+                        }, pattern = map(fit_regr, generate_grid))
 )
 
 summary_regr <- tar_combine(combine_regr, regr_jobs[[6]], command = dplyr::bind_rows(!!!.x))
