@@ -18,12 +18,12 @@ data <- tar_target(df, {
 })
 mapping <- tar_map(values = values, unlist = FALSE, 
     tar_target(benchmarking, {
-        df <- bench::mark( 
+        results <- bench::mark( 
             cbea(df$obj, df$set, abund_values = "Counts", 
                  distr = distr, adj = adj, output = "sig", 
                  n_perm = n_perm, control = list(fix_comp = "large")),
             memory = FALSE, iterations = 1) 
-        df %>% dplyr::select()
+        results %>% dplyr::select(adj, distr, n_perm, median)
     })
 ) 
 combine <- tar_combine(combine_runtime, mapping[[1]], command = dplyr::bind_rows(!!!.x))
