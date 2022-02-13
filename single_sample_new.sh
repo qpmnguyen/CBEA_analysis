@@ -2,12 +2,12 @@
 
 # declare the name for this job 
 
-#SBATCH --job-name=SIM_REGR
+#SBATCH --job-name=RUNTIME
 
 # Distributing jobs across 5 nodes with 20 cores each node 
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=45
+#SBATCH --cpus-per-task=10
 
 # Requesting 4000 MB of RAM
 #SBATCH --mem-per-cpu=4000
@@ -30,5 +30,5 @@ cd $SLURM_SUBMIT_DIR
 
 # Run run.R as a script to start the targets pipeline
 conda activate cbea
-Rscript run_new.R --ncores 45 --analysis "sim_pred_regr" --remove FALSE --parallel TRUE
+Rscript run_new.R --ncores 10 --analysis "runtime" --remove FALSE --parallel TRUE
 
