@@ -25,3 +25,6 @@ sim_pred_regr:
 sim_pred_classif:
   script: script_sim_pred_classif.R
   store: store_sim_pred_classif
+runtime:
+  script: script_runtime.R
+  store: store_runtime

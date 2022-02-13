@@ -2,12 +2,20 @@ library(tidyverse)
 library(ggsci)
 library(patchwork)
 library(glue)
+source("R/plot_utils.R")
 
 if(Sys.info()["sysname"] == "Darwin"){
     save_dir <- "../cilr_manuscript/figures"
 } else {
     save_dir <- "../teailr_manuscript/manuscript/figures"
 }
+
+results <- readRDS(file = "output/sim_diff_ab.rds")
+grid <- readRDS(file = "output/sim_diff_ab_grid.rds")
+
+left_join(grid, results)
+
+
 
 results <- readRDS(file = "analyses/simulations_diff_ab/output/sim_diff_ab.rds")
 grid <- readRDS(file = "analyses/simulations_diff_ab/output/sim_diff_ab_grid.rds")
