@@ -66,7 +66,7 @@ saveRDS(sim_grid, file = "output/sim_diff_ab_grid.rds")
 # define function that performs simulation across the defined grid  
 # define function that performs the differential abundance testing across simulation grid
 # define a function that performs evaluation across the differential abundance results  
-analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"), 
+analysis <- tar_map(values = sim_grid, unlist = FALSE, 
                     tar_target(simulation_dat, {
                         sim <- zinb_simulation(n_samp = n_samp, spar = spar, s_rho = s_rho, eff_size = eff_size, 
                                         n_inflate = n_inflate, n_sets = n_sets, prop_set_inflate = prop_set_inflate, 
@@ -113,7 +113,7 @@ analysis <- tar_map(values = sim_grid, unlist = FALSE, names = c("id"),
                             val <- sum(analysis_res == 1)/length(analysis_res)
                         }
                         tibble(id = id, rep = rep, 
-			       value = val, models = eval_grid$models, 
+                               value = val, models = eval_grid$models, 
                                distr = eval_grid$distr, output = eval_grid$output, 
                                adj = eval_grid$adj)
                     }, pattern = map(analysis_res, eval_grid))

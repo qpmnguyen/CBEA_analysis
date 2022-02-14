@@ -14,7 +14,7 @@ values <- cross_df(list(
 
 data <- tar_target(df, {
     zinb_simulation(n_samp = 500, spar = 1, s_rho = 0, eff_size = 1, 
-                    n_tax = 800, n_inflate = 20, n_sets = 40)
+                    n_tax = 800, n_inflate = 20, n_sets = 40, vary_params = TRUE)
 })
 mapping <- tar_map(values = values, unlist = FALSE, 
     tar_target(benchmarking, {
