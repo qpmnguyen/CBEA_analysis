@@ -15,7 +15,7 @@ values <- cross_df(list(
 
 data <- tar_target(df, {
     sim_dat <- zinb_simulation(n_samp = 500, spar = 1, s_rho = 0, eff_size = 1, 
-                    n_tax = 800, n_inflate = 20, n_sets = 40)
+                    n_tax = 800, n_inflate = 20, n_sets = 40, vary_params = TRUE)
     assay(sim_dat$obj, "Counts") <- assay(sim_dat$obj, "Counts") + 1
     sim_dat$obj <- mia::transformSamples(sim_dat$obj, abund_values = "Counts", method = "relabundance")
     sim_dat
