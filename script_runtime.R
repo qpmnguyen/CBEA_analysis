@@ -3,6 +3,7 @@ library(tarchetypes)
 library(CBEA)
 library(tidyverse)
 library(bench)
+library(mia)
 source("R/simulations.R")
 
 
@@ -13,13 +14,17 @@ values <- cross_df(list(
 ))
 
 data <- tar_target(df, {
-    zinb_simulation(n_samp = 500, spar = 1, s_rho = 0, eff_size = 1, 
+    sim_dat <- zinb_simulation(n_samp = 500, spar = 1, s_rho = 0, eff_size = 1, 
                     n_tax = 800, n_inflate = 20, n_sets = 40)
+    assay(sim_dat$obj, "Counts") <- assay(sim_dat$obj, "Counts") + 1
+    sim_dat$obj <- mia::transformSamples(sim_dat$obj, abund_values = "Counts", method = "relabundance")
+    sim_dat
 })
 mapping <- tar_map(values = values, unlist = FALSE, 
     tar_target(benchmarking, {
+	print(df$obj)
         results <- bench::mark( 
-            cbea(df$obj, df$set, abund_values = "Counts", 
+            cbea(df$obj, df$set, abund_values = "relabundance", 
                  distr = distr, adj = adj, output = "sig", 
                  n_perm = n_perm, control = list(fix_comp = "large")),
             memory = FALSE, iterations = 1) 
