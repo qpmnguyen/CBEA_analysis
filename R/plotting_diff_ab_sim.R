@@ -50,7 +50,10 @@ power <- plot_df %>% filter(`Effect Size` > 1)
         guides(linetype = guide_legend(override.aes = list(shape = NA))) +
         labs(y = "Type I error", linetype = "Output type", shape = "Correlation adjustment", col = "Model") + 
         geom_hline(yintercept = 0.05, col = "red"))
-
+ggsave(type_i_plt, filename = "figures/sim_diffab_fdr.png", 
+       dpi = 300, width = 10, height = 6)
+ggsave(type_i_plt, filename = "figures/sim_diff_ab_fdr.eps", 
+       dpi = 300, width = 10, height = 6, device = cairo_ps)
 # accidentally coded true positive rate as 1 - sensitivity
 (pwr_plot <- ggplot(power, aes(x = Sparsity, y = estimate,  col = models, shape = adj)) +
         geom_point() +
@@ -61,25 +64,12 @@ power <- plot_df %>% filter(`Effect Size` > 1)
         guides(linetype = guide_legend(override.aes = list(shape = NA))) + 
         geom_hline(yintercept = 0.8, col = "red") + 
         labs(y = "Power", linetype = "Output type", shape = "Correlation adjustment", col = "Model"))
+ggsave(pwr_plot, filename = "figures/sim_diffab_pwr.png", 
+       dpi = 300, width = 10, height = 6)
+ggsave(pwr_plot, filename = "figures/sim_diffab_pwr.eps", 
+       dpi = 300, width = 10, height = 6, device = cairo_ps)
 
 
-combo_plot <- (type_i_plt/pwr_plot) + 
-    plot_annotation(tag_levels = list(c("A. Type I error", "B. Power"))) + 
-    plot_layout(guides = "collect", heights = c(1,2)) & 
-    guides(linetype = guide_legend(override.aes = list(shape = NA)), 
-           color = guide_legend(keyheight = 0.4, keywidth = 0.2, 
-                                default.unit = "inch", 
-                                override.aes = list(linetype = 0)), 
-           shape = guide_legend(override.aes = list(linetype = 0))) &
-    theme(plot.tag = element_text(face = "bold", size = 16, hjust = 0), 
-          plot.tag.position = c(0,1.05), 
-          plot.margin = margin(t = 22, b = 15, l = 10))
-
-
-ggsave(combo_plot, filename = "figures/sim_diff_ab_comb.png", 
-       dpi = 300, width = 12, height = 12)
-ggsave(combo_plot, filename = "figures/sim_diff_ab_comb.eps", 
-       dpi = 300, width = 15, height = 12, device = cairo_ps)
 
 file.copy(from = Sys.glob("figures/*.png"), to = glue("{save_dir}", dir = save_dir), 
           recursive = TRUE, overwrite = TRUE)
