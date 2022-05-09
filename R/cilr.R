@@ -6,7 +6,7 @@ library(rsample)
 library(purrr)
 library(glue)
 library(rlist)
-library(Rfast)
+
 
 #' @title Function to calculate cilr scores under different outputs 
 #' @param X Count data in matrix form as an n x p matrix  

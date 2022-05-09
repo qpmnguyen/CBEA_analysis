@@ -8,9 +8,12 @@ library(mixtools)
 library(goftest)
 library(fitdistrplus)
 library(patchwork)
-source("R/cilr.R")
+library(CBEA)
+library(Rfast)
+#source("R/cilr.R")
 source("R/simulations.R")
 source("R/utils.R")
+source("R/functions_data_ss.R")
 
 set.seed(1020)
 
@@ -38,7 +41,9 @@ parameters$data <- map(parameters$param, .f = ~{
 
 # Compute scores 
 parameters$scores <- map(parameters$data, .f = ~ {
-  cilr(X = .x$X, A = .x$A, resample = F, pcount = 1, transform = "prop", preprocess = T)
+    enrichment_analysis(physeq = .x$obj, set = .x$set, method = "cbea", 
+                        metric = "auc", abund_values = "Counts", output = "raw", 
+                        parametric = FALSE)
 })
 
 
@@ -48,18 +53,18 @@ parameters$shape <- map(parameters$scores, .f = ~{
   kur <- vector(length = 100)
   skew <- vector(length = 100)
   for (i in 1:100){
-    samp <- sample(.x[,1], replace = T, size = length(.x[,1]))
-    kur[i] <- kurtosis(as.vector(samp))$Kurtosis
-    skew[i] <- skewness(as.vector(samp))$Skewness
+    samp <- sample(dplyr::pull(.x,2), replace = T, size = nrow(.x))
+    kur[i] <- Rfast::kurt(as.vector(samp))
+    skew[i] <- Rfast::skew(as.vector(samp))
   }
-  tibble(kurtosis = c(kurtosis(as.vector(.x))$Kurtosis, kur), 
-         skewness = c(skewness(as.vector(.x))$Skewness, skew),
+  tibble(kurtosis = c(Rfast::kurt(dplyr::pull(.x,2)), kur), 
+         skewness = c(Rfast::skew(dplyr::pull(.x,2)), skew),
          label = c("obs",rep("boot",100)))
 })
 
 # Generating plots  
 shape_plot <- parameters %>% unnest(c(param, shape)) %>% 
-  rename("Set Size" = n_inflate, "Sparsity" = spar, "Correlation" = s_rho)
+  dplyr::rename("Set Size" = n_inflate, "Sparsity" = spar, "Corr:" = s_rho)
 shpp_plot<- ggplot(shape_plot %>% arrange(label), 
                    aes(x = skewness, y = kurtosis, col = label, alpha = factor(label), size = factor(label))) + 
   geom_point() + 
@@ -89,24 +94,24 @@ generate_values <- function(distr, n=1e3){
 values <- parameters
 
 values <- values %>% unnest(param) %>% filter(spar %in% c(0.2,0.6), s_rho %in% c(0.2, 0.6)) 
-values$norm_param <- map(values$scores, ~estimate_distr(.x[,1], distr = "norm", init = NULL))
-values$mnorm_param <- map(values$scores, ~estimate_distr(.x[,1], distr = "mnorm", init = NULL, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5))
+values$norm_param <- map(values$scores, ~estimate_distr(dplyr::pull(.x,2), distr = "norm", init = NULL))
+values$mnorm_param <- map(values$scores, ~estimate_distr(dplyr::pull(.x,2), distr = "mnorm", init = NULL, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5))
 values$norm <- map(values$norm_param, generate_values) 
 values$mnorm <- map(values$mnorm_param, generate_values)
-values <- values %>% mutate(raw = map(scores, ~.x[,1])) %>% unnest(c(norm, mnorm, raw)) %>% 
+values <- values %>% mutate(raw = map(scores, ~pull(.x,2))) %>% unnest(c(norm, mnorm, raw)) %>% 
   pivot_longer(c(norm, mnorm, raw), names_to = "distr", values_to = "val") %>% 
-  rename("Correlation" = "s_rho", "Sparsity" = "spar") %>% 
+  dplyr::rename("Corr" = "s_rho", "Sparsity" = "spar") %>% 
   mutate(distr = case_when(
     distr == "mnorm" ~ "Mixture Normal", 
     distr == "norm" ~ "Normal", 
-    TRUE ~ "Raw cILR"
+    TRUE ~ "Raw CBEA"
   ))
 
 dens_plot <- ggplot(values, aes(x = val, fill = distr)) + 
   geom_density(alpha = 0.4, aes(col = distr)) + theme_bw() + 
   scale_fill_d3() + 
   scale_color_d3() + 
-  facet_grid(Correlation ~ Sparsity, scales = "free_y", labeller = label_both) + 
+  facet_grid(Corr ~ Sparsity, scales = "free_y", labeller = label_both) + 
   labs(x = "Values", y = "Density", fill = "Distribution", col = "Distribution") +
   theme(legend.position = "bottom")
 
@@ -114,21 +119,21 @@ dens_plot <- ggplot(values, aes(x = val, fill = distr)) +
 parameters <- parameters %>% unnest(param)
 
 parameters$KS <- map(parameters$scores, ~{
-  distr_norm <- estimate_distr(.x[,1], distr = "norm", init = NULL)
-  distr_mnorm <- estimate_distr(.x[,1], distr = "mnorm", init = NULL, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
+  distr_norm <- estimate_distr(pull(.x,2), distr = "norm", init = NULL)
+  distr_mnorm <- estimate_distr(pull(.x,2), distr = "mnorm", init = NULL, maxrestarts=1000, epsilon = 1e-06, maxit= 1e5)
   norm <- rnorm(1e5, mean = distr_norm$mean, sd = distr_norm$sd)
   mnorm <- mixtools::rnormmix(n = 1e5, lambda = distr_mnorm$lambda, sigma = distr_mnorm$sigma, mu = distr_mnorm$mu)
-  ks_norm <- ks.test(.x, norm)$statistic
-  ks_mnorm <- ks.test(.x, mnorm)$statistic
+  ks_norm <- ks.test(pull(.x,2), norm)$statistic
+  ks_mnorm <- ks.test(pull(.x,2), mnorm)$statistic
   tibble(Distribution = c("Normal", "Mixture Normal"), KS = c(ks_norm, ks_mnorm))
 })
 
 parameters <- parameters %>% unnest(KS)
 
-gof_plot_sim <- ggplot(parameters %>% rename("Correlation" = "s_rho"), 
+gof_plot_sim <- ggplot(parameters %>% dplyr::rename("Corr" = "s_rho"), 
        aes(x = spar, y = KS, col = Distribution)) + 
   geom_point(size = 2) + geom_line() + 
-  facet_wrap(~Correlation, labeller = label_both) + 
+  facet_wrap(~Corr, labeller = label_both) + 
   theme_bw() + scale_color_d3() + 
   labs(y = "Kolmogorov-Smirnov D Statistic", x = "Sparsity") + scale_fill_d3() + 
   theme(legend.position = "bottom", legend.margin = margin(), axis.text.x = element_text(angle = 45))
@@ -173,9 +178,9 @@ combined_plt <- (shpp_plot + gof_plot_sim)/dens_plot + plot_annotation(tag_level
 combined_plt
 
 ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.png", dpi = 300, 
-       width = 9, height = 9)
+       width = 10, height = 9)
 ggsave(combined_plt, filename = "figures/kurtosis_skewness_gof.eps", 
-       dpi = 300, width = 9, height = 9, device = cairo_ps)
+       dpi = 300, width = 10, height = 9, device = cairo_ps)
 
 file.copy(from = Sys.glob("figures/*.png"), to = glue("{save_dir}", dir = save_dir), 
           recursive = TRUE, overwrite = TRUE)

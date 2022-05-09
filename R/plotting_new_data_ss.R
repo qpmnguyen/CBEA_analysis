@@ -3,7 +3,8 @@ library(ggsci)
 library(patchwork)
 library(glue)
 library(ggridges)
-source("R/utils.R")
+source("R/plot_utils.R")
+
 if(Sys.info()["sysname"] == "Darwin"){
     save_dir <- "../cilr_manuscript/figures"
 } else {
@@ -15,17 +16,30 @@ if(Sys.info()["sysname"] == "Darwin"){
 df_fdr_new <- readRDS(file = "output/fdr_ss_randset.rds")
 
 # diagnostic distribution plots 
-# df_fdr_new %>%  mutate(adj = if_else(adj, "Adjusted", "Not Adjusted")) %>% 
-#     mutate(adj = if_else(is.na(adj), "Not applicable", adj), 
-#            models = if_else(is.na(models), "Not applicable", models)) %>%
-#     unite("models", c(models, distr, adj)) %>% 
-#     mutate(models = if_else(str_detect(models, "_NA"), 
-#                             str_remove_all(models, "_NA"), models)) %>% 
-#     ggplot(aes(x = res, y = models, fill = models)) + 
-#     geom_density_ridges() + 
-#     facet_wrap(~size, labeller = label_both) + 
-#     labs(x = "Type I error", y = "Counts") + theme_bw() +
-#     scale_fill_d3()
+distr_diag <- df_fdr_new %>%
+    unite("models", c(models, distr, adj)) %>%
+    mutate(models = if_else(str_detect(models, "_NA"),
+                            str_remove_all(models, "_NA"), models)) %>%
+    dplyr::rename("Set Size" = "size") %>% 
+    mutate(models = case_when(
+        models == "cbea_norm_TRUE" ~ "CBEA Normal Adjusted",
+        models == "cbea_mnorm_TRUE" ~ "CBEA Mixture Normal Adjusted",        
+        models == "cbea_norm_FALSE" ~ "CBEA Normal Unadjusted",
+        models == "cbea_mnorm_FALSE" ~ "CBEA Mixture Normal Unadjusted",
+        models == "wilcoxon" ~ "Wilcoxon Rank Sum Test"
+    )) %>%
+    ggplot(aes(x = res, y = models, fill = models)) +
+    geom_density_ridges(show.legend = FALSE) +
+    facet_wrap(~`Set Size`, labeller = label_both) +
+    labs(x = "Type I error", y = "Density", fill = "Models") + 
+    my_pretty_theme +
+    scale_fill_d3()
+
+ggsave(plot = distr_diag, filename = "figures/data_ss_diag_ridges.png", 
+       dpi = 300, width = 8, 
+       height = 10)
+ggsave(plot = distr_diag, filename = "figures/data_ss_diag_ridges.eps", 
+       device = cairo_ps, width = 8, height = 10, dpi = 300)
 
 df_fdr_new <- df_fdr_new %>% mutate(adj = if_else(adj, "Yes", "No")) %>% 
     mutate(adj = if_else(is.na(adj), "Not applicable", adj), 
@@ -125,6 +139,7 @@ combo_rel <- pwr_new + auc_new + plot_layout(guides = "collect") +
 
 ggsave(combo_rel, filename = "figures/data_ss_pwr_new.png", dpi = 300, width = 10, height = 6)
 ggsave(combo_rel, filename = "figures/data_ss_pwr_new.eps", dpi = 300, width = 10, height = 6, device = cairo_ps)
+
 file.copy(from = Sys.glob("figures/*.png"), 
           to = glue("{save_dir}", save_dir = save_dir), overwrite = TRUE)
 

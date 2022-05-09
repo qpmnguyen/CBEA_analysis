@@ -82,7 +82,7 @@ enrichment_analysis <- function(physeq, set, method,
         model <- do.call(cbea, args)
         print("Fitted model")
         scores <- tidy(model)
-        if (!"sample_id" %in% colnames(scores)){
+        if (!"sample_ids" %in% colnames(scores)){
             scores <- scores %>% tibble::add_column(sample_id = colnames(assay(physeq, "main_input")), 
                                                     .before = 1)
         }

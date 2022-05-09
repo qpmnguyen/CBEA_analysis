@@ -52,7 +52,7 @@ power <- plot_df %>% filter(`Effect Size` > 1)
         geom_hline(yintercept = 0.05, col = "red"))
 ggsave(type_i_plt, filename = "figures/sim_diffab_fdr.png", 
        dpi = 300, width = 10, height = 6)
-ggsave(type_i_plt, filename = "figures/sim_diff_ab_fdr.eps", 
+ggsave(type_i_plt, filename = "figures/sim_diffab_fdr.eps", 
        dpi = 300, width = 10, height = 6, device = cairo_ps)
 # accidentally coded true positive rate as 1 - sensitivity
 (pwr_plot <- ggplot(power, aes(x = Sparsity, y = estimate,  col = models, shape = adj)) +
